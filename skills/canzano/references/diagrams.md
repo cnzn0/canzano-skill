@@ -39,7 +39,7 @@ The brief in one line: very technical and utilitarian, ASCII brackets, one strok
 | `timeline` | Spans and milestones on one scale | `columns: [...]`, `rows: [ { label, from, to, note, accent } or { label, at, note } ]`, `now` |
 | `quadrant` | Items on two axes | `x: [low, high]`, `y: [low, high]`, `corners: [tl, tr, bl, br]`, `items: [ { label, x, y, accent } ]` with x and y from 0 to 1 |
 
-Place flow nodes on a grid with `col` and `row`. Wires route themselves at right angles: forward along a row, down a column, or around a corner. Keep forward edges going left to right and put the store or the side effect one row down. Labels in a node may break with `\n`. A diagram wider than its container scales down; split it when the labels would fall under 10px.
+A note under a node moves to the left of any wire that leaves the node downward. Place flow nodes on a grid with `col` and `row`. Wires route themselves at right angles: forward along a row, down a column, or around a corner. Keep forward edges going left to right and put the store or the side effect one row down. Labels in a node may break with `\n`. A diagram wider than its container scales down; split it when the labels would fall under 10px.
 
 For text-only places (a README, a terminal, a code comment) use `scripts/ascii.py`, described in `ascii.md`.
 

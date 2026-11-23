@@ -633,9 +633,9 @@ svg .mid { fill: var(--ink-2); }
  ▀▀▀▄ █▀▀▀█  █  █▀▀▀       █    █
 ▀▀▀▀  ▀   ▀ ▀▀▀ ▀         ▀▀▀   ▀</pre>
   </header>
-  <section><h2>Flow</h2><pre class="ascii">┌────────┐ POST /checkout ┌─────────┐ auth ok ┌────────────┐     ┌─────────────┐
-│ Client │───────────────▶│ Gateway │────────▶│ Orders API │────▶│ [Orders DB] │
-└────────┘                └─────────┘         └────────────┘     └─────────────┘</pre></section>
+  <section><h2>Flow</h2><pre class="ascii">┌────────┐                     ┌─────────┐              ┌────────────┐     ┌─────────────┐
+│ Client │── POST /checkout ──▶│ Gateway │── auth ok ──▶│ Orders API │────▶│ [Orders DB] │
+└────────┘                     └─────────┘              └────────────┘     └─────────────┘</pre></section>
   <section><h2>Sequence</h2><pre class="ascii">         ┌─────────┐                    ┌─────┐                   ┌──────────┐                    ┌─────┐
          │ Browser │                    │ App │                   │ Identity │                    │ API │
          └────┬────┘                    └──┬──┘                   └─────┬────┘                    └──┬──┘

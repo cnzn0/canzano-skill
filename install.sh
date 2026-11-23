@@ -26,7 +26,11 @@ fi
 
 for dir in $targets; do
   mkdir -p "$dir"
-  rm -rf "$dir/canzano"
+  if [ -e "$dir/canzano" ]; then          # keep the copy being replaced, in case it had local edits
+    rm -rf "$dir/canzano.previous"
+    mv "$dir/canzano" "$dir/canzano.previous"
+    echo "kept the old copy at $dir/canzano.previous"
+  fi
   cp -R "$src" "$dir/canzano"
   echo "installed $dir/canzano"
 done

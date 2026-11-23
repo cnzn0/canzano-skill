@@ -61,7 +61,7 @@ No fluff, and no interface that explains itself. Read `references/writing.md` be
 
 ## The generic AI look (never ship these)
 
-- Gradient heroes, gradient text, and purple, indigo or blue-violet themes.
+- Gradient heroes, gradient text, and a purple or indigo wash over the page: tinted backgrounds, coloured panels, gradient headers. The accent is violet, but it marks one thing on a neutral page; it is never the theme.
 - Cards with soft drop shadows, radii above 12px or pill shapes. Grids of three "features" with an icon each.
 - Emoji in headings, bullets, status or buttons. Coloured pill badges and chips on everything.
 - KPI tiles with a big number and a trend arrow nobody asked for. Decorative progress bars, rings or meters.
@@ -96,6 +96,6 @@ Render it and look at it, at full size and at phone width, in both themes when i
 4. Does the first screen state the point?
 5. Read every sentence and label. Does the output still work without it? Delete it.
 6. In every row of controls, do the boxes share one height and style, with one primary?
-7. Does any heading, tagline or paragraph end on one stranded word, or any graphic sit small in empty space? Run `cz.lint()` where `viz.js` is loaded and fix what it lists.
+7. Does any heading, tagline or paragraph end on one stranded word, does any label in a drawing collide with another label or a wire, or does any graphic sit small in empty space? Where `viz.js` is loaded, run `cz.lint()` and fix what it lists, then still look: the lint catches the common cases, not all of them.
 
 Fix what you find before showing it. Say what was rendered and checked, and what was not.

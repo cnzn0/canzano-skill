@@ -13,6 +13,10 @@ for c in "${CHROME:-}" \
 done
 [ -n "$chrome" ] || { echo "No Chrome found. Set CHROME=/path/to/chrome." >&2; exit 1; }
 abs="$(cd "$(dirname "$in")" && pwd)/$(basename "$in")"
-"$chrome" --headless=new --disable-gpu --no-pdf-header-footer \
-  --virtual-time-budget=5000 --print-to-pdf="$out" "file://$abs" 2>/dev/null
+flags="--headless=new --disable-gpu --no-pdf-header-footer"
+[ "$(id -u)" = "0" ] && flags="$flags --no-sandbox"      # Chrome refuses to run sandboxed as root
+log="$(mktemp)"; rm -f "$out"
+"$chrome" $flags ${CHROME_FLAGS:-} --virtual-time-budget=5000 --print-to-pdf="$out" "file://$abs" 2>"$log" || true
+if [ ! -s "$out" ]; then echo "pdf.sh: Chrome did not write $out" >&2; tail -20 "$log" >&2; rm -f "$log"; exit 1; fi
+rm -f "$log"
 echo "$out"

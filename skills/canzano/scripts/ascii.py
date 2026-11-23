@@ -87,8 +87,8 @@ def flow(spec, down=False):
         w = len(n) + 2
         top += "┌" + "─" * w + "┐"; mid += "│ " + n + " │"; bot += "└" + "─" * w + "┘"
         if i < len(labels):
-            cw = max(len(labels[i]) + 2, 5)
-            top += labels[i].center(cw); mid += "─" * (cw - 1) + "▶"; bot += " " * cw
+            wire = "── " + labels[i] + " ──▶" if labels[i] else "────▶"
+            top += " " * len(wire); mid += wire; bot += " " * len(wire)
     return "\n".join(l.rstrip() for l in (top, mid, bot))
 
 def seq(messages):

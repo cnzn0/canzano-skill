@@ -629,7 +629,7 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
 
 .slide {
   --viz-text: 13px; --text-label: 13px;
-  position: relative; box-sizing: border-box; width: 1280px; height: 720px; padding: 104px 72px 72px;
+  position: relative; box-sizing: border-box; width: 1280px; height: 720px; padding: 104px 72px 72px; border: 0;
   display: flex; flex-direction: column; overflow: hidden; counter-increment: slide;
   background: var(--page); color: var(--ink); font: 400 20px/1.5 var(--sans);
   transform-origin: 0 0; transform: scale(var(--z));
@@ -642,8 +642,8 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
 .slide::after { content: counter(slide, decimal-leading-zero) " / " attr(data-total); right: 72px; bottom: 36px; }
 
 /* Type. The headline is the slide's claim, in mono, two lines at most, balanced so no word is stranded. */
-.slide h1 { font: 400 60px/1.12 var(--mono); letter-spacing: -0.02em; margin: 0 0 24px; max-width: 18ch; text-wrap: balance; }
-.slide h2 { font: 400 36px/1.22 var(--mono); letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin: 0 0 44px; max-width: 30ch; text-wrap: balance; }
+.deck .slide h1 { font: 400 60px/1.12 var(--mono); letter-spacing: -0.02em; margin: 0 0 24px; max-width: 24ch; text-wrap: balance; }
+.deck .slide h2 { font: 400 36px/1.22 var(--mono); letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin: 0 0 44px; max-width: 30ch; text-wrap: balance; }
 .slide h3 { font: 400 13px/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-2); margin: 0 0 10px; }
 .slide p { font-size: 22px; line-height: 1.45; color: var(--ink-2); max-width: 34ch; margin: 0 0 16px; letter-spacing: 0; text-wrap: pretty; }
 .slide p.lead { font-size: 28px; line-height: 1.3; color: var(--ink); text-wrap: balance; }
@@ -668,6 +668,7 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
 .slide figure.chart { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .slide figure.chart > div { flex: 1; min-height: 0; }
 .slide figure.diagram { overflow: visible; }
+.slide .body > figure.diagram:only-child { margin: auto 0; }   /* a lone diagram sits in the middle of the room it has */
 .slide figcaption { margin-top: 14px; }
 
 /* Points: a short numbered list, one line each, sized to fill the slide. Not a bullet dump. */
@@ -679,10 +680,10 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
 .slide.title { justify-content: flex-end; padding-bottom: 96px; }
 .slide.title p { font-size: 22px; margin: 0; max-width: none; }
 .slide.statement { justify-content: center; padding-top: 72px; }
-.slide.statement h2 { font-size: 54px; line-height: 1.16; max-width: 22ch; margin: 0; }
+.deck .slide.statement h2 { font-size: 54px; line-height: 1.16; max-width: 22ch; margin: 0; }
 .slide.statement p { margin-top: 28px; }
 .slide.section { justify-content: center; padding-top: 72px; }
-.slide.section h2 { font-size: 60px; margin: 20px 0 0; }
+.deck .slide.section h2 { font-size: 60px; margin: 20px 0 0; }
 .slide.section .meta { color: var(--accent); font-size: 14px; }
 .slide.split .body { display: grid; grid-template-columns: 5fr 7fr; gap: 64px; align-items: center; }
 .slide.split.flip .body { grid-template-columns: 7fr 5fr; }
@@ -1068,9 +1069,12 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
       else { const mx = ax - c.gx / 2; p = [[ax, acy], [mx, acy], [mx, bcy], [bx + c.w, bcy]]; }
       wire(g, p, e, f);
     });
+    const below = {};                                 // nodes with a wire on their bottom port
+    (s.edges || []).forEach(e => { const a = N[e.from], b = N[e.to]; if (a.col === b.col) below[(b.row > a.row ? a : b).id] = 1; else if (a.row === b.row && b.col < a.col) below[a.id] = below[b.id] = 1; });
     s.nodes.forEach(n => {
       box(g, X(n.col), Y(n.row), c.w, c.h, n.kind === 'store' ? '[ ' + n.label + ' ]' : n.label, f, n.accent);
-      if (n.note) text(g, X(n.col) + c.w / 2, Y(n.row) + c.h + f + 8, up(n.note), 'dim', 'middle');
+      if (n.note) below[n.id] ? text(g, X(n.col) + c.w / 2 - 10, Y(n.row) + c.h + f + 8, up(n.note), 'dim halo', 'end')
+                              : text(g, X(n.col) + c.w / 2, Y(n.row) + c.h + f + 8, up(n.note), 'dim', 'middle');
     });
   };
 
@@ -1161,7 +1165,8 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
   }
   /* Lint: finds the layout faults that are easy to miss. Run cz.lint() in the page and fix what it lists.
      stranded: a heading or line whose last line is one short word. long-headline: more than two lines on a slide.
-     overflow: content cut off by its slide or wider than the page. */
+     overflow: content cut off by its slide or wider than the page. label-overlap, label-struck: two labels in a
+     drawing collide, or a wire runs through one. small-graphic: a drawing under 30% of its slide body. */
   function lint(scope) {
     const out = [], lines = n => { const r = document.createRange(); r.selectNodeContents(n); const rows = []; [...r.getClientRects()].forEach(q => { if (q.width < 1) return; const row = rows.find(x => Math.abs(x.top - q.top) < q.height / 2); if (row) { row.left = Math.min(row.left, q.left); row.right = Math.max(row.right, q.right); } else rows.push({ top: q.top, left: q.left, right: q.right }); }); return rows.sort((a, b) => a.top - b.top); };
     (scope || document).querySelectorAll('h1, h2, h3, p, li, figcaption, .lead').forEach(n => {
@@ -1172,6 +1177,18 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
       if (n.closest('.slide') && !n.closest('.statement, .title') && /^H[12]$/.test(n.tagName) && rows.length > 2) out.push({ issue: 'long-headline', text: txt.slice(0, 80) });
     });
     (scope || document).querySelectorAll('.slide').forEach((sl, i) => { if (sl.scrollHeight > sl.clientHeight + 2 || sl.scrollWidth > sl.clientWidth + 2) out.push({ issue: 'overflow', text: 'slide ' + (i + 1) }); });
+    (scope || document).querySelectorAll('svg.cz').forEach(svg => {
+      const T = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim() && !t.getAttribute('transform')).map(t => ({ t, b: t.getBBox() }));
+      const hit = (a, b) => Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
+      T.forEach((a, i) => T.slice(i + 1).forEach(b => { if (hit(a.b, b.b) > 0.15 * Math.min(a.b.width * a.b.height, b.b.width * b.b.height)) out.push({ issue: 'label-overlap', text: a.t.textContent + ' / ' + b.t.textContent }); }));
+      svg.querySelectorAll('path.ln').forEach(p => {
+        const len = p.getTotalLength(); if (!len) return;
+        for (let d = 0; d <= len; d += 3) { const q = p.getPointAtLength(d), x = T.find(o => !o.struck && q.x > o.b.x + 2 && q.x < o.b.x + o.b.width - 2 && q.y > o.b.y + 3 && q.y < o.b.y + o.b.height - 3); if (x) { x.struck = 1; out.push({ issue: 'label-struck', text: x.t.textContent }); } }
+      });
+      const body = svg.closest('.slide .body'); if (!body || svg.closest('.split')) return;
+      const r = svg.getBoundingClientRect(), bb = body.getBoundingClientRect();
+      if (r.width * r.height < 0.3 * bb.width * bb.height) out.push({ issue: 'small-graphic', text: 'fills ' + Math.round(100 * r.width * r.height / (bb.width * bb.height)) + '% of its slide body' });
+    });
     if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 2 && !document.querySelector('.deck')) out.push({ issue: 'overflow', text: 'page is wider than the window' });
     return out;
   }
