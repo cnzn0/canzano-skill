@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>showcase</title>
+<!-- Composes the readme images from the skill's own examples. Open with ?scene=hero (ui-dark, report, chart, slides, palette)
+     in Chrome started with --allow-file-access-from-files, at 1200px wide, and screenshot it. See tools/showcase/build.sh. -->
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../plugin/skills/canzano/assets/palette.css">
+<link rel="stylesheet" href="../../plugin/skills/canzano/assets/tokens.css">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { position: relative; background: var(--grey-100); }
+  .half { position: absolute; top: 0; bottom: 0; width: 50%; }
+  .dark { background: var(--grey-900); }
+  .card { position: absolute; overflow: hidden; border-radius: 12px; outline: 1px solid var(--grey-200); background: #fff; }
+  .card.d { outline-color: oklch(1 0 0 / 0.12); background: var(--grey-950); }
+  .card iframe { border: 0; display: block; transform-origin: 0 0; }
+  .pal { position: absolute; inset: 64px; display: grid; grid-template-columns: 96px repeat(91, 1fr); gap: 2px; align-content: center; background: none; }
+  .pal span { font: 11px/1 "Geist Mono", monospace; letter-spacing: 0.04em; text-transform: uppercase; color: var(--grey-600); align-self: center; }
+  .pal i { height: 34px; }
+</style>
+<body>
+<script>
+const S = '../../plugin/skills/canzano/', scene = new URLSearchParams(location.search).get('scene') || 'hero';
+function card(src, w, h, s, x, y, theme, scrollY, trim = 0) {       // a page of w x h, drawn at scale s with its corner at x, y
+  const c = document.createElement('div'), f = document.createElement('iframe');
+  c.className = 'card' + (theme === 'dark' ? ' d' : '');
+  c.style.cssText = `left:${x}px;top:${y}px;width:${(w - 2 * trim) * s}px;height:${h * s}px`;
+  f.style.cssText = `width:${w}px;height:${h}px;margin-left:${-trim * s}px;transform:scale(${s})`;
+  f.src = src;
+  f.onload = () => { f.contentDocument.documentElement.dataset.theme = theme || 'light'; f.contentDocument.documentElement.style.scrollbarWidth = 'none'; if (scrollY) f.contentWindow.scrollTo(0, scrollY); };
+  c.appendChild(f); document.body.appendChild(c);
+}
+function half(side) { const d = document.createElement('div'); d.className = 'half dark'; d.style[side] = 0; document.body.appendChild(d); }
+if (scene === 'hero') {
+  card(S + 'examples/ui.html', 1100, 1200, 0.64, 64, 64, 'light');
+  card(S + 'examples/ui.html', 390, 900, 0.8, 824, 112, 'dark');
+} else if (scene === 'ui-dark') {
+  document.body.classList.add('dark');
+  card(S + 'examples/ui.html', 1100, 800, 0.96, 72, 72, 'dark');
+} else if (scene === 'report') {
+  half('right');
+  card('report.html', 820, 1000, 0.62, 46, 64, 'light');
+  card('report.html', 820, 1000, 0.62, 646, 64, 'dark');
+} else if (scene === 'chart') {
+  half('right');
+  card(S + 'examples/chart.html', 800, 1000, 0.62, 52, 64, 'light');
+  card(S + 'examples/chart.html', 800, 1000, 0.62, 652, 64, 'dark');
+} else if (scene === 'slides') {
+  card(S + 'examples/slides.html', 1312, 720, 0.55, 70, 72, 'light', 16 + 736, 16);
+  card(S + 'examples/slides.html', 1312, 720, 0.2583, 798, 72, 'light', 16, 16);
+  card(S + 'examples/slides.html', 1312, 720, 0.2583, 798, 282, 'dark', 16 + 1472, 16);
+} else if (scene === 'palette') {
+  document.body.style.background = '#fff';
+  const g = document.createElement('div'); g.className = 'pal';
+  const hues = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'sky', 'blue', 'violet', 'purple', 'pink'];
+  let h = '';
+  for (const n of hues) { h += `<span>${n}</span>`; for (let i = 1; i <= 7; i++) h += `<i style="background:var(--${n}-${i}00);grid-column:span 13"></i>`; }
+  h += '<span>grey</span>'; for (const n of [0, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950]) h += `<i style="background:var(--grey-${n});grid-column:span 7"></i>`;
+  g.innerHTML = h; document.body.appendChild(g);
+}
+</script>
+</body>
+</html>

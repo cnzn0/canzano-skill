@@ -4,7 +4,7 @@
 
 A house style and minimal design system for AI agents. One small skill that makes pages, reports, PDFs, decks, charts, diagrams and UIs come out precise instead of generic: Inter and Geist Mono, OKLCH colour, hairline structure, small crisp controls, and rules against fluff in text and UI copy.
 
-![Interface in light](showcase/ui-light.png)
+![An interface on desktop in light and on a phone in dark](showcase/hero.png)
 
 ## Install
 
@@ -59,6 +59,12 @@ Ask as you normally would. The skill changes how the answer looks and reads. It 
 Small rounded controls, flat panels, one primary action. Every control shares one height, radius and edge, so any mix lines up.
 
 ![Interface in dark](showcase/ui-dark.png)
+
+### Colour
+
+Eleven vivid hue scales and a grey scale, all OKLCH, behind a small set of semantic tokens. Colour is rare and saturated.
+
+![The palette](showcase/palette.png)
 
 ### Documents and PDFs
 
