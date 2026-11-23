@@ -3,11 +3,11 @@
 import pathlib, sys
 sys.dont_write_bytecode = True
 root = pathlib.Path(__file__).parent
-css = (root/"skills/canzano/assets/palette.css").read_text() + "\n" + (root/"skills/canzano/assets/tokens.css").read_text() + "\n" + (root/"skills/canzano/assets/base.css").read_text()
-uicss = (root/"skills/canzano/assets/ui.css").read_text()
-vizjs = (root/"skills/canzano/assets/viz.js").read_text()
-deckcss = (root/"skills/canzano/assets/deck.css").read_text()
-deckjs = (root/"skills/canzano/assets/deck.js").read_text()
+css = (root/"plugin/skills/canzano/assets/palette.css").read_text() + "\n" + (root/"plugin/skills/canzano/assets/tokens.css").read_text() + "\n" + (root/"plugin/skills/canzano/assets/base.css").read_text()
+uicss = (root/"plugin/skills/canzano/assets/ui.css").read_text()
+vizjs = (root/"plugin/skills/canzano/assets/viz.js").read_text()
+deckcss = (root/"plugin/skills/canzano/assets/deck.css").read_text()
+deckjs = (root/"plugin/skills/canzano/assets/deck.js").read_text()
 out = root/"examples"
 
 def page(name, title, running, extra, body, script="", ui=False, viz=False, deck=False, theme=None):
@@ -594,7 +594,7 @@ page("deck.html", "Checkout review", "", """
 
 # ---------------------------------------------------------------- 09 ascii
 import sys, html as _html
-sys.path.insert(0, str(root/"skills/canzano/scripts"))
+sys.path.insert(0, str(root/"plugin/skills/canzano/scripts"))
 import ascii as A
 def pre(txt, cls="ascii"): return f'<pre class="{cls}">{_html.escape(txt)}</pre>'
 page("ascii.html", "ASCII", "ASCII", """

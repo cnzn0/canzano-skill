@@ -209,5 +209,5 @@ def main(argv):
 
 if __name__ == "__main__":
     try: main(sys.argv)
-    except Usage as e: print("ascii.py: " + str(e), file=sys.stderr); print("run ascii.py --help for the commands", file=sys.stderr); sys.exit(2)
+    except Usage as e: print("ascii.py: " + str(e) + " (--help lists the commands)", file=sys.stderr); sys.exit(2)
     except IndexError: print("ascii.py: an option is missing its value", file=sys.stderr); sys.exit(2)

@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "canzano",
-      "source": "./",
+      "source": "./plugin",
       "description": "House style and minimal design system for agent output: pages, reports, PDFs, decks, charts, diagrams and UIs."
     }
   ],

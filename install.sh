@@ -12,13 +12,13 @@ src=""
 case "$0" in
   */install.sh|install.sh)
     here="$(cd "$(dirname "$0")" 2>/dev/null && pwd)"
-    [ -f "$here/skills/canzano/SKILL.md" ] && src="$here/skills/canzano" ;;
+    [ -f "$here/plugin/skills/canzano/SKILL.md" ] && src="$here/plugin/skills/canzano" ;;
 esac
 if [ -z "$src" ]; then
   tmp="$(mktemp -d)"
   trap 'rm -rf "$tmp"' EXIT
   git clone --depth 1 --quiet "$REPO" "$tmp/repo"
-  src="$tmp/repo/skills/canzano"
+  src="$tmp/repo/plugin/skills/canzano"
 fi
 
 if [ "$#" -eq 0 ]; then

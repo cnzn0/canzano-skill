@@ -37,8 +37,8 @@ Or paste this into your agent:
 
 ```
 Install the canzano skill. Clone https://github.com/cnzn0/canzano-skill, copy its
-skills/canzano folder into my skills folder (~/.claude/skills for Claude Code,
-~/.agents/skills or ~/.codex/skills for Codex), then read skills/canzano/SKILL.md
+plugin/skills/canzano folder into my skills folder (~/.claude/skills for Claude Code,
+~/.agents/skills or ~/.codex/skills for Codex), then read its SKILL.md
 and confirm it is installed.
 ```
 
@@ -125,7 +125,7 @@ Aligned diagrams, tables, bars and hero text for READMEs, terminals and code com
 ## What is in it
 
 ```
-skills/canzano/
+plugin/skills/canzano/
   SKILL.md                 the rules, the token table, the ban list
   assets/palette.css       11 hue scales and a grey scale, generated
   assets/tokens.css        the semantic tokens pages use
@@ -140,6 +140,7 @@ skills/canzano/
   scripts/palette.py       regenerates the palette
   scripts/ascii.py         aligned ASCII diagrams, tables, bars and hero text
 examples/                  the outcomes above; rebuild with build_examples.py
+plugin/                    the Claude Code plugin: this skill plus its manifest and icon
 ```
 
 ## Make it yours
