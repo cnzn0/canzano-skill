@@ -1,3 +1,5 @@
+<img src="showcase/icon.png" width="72" alt="canzano icon: a block-letter C">
+
 # canzano
 
 A house style and minimal design system for AI agents. One skill that makes pages, reports, PDFs, decks, charts, diagrams and UIs come out precise instead of generic: Inter and Geist Mono, OKLCH colour, hairline structure, small crisp controls, and rules against fluff in text and UI copy.
