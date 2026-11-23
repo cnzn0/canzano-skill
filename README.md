@@ -102,11 +102,3 @@ plugin/skills/canzano/
 ## Notes
 
 The control and panel recipe follows measurements of sfcompute.com. The fonts are Inter and Geist Mono, loaded from Google Fonts. MIT licence.
-
-## Development
-
-```bash
-python3 tests/check.py
-```
-
-It checks that everything the guides name exists, renders the template and the examples at phone and desktop width in both themes, and prints the report and the slides.
