@@ -1,7 +1,8 @@
 /* canzano tokens: the semantic layer. Needs palette.css first.
    Pages use these names, never a raw palette step, so both themes and a rebrand stay one edit.
-   Fonts load from Google Fonts (see template.html). Light is the default; dark follows the
-   system or data-theme="dark". */
+   Fonts load from Google Fonts (see template.html). Light is the default. On screen, dark follows
+   the system or data-theme="dark". Paper is always light, unless <html> also has class keep-theme.
+   The three dark blocks below must stay identical; tests/check.py verifies it. */
 
 :root {
   /* Neutrals */
@@ -85,7 +86,7 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --page: var(--grey-950);
     --raised: oklch(0.19 0.003 286);
@@ -125,41 +126,83 @@
     color-scheme: dark;
   }
 }
-:root[data-theme="dark"] {
-  --page: var(--grey-950);
-  --raised: oklch(0.19 0.003 286);
-  --panel: var(--grey-900);
-  --ink: oklch(0.964 0 0);
-  --ink-2: oklch(0.964 0 0 / 0.7);
-  --ink-3: oklch(0.964 0 0 / 0.5);
-  --rule: oklch(0.964 0 0 / 0.1);
-  --rule-strong: oklch(0.964 0 0 / 0.2);
+@media screen {
+  :root[data-theme="dark"] {
+    --page: var(--grey-950);
+    --raised: oklch(0.19 0.003 286);
+    --panel: var(--grey-900);
+    --ink: oklch(0.964 0 0);
+    --ink-2: oklch(0.964 0 0 / 0.7);
+    --ink-3: oklch(0.964 0 0 / 0.5);
+    --rule: oklch(0.964 0 0 / 0.1);
+    --rule-strong: oklch(0.964 0 0 / 0.2);
 
-  --accent: var(--violet-100);
-  --positive: var(--green-200);
-  --warning: var(--amber-200);
-  --negative: var(--red-100);
-  --info: var(--blue-100);
+    --accent: var(--violet-100);
+    --positive: var(--green-200);
+    --warning: var(--amber-200);
+    --negative: var(--red-100);
+    --info: var(--blue-100);
 
-  --series-1: var(--violet-100);
-  --series-2: var(--orange-200);
-  --series-3: var(--pink-200);
-  --series-4: var(--sky-200);
-  --series-5: var(--green-200);
-  --series-6: var(--yellow-200);
-  --series-7: var(--purple-100);
-  --series-8: var(--red-100);
+    --series-1: var(--violet-100);
+    --series-2: var(--orange-200);
+    --series-3: var(--pink-200);
+    --series-4: var(--sky-200);
+    --series-5: var(--green-200);
+    --series-6: var(--yellow-200);
+    --series-7: var(--purple-100);
+    --series-8: var(--red-100);
 
-  --btn-top: oklch(0.3 0 0);
-  --btn-mid: oklch(0.255 0 0);
-  --btn-edge: oklch(0.34 0 0);
-  --btn1-top: oklch(1 0 0);
-  --btn1-mid: oklch(0.93 0 0);
-  --btn1-edge: oklch(0.8 0 0);
-  --btn1-fg: oklch(0.15 0 0);
-  --btn-hover: brightness(1.1);
-  --thumb: oklch(0.964 0 0 / 0.12);
-  --thumb-edge: oklch(0.964 0 0 / 0.14);
-  --thumb-shadow: none;
-  color-scheme: dark;
+    --btn-top: oklch(0.3 0 0);
+    --btn-mid: oklch(0.255 0 0);
+    --btn-edge: oklch(0.34 0 0);
+    --btn1-top: oklch(1 0 0);
+    --btn1-mid: oklch(0.93 0 0);
+    --btn1-edge: oklch(0.8 0 0);
+    --btn1-fg: oklch(0.15 0 0);
+    --btn-hover: brightness(1.1);
+    --thumb: oklch(0.964 0 0 / 0.12);
+    --thumb-edge: oklch(0.964 0 0 / 0.14);
+    --thumb-shadow: none;
+    color-scheme: dark;
+  }
+}
+@media print {
+  :root[data-theme="dark"].keep-theme {
+    --page: var(--grey-950);
+    --raised: oklch(0.19 0.003 286);
+    --panel: var(--grey-900);
+    --ink: oklch(0.964 0 0);
+    --ink-2: oklch(0.964 0 0 / 0.7);
+    --ink-3: oklch(0.964 0 0 / 0.5);
+    --rule: oklch(0.964 0 0 / 0.1);
+    --rule-strong: oklch(0.964 0 0 / 0.2);
+
+    --accent: var(--violet-100);
+    --positive: var(--green-200);
+    --warning: var(--amber-200);
+    --negative: var(--red-100);
+    --info: var(--blue-100);
+
+    --series-1: var(--violet-100);
+    --series-2: var(--orange-200);
+    --series-3: var(--pink-200);
+    --series-4: var(--sky-200);
+    --series-5: var(--green-200);
+    --series-6: var(--yellow-200);
+    --series-7: var(--purple-100);
+    --series-8: var(--red-100);
+
+    --btn-top: oklch(0.3 0 0);
+    --btn-mid: oklch(0.255 0 0);
+    --btn-edge: oklch(0.34 0 0);
+    --btn1-top: oklch(1 0 0);
+    --btn1-mid: oklch(0.93 0 0);
+    --btn1-edge: oklch(0.8 0 0);
+    --btn1-fg: oklch(0.15 0 0);
+    --btn-hover: brightness(1.1);
+    --thumb: oklch(0.964 0 0 / 0.12);
+    --thumb-edge: oklch(0.964 0 0 / 0.14);
+    --thumb-shadow: none;
+    color-scheme: dark;
+  }
 }

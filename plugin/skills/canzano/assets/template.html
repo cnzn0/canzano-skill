@@ -7,13 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-<!-- For a single-file output, replace these links with one <style> holding palette.css, tokens.css, base.css. -->
+<!-- For a single-file output, replace these links with one <style> holding the same files in the same order.
+     An interface adds ui.css after base.css. A page with charts adds kits/charts/viz.css and viz.js. -->
 <link rel="stylesheet" href="palette.css">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
 <style>
 /* Running header for print and PDF. Replace the text. */
 @page { @top-left { content: "SHORT NAME // 1 JAN 2026"; font: 8pt "Geist Mono", monospace; letter-spacing: 0.04em; color: oklch(0.557 0.008 286); } }
+/* Page-specific styles go here. They sit outside the skill's layers, so they win without !important. */
 </style>
 </head>
 <body>
@@ -46,5 +48,7 @@
     </table></div>
   </section>
 </main>
+<!-- The check. Run cz.lint() in the console and fix what it lists. Harmless to ship; remove it if you like. -->
+<script src="lint.js"></script>
 </body>
 </html>

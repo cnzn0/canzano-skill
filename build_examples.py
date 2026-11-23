@@ -5,12 +5,14 @@ sys.dont_write_bytecode = True
 root = pathlib.Path(__file__).parent
 css = (root/"plugin/skills/canzano/assets/palette.css").read_text() + "\n" + (root/"plugin/skills/canzano/assets/tokens.css").read_text() + "\n" + (root/"plugin/skills/canzano/assets/base.css").read_text()
 uicss = (root/"plugin/skills/canzano/assets/ui.css").read_text()
-vizjs = (root/"plugin/skills/canzano/assets/viz.js").read_text()
-deckcss = (root/"plugin/skills/canzano/assets/deck.css").read_text()
-deckjs = (root/"plugin/skills/canzano/assets/deck.js").read_text()
+vizjs = (root/"plugin/skills/canzano/kits/charts/viz.js").read_text()
+vizcss = (root/"plugin/skills/canzano/kits/charts/viz.css").read_text()
+lintjs = (root/"plugin/skills/canzano/assets/lint.js").read_text()
+deckcss = (root/"plugin/skills/canzano/kits/decks/deck.css").read_text()
+deckjs = (root/"plugin/skills/canzano/kits/decks/deck.js").read_text()
 out = root/"examples"
 
-def page(name, title, running, extra, body, script="", ui=False, viz=False, deck=False, theme=None):
+def page(name, title, running, extra, body, script="", ui=False, viz=False, deck=False, theme=None, dest=None):
     html = f"""<!doctype html>
 <html lang="en"{theme or ""}>
 <head>
@@ -23,26 +25,22 @@ def page(name, title, running, extra, body, script="", ui=False, viz=False, deck
 <style>
 {css}
 {'' if deck else '@page { @top-left { content: "' + running + '"; font: 8pt "Geist Mono", monospace; letter-spacing: 0.04em; color: oklch(0.557 0.008 286); } }'}
-svg text {{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; fill: var(--ink); }}
-svg .s {{ stroke: var(--ink); stroke-width: 1; fill: none; }}
-svg .s.a {{ stroke: var(--accent); }}
-svg .at {{ fill: var(--accent); }}
-svg .dim {{ fill: var(--ink-3); }}
-svg .mid {{ fill: var(--ink-2); }}
 {uicss if ui else ''}
+{vizcss if viz else ''}
 {deckcss if deck else ''}
 {extra}
 </style>
 </head>
 <body{" class=\"deck-page\"" if deck else ""}>
 {body}
+<script>{lintjs}</script>
 {('<script>' + vizjs + '</script>') if viz else ''}
 {('<script>' + deckjs + '</script>') if deck else ''}
 {('<script>' + script + '</script>') if script else ''}
 </body>
 </html>
 """
-    (out/name).write_text(html)
+    ((dest or out)/name).write_text(html)
 
 import json
 def cz(kind, spec, caption=None):
@@ -107,7 +105,7 @@ page("report.html", "Hosting options", "ORDERS API // HOSTING OPTIONS // 23 NOV 
 
 # ---------------------------------------------------------------- 02 diagram
 diagram = f"""
-<svg viewBox="0 0 1061 221" style="width:1061px" role="img" aria-label="Checkout request path from client through gateway and order service to the queue and two workers">
+<svg class="dg" viewBox="0 0 1061 221" style="width:1061px" role="img" aria-label="Checkout request path from client through gateway and order service to the queue and two workers">
   <!-- sync path, accent -->
   <rect class="s" x="0.5" y="60.5" width="140" height="56"/><text x="70.5" y="92" text-anchor="middle">CLIENT</text>
   <g class="s a"><path d="M140.5 88.5 H270.5"/><path d="{R(270.5,88.5)}"/></g>
@@ -291,7 +289,7 @@ page("mobile-ui.html", "Runs", "RUNS", """
       <div class="segmented" role="group" aria-label="Range">
         <button aria-pressed="true">Week</button><button aria-pressed="false">Month</button><button aria-pressed="false">Year</button>
       </div>
-      <svg viewBox="0 0 358 124" role="img" aria-label="Distance per day this week, longest on Sunday at 12.4 km">
+      <svg class="dg" viewBox="0 0 358 124" role="img" aria-label="Distance per day this week, longest on Sunday at 12.4 km">
         <path class="s" style="stroke:var(--rule-strong)" d="M0 100.5 H358"/>
         BARS
       </svg>
@@ -315,7 +313,7 @@ document.querySelectorAll('.segmented button').forEach(b=>b.onclick=()=>document
 
 # ---------------------------------------------------------------- 05 animated diagram
 anim = f"""
-<svg viewBox="0 0 701 290" style="width:701px" role="img" aria-label="A write goes from the client to the leader, is replicated to two followers, acknowledged, then confirmed to the client">
+<svg class="dg" viewBox="0 0 701 290" style="width:701px" role="img" aria-label="A write goes from the client to the leader, is replicated to two followers, acknowledged, then confirmed to the client">
   <rect class="s" id="n-client" x="0.5" y="120.5" width="120" height="56"/><text x="60.5" y="152" text-anchor="middle">CLIENT</text>
   <text class="dim" id="t-client" x="60.5" y="196" text-anchor="middle">IDLE</text>
   <g class="s" id="e-cl"><path d="M120.5 148.5 H240.5"/><path d="{R(240.5,148.5)}"/></g>
@@ -333,7 +331,6 @@ anim = f"""
   <rect class="pkt" id="p0" width="7" height="7" visibility="hidden"/><rect class="pkt" id="p1" width="7" height="7" visibility="hidden"/>
 </svg>"""
 page("animated-diagram.html", "Replicated write", "REPLICATION // WRITE PATH", """
-svg .pkt { fill: var(--accent); }
 .controls { display: flex; gap: var(--s2); align-items: center; margin-bottom: var(--s4); }
 .steps { list-style: none; margin: 0; padding: 0; }
 .steps li { display: grid; grid-template-columns: 36px 120px 1fr; gap: var(--s3); align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--rule); color: var(--ink-3); transition: color var(--fast); }
@@ -594,7 +591,7 @@ page("deck.html", "Checkout review", "", """
 
 # ---------------------------------------------------------------- 09 ascii
 import sys, html as _html
-sys.path.insert(0, str(root/"plugin/skills/canzano/scripts"))
+sys.path.insert(0, str(root/"plugin/skills/canzano/kits/ascii"))
 import ascii as A
 def pre(txt, cls="ascii"): return f'<pre class="{cls}">{_html.escape(txt)}</pre>'
 page("ascii.html", "ASCII", "ASCII", """
@@ -648,4 +645,93 @@ iframe { display: block; width: 100%; max-width: 100%; border: 1px solid var(--r
   </header>
 {secs}
 </main>""")
-print("built", sorted(p.name for p in out.glob("*.html")))
+
+# ---------------------------------------------------------------- test fixtures
+# tests/fixtures.html holds the cases that have broken before. tests/check.py renders it at phone and
+# desktop width, runs cz.lint() and the assertions in window.__assert, and fails on any finding.
+F = [
+ cz("diagram", {"type":"flow","nodes":[{"id":"a","label":"Client","col":0},{"id":"b","label":"Gateway","col":1,"note":"Auth"},{"id":"c","label":"Orders API","col":2},{"id":"d","label":"Queue","col":3},{"id":"e","label":"Worker","col":4},{"id":"f","label":"Orders DB","col":2,"row":1,"kind":"store"}],"edges":[{"from":"a","to":"b","label":"Post"},{"from":"b","to":"c","label":"Auth ok","accent":True},{"from":"c","to":"f","label":"Write"},{"from":"c","to":"d","label":"Enqueue"},{"from":"d","to":"e","label":"Dequeue"},{"from":"e","to":"c","label":"Backpressure"},{"from":"d","to":"b","label":"Reject","via":"top"}],"groups":[{"label":"Order service","nodes":["c","f"]}]}, "flow: group, backward edges below and above"),
+ cz("diagram", {"type":"flow","nodes":[{"id":"a","label":"Draft","col":0},{"id":"b","label":"Review","col":1},{"id":"c","label":"Live","col":2}],"edges":[{"from":"a","to":"b","label":"Submit"},{"from":"b","to":"c","label":"Publish"},{"from":"b","to":"a","label":"Reject"},{"from":"c","to":"a","label":"Unpublish"}]}, "flow: two backward edges on one row"),
+ cz("diagram", {"type":"flow","nodes":[{"id":"a","label":"Sign up","col":0},{"id":"b","label":"Connect bank","col":1,"note":"71% finish, was 48%"},{"id":"c","label":"First invoice","col":2},{"id":"d","label":"Ledger","col":1,"row":1,"kind":"store"}],"edges":[{"from":"a","to":"b"},{"from":"b","to":"c"},{"from":"b","to":"d","label":"Sync"}]}, "flow: note on a node with a wire below"),
+ cz("diagram", {"type":"layers","layers":[{"label":"Clients","items":["Web","iOS","Android","Partner API"]},{"label":"Services","items":["Gateway","Orders","Payments","Inventory","Notifications","Search"]},{"label":"Data","items":["Postgres","Queue","Object storage"]}]}, "layers: six items in a row"),
+ cz("diagram", {"type":"tree","root":{"label":"Revenue","children":[{"label":"New","children":[{"label":"Self serve"},{"label":"Sales led"},{"label":"Partner"}]},{"label":"Expansion","children":[{"label":"Seats"},{"label":"Usage"},{"label":"Add-ons"}]},{"label":"Renewal","children":[{"label":"Annual"},{"label":"Monthly"}]}]}}, "tree: eight leaves"),
+ cz("diagram", {"type":"timeline","columns":["Jul","Aug","Sep","Oct","Nov","Dec"],"now":2.4,"rows":[{"label":"Approval flows","from":3.2,"to":5.6,"note":"Agency request","accent":True},{"label":"Bank feeds","from":0,"to":2.4,"note":"Shipped"},{"label":"Launch","at":5.8,"note":"12 Dec","accent":True}]}, "timeline: notes near the right edge"),
+ cz("diagram", {"type":"quadrant","x":["Low effort","High effort"],"y":["Low impact","High impact"],"corners":["Do now","Plan","Skip","Avoid"],"items":[{"label":"Top right corner","x":1,"y":1},{"label":"Origin","x":0,"y":0},{"label":"Far right","x":0.98,"y":0.5,"accent":True},{"label":"On the midline","x":0.3,"y":0.5}]}, "quadrant: points on the edges and the midline"),
+ cz("diagram", {"type":"sequence","actors":[{"id":"u","label":"Browser"},{"id":"a","label":"App"},{"id":"i","label":"Identity"}],"messages":[{"from":"u","to":"a","label":"Sign in"},{"from":"a","to":"i","label":"Redirect with challenge","accent":True},{"from":"i","to":"i","label":"Verify"},{"from":"i","to":"a","label":"Code","reply":True}]}, "sequence"),
+ cz("chart", {"type":"bar","labels":["Q1","Q2","Q3","Q4"],"highlight":"Pro","series":[{"name":"Free","values":[4,5,7,9]},{"name":"Pro","values":[3,4,8,12]},{"name":"Team plan with a long name","values":[2,2,3,10]},{"name":"Resellers","values":[1,2,2,3]}],"height":220}, "grouped bar: long legend, highlight"),
+ cz("chart", {"type":"hbar","stacked":True,"labels":["Enterprise accounts in North America","Europe"],"series":[{"name":"New business","values":[52,44]},{"name":"Expansion of existing accounts","values":[28,31]},{"name":"Renewals","values":[20,25]}],"suffix":"%"}, "stacked hbar: long labels and legend"),
+ cz("chart", {"type":"line","labels":months,"series":[{"name":"Account","values":[620,640,610,580,571,540,498,470,455,430,449,449]},{"name":"Checkout","values":[610,605,622,598,580,576,551,540,521,514,403,410]}],"suffix":" ms","height":240}, "line: two series ending close together"),
+ cz("chart", {"type":"scatter","x":"Latency","y":"Hit rate","xAxis":{"suffix":" ms"},"suffix":"%","series":[{"name":"p","points":[{"x":40,"y":96,"label":"Tokyo"},{"x":120,"y":91,"label":"Frankfurt"},{"x":410,"y":72,"label":"Edge cache hit","accent":True},{"x":300,"y":80}]}],"height":240}, "scatter: label near the right edge"),
+ cz("chart", {"type":"waterfall","suffix":"k","prefix":"$","data":[{"label":"2025","value":820,"total":True},{"label":"New","value":310},{"label":"Churn","value":-95},{"label":"2026","total":True}],"height":220}, "waterfall"),
+ cz("chart", {"type":"heatmap","rows":["Mon","Tue","Wed"],"cols":["00","06","12","18"],"values":[[2,4,31,19],[3,5,34,21],[2,6,36,22]]}, "heatmap"),
+]
+page("fixtures.html", "Fixtures", "FIXTURES", "", f"""<main>
+  <header><div class="meta">canzano // test fixtures</div><h1>The cases that have broken before</h1></header>
+  {''.join('<section>' + f + '</section>' for f in F)}
+  <section><h2>Controls</h2>
+    <div class="row" id="row">
+      <div class="segmented" role="group" aria-label="Range"><button aria-pressed="true">Day</button><button aria-pressed="false">Week</button></div>
+      <input type="search" class="w-m" placeholder="Service" aria-label="Service">
+      <select class="w-s" aria-label="Region"><option>All regions</option></select>
+      <label class="check"><input type="checkbox" checked>Failed only</label>
+      <button class="primary push">Deploy</button>
+    </div>
+    <div class="row sm" id="row-sm" style="margin-top:12px"><button>Small</button><input class="w-s" aria-label="Small input"><select class="w-s" aria-label="s"><option>Small</option></select></div>
+    <div class="row" style="margin-top:12px">
+      <div class="joined stepper" id="stepper"><button aria-label="Fewer">-</button><input value="12" aria-label="Seats"><button aria-label="More">+</button></div>
+      <div class="joined" id="search"><input type="search" placeholder="Search" aria-label="Search"><button>Search</button></div>
+      <label class="affix w-s" id="affix"><span>$</span><input value="240" aria-label="Cost"><span>/ mo</span></label>
+      <label class="check"><input type="checkbox" class="switch" checked>Notify</label>
+    </div>
+    <form class="form" style="margin-top:16px" onsubmit="return false">
+      <div class="field"><label for="fx-email">Email</label><input id="fx-email" class="w-l" value="lena@" aria-invalid="true"><span class="error">Enter a full email address.</span></div>
+      <div class="field"><label for="fx-name">Name</label><input id="fx-name" value="Lena Brandt"></div>
+      <div class="stack" role="radiogroup" aria-label="Billing"><label class="check"><input type="radio" name="b" checked><span>Monthly<small>Cancel any time</small></span></label><label class="check"><input type="radio" name="b"><span>Yearly<small>Two months free</small></span></label></div>
+      <div class="actions"><button class="primary" id="fx-save">Save</button><button type="button">Cancel</button><button type="button" class="danger" id="fx-danger">Delete</button></div>
+    </form>
+    <div style="position:relative;height:110px;margin-top:16px"><div class="menu" id="menu"><button>Rename</button><a href="#">Open in new tab</a><button class="danger">Delete</button></div></div>
+  </section>
+  <section><h2>Rows and figures</h2>
+    <div class="table-wrap"><table id="sel"><thead><tr><th></th><th>Name</th><th>Owner</th><th class="num">Seats</th><th class="num">Cost</th></tr></thead><tbody><tr aria-selected="true"><td class="mark">→</td><td>Team</td><td>L. Brandt</td><td class="num">12</td><td class="num">$240</td></tr><tr aria-selected="false"><td class="mark">→</td><td>Scale</td><td>M. Okafor</td><td class="num">80</td><td class="num">$1,400</td></tr></tbody></table></div>
+    <div class="metrics" id="metrics"><div><span class="label">Net revenue retention across all plans</span><span class="figure">118%</span></div><div><span class="label">ARR</span><span class="figure accent">$4.2M</span></div><div><span class="label">Churn</span><span class="figure">1.9%</span></div></div>
+    <ul class="ledger"><li><span>A ledger row with a fairly long label on it</span><span>2</span></li><li><span>Status</span><span class="positive">PASSED</span></li></ul>
+    <ul class="ledger settings"><li><span>Failed deploys<small>Email the author</small></span><span><input type="checkbox" class="switch" checked aria-label="Failed deploys"></span></li></ul>
+    <p id="emph">Bold <b>b</b> and <strong>strong</strong> and <em>italic</em>. <code>code <b>bold</b> <em>em</em></code>. A trend <span id="sp1"></span> and one point <span id="sp2"></span>.</p>
+    <figure class="diagram"><svg class="dg" viewBox="0 0 900 80" width="900" id="hand"><rect class="s" x="0.5" y="0.5" width="899" height="79"/><text x="450" y="44" text-anchor="middle">HAND DRAWN, 900 WIDE</text></svg></figure>
+  </section>
+</main>""", """
+cz.spark('#sp1', [3, 5, 4, 8]); cz.spark('#sp2', [5]);
+window.__assert = function () {
+  var bad = [], q = function (s) { return document.querySelector(s) }, all = function (s) { return [].slice.call(document.querySelectorAll(s)) }, cs = getComputedStyle, phone = innerWidth <= 640;
+  function ok(cond, msg) { if (!cond) bad.push(msg) }
+  function hs(sel) { return all(sel).map(function (e) { return Math.round(e.getBoundingClientRect().height * 10) / 10 }) }
+  function same(a) { return a.every(function (v) { return Math.abs(v - a[0]) < 0.6 }) }
+  var rowH = hs('#row > .segmented, #row > input, #row > select, #row > button');
+  ok(same(rowH) && Math.abs(rowH[0] - 27) < 0.6, 'row controls are not all 27px: ' + rowH);
+  ok(same(hs('#row-sm > *')) && Math.abs(hs('#row-sm > *')[0] - 23) < 0.6, '.sm row is not all 23px: ' + hs('#row-sm > *'));
+  var st = all('#stepper > *');
+  ok(Math.abs(st[0].getBoundingClientRect().width - st[2].getBoundingClientRect().width) < 0.6, 'stepper buttons differ in width');
+  ok(cs(st[0]).borderRadius === '6px 0px 0px 6px' && cs(st[1]).borderRadius === '0px' && cs(st[2]).borderRadius === '0px 6px 6px 0px', 'stepper corners: ' + st.map(function (e) { return cs(e).borderRadius }).join(' | '));
+  ok(cs(all('#search > *')[0]).borderRadius === '6px 0px 0px 6px', 'joined search input corners: ' + cs(all('#search > *')[0]).borderRadius);
+  ok(Math.abs(q('#fx-email').getBoundingClientRect().width - Math.min(320, q('#fx-email').parentElement.clientWidth)) < 1, 'input.w-l in a field is ' + q('#fx-email').getBoundingClientRect().width + 'px');
+  ok(q('#fx-name').getBoundingClientRect().width > 330 || phone, 'a plain input in a field should fill it');
+  var want = phone ? '16px' : '14px', fonts = ['#row input', '#row select', '#row button.primary', '#row .check'].map(function (s) { return cs(q(s)).fontSize });
+  ok(fonts.every(function (f) { return f === want }), 'row control text should all be ' + want + ': ' + fonts);
+  ok(cs(q('#row-sm button')).fontSize === (phone ? '16px' : '13px'), '.sm button text is ' + cs(q('#row-sm button')).fontSize);
+  ok(cs(q('#menu .danger')).color === cs(q('#fx-danger')).color && cs(q('#fx-danger')).color !== cs(q('#fx-save')).color, 'menu danger item is not the danger colour');
+  ok(same(hs('#menu > *')), 'menu items differ in height: ' + hs('#menu > *'));
+  var cells = all('#sel tbody tr').map(function (r) { return cs(r.children[1]).color }), marks = all('#sel td.mark').map(function (m) { return cs(m).color });
+  ok(cells[0] !== cells[1], 'selected and unselected rows have the same ink');
+  ok(marks[0] !== marks[1], 'the row mark shows on unselected rows');
+  var rows = {}; all('#metrics > div').forEach(function (d) { var k = Math.round(d.getBoundingClientRect().top); (rows[k] = rows[k] || []).push(Math.round(d.querySelector('.figure').getBoundingClientRect().top)); });
+  Object.keys(rows).forEach(function (k) { ok(same(rows[k]), 'metric figures in one row are not on one baseline: ' + rows[k]); });
+  ok(cs(q('#metrics .figure.accent')).color !== cs(q('#metrics .figure')).color, '.accent does not colour a metric figure');
+  ok(cs(q('#emph b')).fontWeight === '600' && cs(q('#emph code b')).fontWeight === '500' && cs(q('#emph code em')).fontStyle === 'normal', 'bold or italic asks for a face that is not loaded');
+  ok(Math.abs(q('#hand').getBoundingClientRect().width - 900) < 1, 'hand-drawn diagram is ' + q('#hand').getBoundingClientRect().width + 'px wide, not 900');
+  ok(q('#sp2 svg') && !/NaN/.test(q('#sp2').innerHTML), 'one-value sparkline has NaN');
+  all('svg.cz').forEach(function (v, i) { var t = v.querySelector('text'); if (!t) return; var px = parseFloat(cs(t).fontSize) * v.clientWidth / v.viewBox.baseVal.width; ok(px >= 9.9, 'drawing ' + i + ' labels render at ' + px.toFixed(1) + 'px'); });
+  all('svg.cz text').forEach(function (t) { var b = t.getBBox(), vb = t.ownerSVGElement.viewBox.baseVal; if (t.getAttribute('transform')) return; ok(b.x >= -1 && b.x + b.width <= vb.width + 1 && b.y >= -2 && b.y + b.height <= vb.height + 3, 'label leaves its drawing: ' + t.textContent); });
+  return bad;
+};
+""", viz=True, dest=root/"tests")
+print("built", sorted(p.name for p in out.glob("*.html")), "+ tests/fixtures.html")

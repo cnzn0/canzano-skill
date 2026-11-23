@@ -1,6 +1,8 @@
-# Decks
+# Decks kit
 
-A deck is an HTML file built from `assets/deck.html` with `deck.css`, `deck.js` and `viz.js`. Slides are a fixed 1280 x 720, scale to the window, move with the arrow keys, and print one per page: `scripts/pdf.sh deck.html deck.pdf`. If the user needs PowerPoint or Google Slides, build this first, then rebuild it in that format slide by slide with the same layouts, type and colours.
+Optional. Open this when the output is a slide deck.
+
+A deck is an HTML file built from `kits/decks/deck.html`, with `deck.css` and `deck.js` from this folder on top of the core stylesheets, and the charts kit for its charts and diagrams. Slides are a fixed 1280 x 720, scale to the window, move with the arrow keys, and print one per page: `scripts/pdf.sh deck.html deck.pdf`. If the user needs PowerPoint or Google Slides, build this first, then rebuild it in that format slide by slide with the same layouts, type and colours.
 
 ## Before writing a slide
 
@@ -33,7 +35,7 @@ Set `data-label` on `.deck` for the running label. Slide numbers are automatic. 
 - The evidence fills the slide. The body starts right under the headline and a chart with no `height` takes all the room there is. Diagrams grow to fit. A small graphic floating in the middle of an empty slide is a fault: enlarge it, switch to a split layout, or cut the slide.
 - Headlines wrap in balanced lines with no stranded last word. Keep a number with its unit using `&nbsp;`.
 - No bullet dumps, no agenda slide for a deck under fifteen slides, no "Thank you" or "Questions?" slide, no logo on every slide, no clip art or stock imagery.
-- Charts follow `charts.md` and diagrams follow `diagrams.md`. Leave `height` off a chart on a slide so it fills the body.
+- Charts and generated diagrams follow `kits/charts/README.md`; hand-drawn ones follow `references/diagrams.md`. Leave `height` off a chart on a slide so it fills the body.
 - On a split slide the graphic should still fill most of its column; if it comes out small, give it the whole slide and move the sentence to the caption or the headline.
 - Decks print at 1280 x 720 only. Do not set `@page { size: ... }` in a deck; A4 and Letter are for reports.
 - The same layout for the same kind of content throughout. Three or four layouts carry most decks.
@@ -42,4 +44,4 @@ Set `data-label` on `.deck` for the running label. Slide numbers are automatic. 
 
 ## Before delivering
 
-Render every slide and look at each one at full size. Run `cz.lint()` and fix what it lists. Check that nothing is clipped at the slide edge, that the headlines alone still tell the story, that every chart's highlighted mark matches its headline, and that the PDF has one slide per page.
+Render every slide and look at each one at full size. Run `cz.lint()` (from `assets/lint.js`, which the deck template loads) and fix what it lists. Check that nothing is clipped at the slide edge, that the headlines alone still tell the story, that every chart's highlighted mark matches its headline, and that the PDF has one slide per page.

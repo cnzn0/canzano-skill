@@ -130,8 +130,9 @@
 
 /* canzano tokens: the semantic layer. Needs palette.css first.
    Pages use these names, never a raw palette step, so both themes and a rebrand stay one edit.
-   Fonts load from Google Fonts (see template.html). Light is the default; dark follows the
-   system or data-theme="dark". */
+   Fonts load from Google Fonts (see template.html). Light is the default. On screen, dark follows
+   the system or data-theme="dark". Paper is always light, unless <html> also has class keep-theme.
+   The three dark blocks below must stay identical; tests/check.py verifies it. */
 
 :root {
   /* Neutrals */
@@ -215,7 +216,7 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --page: var(--grey-950);
     --raised: oklch(0.19 0.003 286);
@@ -255,485 +256,524 @@
     color-scheme: dark;
   }
 }
-:root[data-theme="dark"] {
-  --page: var(--grey-950);
-  --raised: oklch(0.19 0.003 286);
-  --panel: var(--grey-900);
-  --ink: oklch(0.964 0 0);
-  --ink-2: oklch(0.964 0 0 / 0.7);
-  --ink-3: oklch(0.964 0 0 / 0.5);
-  --rule: oklch(0.964 0 0 / 0.1);
-  --rule-strong: oklch(0.964 0 0 / 0.2);
+@media screen {
+  :root[data-theme="dark"] {
+    --page: var(--grey-950);
+    --raised: oklch(0.19 0.003 286);
+    --panel: var(--grey-900);
+    --ink: oklch(0.964 0 0);
+    --ink-2: oklch(0.964 0 0 / 0.7);
+    --ink-3: oklch(0.964 0 0 / 0.5);
+    --rule: oklch(0.964 0 0 / 0.1);
+    --rule-strong: oklch(0.964 0 0 / 0.2);
 
-  --accent: var(--violet-100);
-  --positive: var(--green-200);
-  --warning: var(--amber-200);
-  --negative: var(--red-100);
-  --info: var(--blue-100);
+    --accent: var(--violet-100);
+    --positive: var(--green-200);
+    --warning: var(--amber-200);
+    --negative: var(--red-100);
+    --info: var(--blue-100);
 
-  --series-1: var(--violet-100);
-  --series-2: var(--orange-200);
-  --series-3: var(--pink-200);
-  --series-4: var(--sky-200);
-  --series-5: var(--green-200);
-  --series-6: var(--yellow-200);
-  --series-7: var(--purple-100);
-  --series-8: var(--red-100);
+    --series-1: var(--violet-100);
+    --series-2: var(--orange-200);
+    --series-3: var(--pink-200);
+    --series-4: var(--sky-200);
+    --series-5: var(--green-200);
+    --series-6: var(--yellow-200);
+    --series-7: var(--purple-100);
+    --series-8: var(--red-100);
 
-  --btn-top: oklch(0.3 0 0);
-  --btn-mid: oklch(0.255 0 0);
-  --btn-edge: oklch(0.34 0 0);
-  --btn1-top: oklch(1 0 0);
-  --btn1-mid: oklch(0.93 0 0);
-  --btn1-edge: oklch(0.8 0 0);
-  --btn1-fg: oklch(0.15 0 0);
-  --btn-hover: brightness(1.1);
-  --thumb: oklch(0.964 0 0 / 0.12);
-  --thumb-edge: oklch(0.964 0 0 / 0.14);
-  --thumb-shadow: none;
-  color-scheme: dark;
+    --btn-top: oklch(0.3 0 0);
+    --btn-mid: oklch(0.255 0 0);
+    --btn-edge: oklch(0.34 0 0);
+    --btn1-top: oklch(1 0 0);
+    --btn1-mid: oklch(0.93 0 0);
+    --btn1-edge: oklch(0.8 0 0);
+    --btn1-fg: oklch(0.15 0 0);
+    --btn-hover: brightness(1.1);
+    --thumb: oklch(0.964 0 0 / 0.12);
+    --thumb-edge: oklch(0.964 0 0 / 0.14);
+    --thumb-shadow: none;
+    color-scheme: dark;
+  }
 }
-
-/* canzano base. Needs palette.css and tokens.css first. Mono carries structure, Inter carries prose and controls. */
-
-*, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0;
-  background: var(--page);
-  color: var(--ink);
-  font: 400 var(--text-body)/1.6 var(--sans);
-  font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased;
-}
-main { max-width: 1120px; margin: 0 auto; padding: var(--s6) var(--gutter) var(--s7); }
-.read { max-width: var(--measure); }
-
-h1, h2, h3, .label, th, figcaption, .meta, nav, .figure { font-family: var(--mono); font-weight: 400; }
-h1 { font-size: var(--text-title); line-height: 1.35; letter-spacing: -0.01em; margin: 0 0 var(--s3); }
-h2, .label, th {
-  font-size: var(--text-label); line-height: 1.6; letter-spacing: var(--tracking-caps);
-  text-transform: uppercase; color: var(--ink-2); margin: 0;
-}
-h3 { font-size: var(--text-small); line-height: 1.5; margin: 0 0 6px; }
-p { margin: 0 0 var(--s3); color: var(--ink-2); }
-p.lead { color: var(--ink); font-size: var(--text-lead); }
-.meta { font-size: var(--text-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3); }
-html { font-synthesis: none; }   /* never fake a bold or an italic the page did not load */
-strong, b { font-weight: 600; color: var(--ink); }
-/* Mono has no italic: emphasis there is full ink, upright. */
-:is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num, .ledger li > :last-child) :is(em, i), :is(em, i):is(.label, .meta, .figure) { font-style: normal; color: var(--ink); }
-/* In mono, emphasis is 500 and full ink: the mono face is loaded at 400 and 500 only. */
-:is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num, .ledger li > :last-child) :is(strong, b), :is(strong, b):is(.label, .meta, .figure) { font-weight: 500; }
-code, pre, kbd { font: var(--text-small)/1.6 var(--mono); }
-pre { margin: 0 0 var(--s4); padding: var(--s3) var(--s4); background: var(--panel); border-radius: var(--r-control); overflow-x: auto; }
-a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule-strong); transition: border-color var(--fast); }
-a:hover { border-color: var(--ink); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* Wrapping. Headings and short display lines balance, so no line ends in one stranded word.
-   Running text avoids a short last line. Units stay with their number through &nbsp; in the markup. */
-h1, h2, h3, .lead, .meta, figcaption, th, .label, blockquote { text-wrap: balance; }
-p, li, td, dd { text-wrap: pretty; }
-p, li { orphans: 2; widows: 2; }
-h1, h2, h3 { break-after: avoid; }
-
-/* Section: a hairline and a mono caps label. */
-section { border-top: 1px solid var(--rule-strong); padding-top: 14px; margin-top: var(--s6); }
-section > h2:first-child { margin-bottom: 20px; }
-
-/* Metric strip: columns between two rules, never tiles. */
-.metrics {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  border-top: 1px solid var(--rule-strong); border-bottom: 1px solid var(--rule); margin: var(--s5) 0;
-}
-.metrics + section { border-top: 0; margin-top: var(--s4); padding-top: 0; }
-.metrics > div { padding: var(--s4) var(--s4) var(--s4) 0; min-width: 0; }
-.figure { display: block; font-size: var(--text-figure); line-height: 1.2; margin-top: 10px; color: var(--ink); }
-.metrics .label, .metrics .meta, .panel .label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* one line each, so figures share a baseline */
-
-/* Ledger: label left, value right, hairline rows. */
-.ledger { list-style: none; margin: 0; padding: 0; }
-.ledger li {
-  display: flex; justify-content: space-between; gap: var(--s5); align-items: baseline;
-  padding: 11px 0; border-bottom: 1px solid var(--rule);
-}
-.ledger li > :last-child { font-family: var(--mono); text-align: right; }
-
-table { width: 100%; border-collapse: collapse; margin: 0 0 var(--s4); }
-th { text-align: left; white-space: nowrap; padding: 0 var(--s4) 10px 0; border-bottom: 1px solid var(--rule-strong); }
-td { padding: 11px var(--s4) 11px 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
-td.num, th.num { text-align: right; font-family: var(--mono); }
-/* Scroll cue: a hairline on the right edge of a table or diagram while more lies beyond it. */
-.table-wrap, figure.diagram {
-  overflow-x: auto;
-  background: linear-gradient(var(--page), var(--page)) right / 1px 100% no-repeat local, linear-gradient(var(--ink-3), var(--ink-3)) right / 1px 100% no-repeat scroll;
-}
-/* (Inside a panel the cue is off: its cover would show as a line on the panel fill.) */
-.panel .table-wrap, .panel figure.diagram { background: none; }
-
-/* Columns: items divided by a top rule, not boxed. */
-.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s5); }
-.cols > * { border-top: 1px solid var(--rule); padding-top: var(--s3); min-width: 0; }
-
-figure { margin: var(--s5) 0; }
-figure img, figure svg, figure video { display: block; width: 100%; height: auto; }
-/* ASCII from scripts/ascii.py. A system mono face, because it must have the box and block glyphs
-   at one width; a tight line height keeps vertical strokes joined. */
-pre.ascii { margin: 0 0 var(--s4); padding: 0; background: none; border-radius: 0; overflow-x: auto; color: var(--ink);
-  font: 13px/1.15 ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace; letter-spacing: 0; }
-pre.ascii.hero { font-size: clamp(3px, 1.15vw, 16px); line-height: 1; overflow-x: visible; }   /* scales with the page so a banner is never cut */
-pre.ascii .accent { color: var(--accent); }
-
-/* Charts and diagrams drawn by viz.js. --viz-text sets their label size (13px on slides). */
-figure.chart { margin: var(--s5) 0; }
-svg.cz { display: block; width: 100%; height: auto; overflow: visible; }
-svg.cz text { font-family: var(--mono); font-size: var(--viz-text, 11px); letter-spacing: 0.04em; fill: var(--ink-2); }
-svg.cz .ink { fill: var(--ink); }
-svg.cz .dim { fill: var(--ink-3); }
-svg.cz .at { fill: var(--accent); }
-svg.cz .onfill { fill: var(--page); }
-svg.cz .ln { stroke: var(--ink); stroke-width: 1; fill: none; }
-svg.cz .ln.a { stroke: var(--accent); }
-svg.cz .dash { stroke-dasharray: 3 3; }
-svg.cz .halo { paint-order: stroke; stroke: var(--page); stroke-width: 5px; stroke-linejoin: round; }
-svg.cz .grid { stroke: var(--rule); fill: none; }
-svg.cz .grid.strong, svg.cz .axis { stroke: var(--rule-strong); fill: none; }
-
-/* Diagrams keep their drawn size so labels stay readable. viz.js scales a too-wide one down to 10px labels
-   at most; past that, and for hand-drawn ones, the figure scrolls sideways. */
-figure.diagram { overflow-x: auto; }
-figure.diagram svg { width: auto; max-width: none; }   /* give a hand-drawn svg a width attribute equal to its viewBox width */
-figcaption { font-size: var(--text-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3); margin-top: 10px; }
-
-/* Controls. One recipe for every control, so any mix in a row lines up:
-   the same height (--control-h), radius, 1px edge and 14/21 text. Buttons and selects carry the
-   subtle fill; inputs sit on the page colour. Set a size once on a parent with .lg or .sm. */
-.lg { --control-h: 34px; --control-px: 12px; }
-.sm { --control-h: 23px; --control-px: 6px; }
-
-button, .button, select,
-input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea {
-  box-sizing: border-box; height: var(--control-h); margin: 0; padding: 0 var(--control-px);
-  font: 400 14px/21px var(--sans); letter-spacing: 0.02em;
-  border: 1px solid var(--btn-edge); border-radius: var(--r-control);
-}
-.sm :is(button, .button, select, input, textarea), :is(button, .button, select, input).sm { font-size: 13px; }
-
-button, .button, select {
-  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  white-space: nowrap; text-decoration: none; cursor: pointer; color: var(--btn-fg);
-  background: linear-gradient(var(--btn-top) 0%, var(--btn-mid) 37%, var(--btn-mid) 61%, color-mix(in oklab, var(--btn-top) 55%, var(--btn-mid)) 100%);
-  transition: filter var(--fast), transform var(--fast), color var(--fast);
-}
-button::after, .button::after {
-  content: ""; position: absolute; left: 0; right: 0; top: 50%;
-  height: var(--hit); transform: translateY(-50%);
-}
-button:hover, .button:hover, select:hover { filter: var(--btn-hover); }
-button:active, .button:active { transform: scale(0.97); }
-button.primary, .button.primary {
-  color: var(--btn1-fg); border-color: var(--btn1-edge);
-  background: linear-gradient(var(--btn1-top) 0%, var(--btn1-mid) 37%, var(--btn1-mid) 61%, color-mix(in oklab, var(--btn1-top) 55%, var(--btn1-mid)) 100%);
-}
-button.quiet, .button.quiet { background: none; border-color: transparent; color: var(--ink-2); }
-button.quiet:hover, .button.quiet:hover { color: var(--ink); filter: none; }
-button.danger, .button.danger { color: var(--negative); }
-button:disabled, select:disabled { color: var(--ink-3); cursor: default; filter: none; transform: none; opacity: 0.6; }
-button[aria-busy="true"] { color: transparent; cursor: progress; }
-button[aria-busy="true"]::before {
-  content: ""; position: absolute; inset: 0; margin: auto; width: 10px; height: 10px;
-  border: 1.5px solid var(--ink-3); border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite;
-}
-button.primary[aria-busy="true"]::before { border-color: var(--btn1-fg); border-top-color: transparent; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Select: a button with a chevron drawn from two gradients, so it follows the theme. */
-select {
-  appearance: none; -webkit-appearance: none; justify-content: flex-start; padding-right: 24px;
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%),
-    linear-gradient(var(--btn-top) 0%, var(--btn-mid) 37%, var(--btn-mid) 61%, color-mix(in oklab, var(--btn-top) 55%, var(--btn-mid)) 100%);
-  background-size: 4px 4px, 4px 4px, 100% 100%;
-  background-position: right 12px top 50%, right 8px top 50%, 0 0; background-repeat: no-repeat;
-}
-
-input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea {
-  width: 100%; min-width: 0; color: var(--ink); background: var(--page); transition: border-color var(--fast);
-}
-textarea { height: auto; min-height: calc(var(--control-h) * 3); padding: 5px var(--control-px); resize: vertical; }
-input::placeholder, textarea::placeholder { color: var(--ink-3); }
-input:hover, textarea:hover { border-color: var(--rule-strong); }
-:is(input, select, textarea):focus-visible { outline-offset: 1px; }
-:is(input, select, textarea)[aria-invalid="true"] { border-color: var(--negative); }
-label { display: block; font: var(--text-label)/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
-
-/* Segmented control: a panel track the same height as a button; the selected segment is a raised
-   thumb. It does not slide. */
-.segmented { box-sizing: border-box; display: inline-flex; gap: 2px; height: var(--control-h); padding: 2px; background: var(--panel); border-radius: var(--r-control); }
-.segmented button {
-  height: 100%; padding: 0 calc(var(--control-px) - 1px); background: none; border-color: transparent; color: var(--ink-2);
-  border-radius: calc(var(--r-control) - 2px); transition: color var(--fast);
-}
-.segmented button:hover { filter: none; color: var(--ink); }
-.segmented button:active { transform: none; }
-.segmented button[aria-pressed="true"] { color: var(--ink); background: var(--thumb); border-color: var(--thumb-edge); box-shadow: var(--thumb-shadow); }
-
-/* Row: controls side by side. They share one height; inputs take a sensible width, not the rest. */
-.row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
-.row > :is(input, select, .affix) { width: auto; flex: 0 1 200px; }
-.row > .grow { flex: 1 1 200px; }
-/* Width helpers. :is() lifts them above the base rule that makes an input fill its container. */
-:is(input, select, textarea, button, .affix, .joined).w-xs, .row > .w-xs { width: 64px; flex: 0 0 64px; }
-:is(input, select, textarea, button, .affix, .joined).w-s, .row > .w-s { width: 120px; flex: 0 0 120px; }
-:is(input, select, textarea, button, .affix, .joined).w-m, .row > .w-m { width: 200px; max-width: 100%; flex: 0 1 200px; }
-:is(input, select, textarea, button, .affix, .joined).w-l, .row > .w-l { width: 320px; max-width: 100%; flex: 0 1 320px; }
-.joined > input.w-xs { width: 48px; flex: 0 0 48px; text-align: center; }
-.row > .push { margin-left: auto; }
-
-/* Joined: controls that act as one (search and its button, a stepper). One shared edge. */
-.joined { display: inline-flex; }
-/* :is() lifts these above the base control rule, which would otherwise keep every corner round. */
-.joined > :is(button, .button, input, select, .affix, *) { border-radius: 0; margin-left: -1px; }
-.joined > :is(button, .button, input, select, .affix, *):first-child { margin-left: 0; border-radius: var(--r-control) 0 0 var(--r-control); }
-.joined > :is(button, .button, input, select, .affix, *):last-child { border-radius: 0 var(--r-control) var(--r-control) 0; }
-.joined > :is(button, .button, input, select, .affix, *):only-child { border-radius: var(--r-control); }
-.joined > :is(:focus-visible, :hover) { z-index: 1; }
-.joined > input { width: auto; flex: 1 1 160px; }
-.joined.stepper > button { width: var(--control-h); padding: 0; flex: none; }   /* equal squares either side of the number */
-
-/* Affix: an input with a unit or prefix inside the same box. */
-.affix {
-  box-sizing: border-box; display: inline-flex; align-items: center; width: 100%; height: var(--control-h); margin: 0;
-  background: var(--page); border: 1px solid var(--btn-edge); border-radius: var(--r-control);
-}
-.affix:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
-.affix > input { border: 0; background: none; height: 100%; min-width: 0; outline: 0; }
-.affix > span { padding: 0 var(--control-px); font: 12px/1 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
-.affix > span:first-child { padding-right: 0; }
-
-/* Checkbox, radio, switch: 16px, the same edge, ink when on. */
-input[type="checkbox"], input[type="radio"] {
-  appearance: none; -webkit-appearance: none; flex: none; width: 16px; height: 16px; margin: 0; cursor: pointer;
-  background: var(--page); border: 1px solid var(--rule-strong); border-radius: 4px; transition: background-color var(--fast), border-color var(--fast);
-}
-input[type="radio"] { border-radius: 50%; }
-input[type="checkbox"]:checked, input[type="radio"]:checked { background: var(--ink); border-color: var(--ink); box-shadow: inset 0 0 0 3px var(--page); }
-input[type="checkbox"].switch { width: 28px; border-radius: 8px; background: var(--panel) radial-gradient(circle at 8px 50%, var(--ink-3) 0 5px, transparent 5.5px); box-shadow: none; }
-input[type="checkbox"].switch:checked { background: var(--ink) radial-gradient(circle at 19px 50%, var(--page) 0 5px, transparent 5.5px); box-shadow: none; }
-.check { display: inline-flex; align-items: center; gap: var(--s2); margin: 0; min-height: var(--control-h); font: 400 14px/21px var(--sans); letter-spacing: 0.02em; text-transform: none; color: var(--ink); cursor: pointer; }
-
-/* Settings row: a ledger row with the label and one line of detail left, one control right.
-   It stays a row on a phone. */
-.ledger.settings li { flex-direction: row; align-items: center; }
-.ledger.settings li > :last-child { flex: none; text-align: right; font-family: var(--sans); }
-.ledger.settings small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-3); }
-
-/* Form: label above, control, then one line of hint or error. Actions close the form. */
-.form { display: grid; gap: var(--s4); max-width: 440px; }
-.field { display: grid; gap: 6px; min-width: 0; }
-.field > label { margin: 0; }
-.field > .hint, .field > .error { font: 400 13px/18px var(--sans); color: var(--ink-3); }
-.field > .error { color: var(--negative); }
-.pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
-.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
-.actions.end { justify-content: flex-end; }
-
-/* Stack: radios or checks one under another, each with room for a line of explanation. */
-.stack { display: grid; gap: var(--s2); }
-.stack .check { align-items: flex-start; }
-.stack .check small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-3); letter-spacing: 0; }
-
-/* Menu: the one floating surface, and the one shadow in the system. */
-.menu { position: absolute; z-index: 10; min-width: 180px; padding: var(--s1); background: var(--raised); border: 1px solid var(--rule-strong); border-radius: var(--r-control); box-shadow: 0 8px 24px oklch(0.2 0.02 278 / 0.16); }
-.menu > :is(a, button) { box-sizing: border-box; display: flex; align-items: center; width: 100%; justify-content: flex-start; text-decoration: none; height: var(--control-h); padding: 0 var(--control-px); background: none; border: 0; border-radius: calc(var(--r-control) - 2px); font: 400 14px/21px var(--sans); color: var(--ink); }
-.menu > :is(a, button):hover, .menu > [aria-current] { background: var(--panel); filter: none; }
-.menu > .danger { color: var(--negative); }
-
-/* Selected row in a table or ledger: full ink and a mark in a narrow first cell, while the other rows dim. */
-td.mark { width: 20px; padding-right: 0; font-family: var(--mono); color: transparent; }
-tbody:has(tr[aria-selected]) td, ul:has(> li[aria-selected]) > li { color: var(--ink-2); }
-tbody:has(tr[aria-selected]) td.mark { color: transparent; }
-tbody:has(tr[aria-selected]) tr[aria-selected="true"] td, ul:has(> li[aria-selected]) > li[aria-selected="true"] { color: var(--ink); }
-
-/* Panel: a flat fill with a 12px radius. No edge, no shadow. */
-.panel { background: var(--panel); border-radius: var(--r-panel); padding: var(--s4); min-width: 0; }
-.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s2); }
-.panel .figure { font-size: 22px; margin-top: 6px; }
-
-/* Wide action: a full-width panel row, label left, arrow right. */
-.wide {
-  display: flex; justify-content: space-between; align-items: center; padding: var(--s2) var(--s3);
-  background: var(--panel); border: 0; border-radius: var(--r-control); color: var(--ink-2);
-  font: 400 14px/21px var(--sans); letter-spacing: 0.02em; transition: color var(--fast);
-}
-.wide::after { content: "→"; color: var(--ink-3); }
-.wide:hover { color: var(--ink); }
-
-/* Colour utilities last, so they win. */
-.accent { color: var(--accent); }
-.positive { color: var(--positive); }
-.warning { color: var(--warning); }
-.negative { color: var(--negative); }
-.info { color: var(--info); }
-
-@media (max-width: 640px) {
-  :root { --gutter: 16px; }
-  /* Phones zoom the page on input text under 16px, so every control steps up together and a row stays even. */
-  button, .button, select, .check, .wide, :is(input, textarea):not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
-  .sm :is(button, .button, select, input, textarea), :is(button, .button, select, input).sm { font-size: 16px; }
-  main { padding-top: 28px; }
-  .ledger li { flex-direction: column; gap: var(--s1); }
-  .ledger li > :last-child { text-align: left; }
-  .ledger.settings li { flex-direction: row; gap: var(--s4); }
-  .table-wrap > table { min-width: 560px; }   /* a wide table scrolls sideways; it does not wrap to a word per line */
-  .ledger.settings li > :last-child { text-align: right; }
-}
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } button[aria-busy="true"]::before { animation-duration: 2s; } }
-
-/* Print and PDF: always light, A4, mono page numbers. The running header text is set per
-   document in template.html, because it has to be a literal string. */
 @media print {
-  @page {
-    size: A4; margin: 20mm;
-    @bottom-right { content: counter(page) " / " counter(pages); font: 8pt "Geist Mono", monospace; color: oklch(0.557 0.008 286); }
+  :root[data-theme="dark"].keep-theme {
+    --page: var(--grey-950);
+    --raised: oklch(0.19 0.003 286);
+    --panel: var(--grey-900);
+    --ink: oklch(0.964 0 0);
+    --ink-2: oklch(0.964 0 0 / 0.7);
+    --ink-3: oklch(0.964 0 0 / 0.5);
+    --rule: oklch(0.964 0 0 / 0.1);
+    --rule-strong: oklch(0.964 0 0 / 0.2);
+
+    --accent: var(--violet-100);
+    --positive: var(--green-200);
+    --warning: var(--amber-200);
+    --negative: var(--red-100);
+    --info: var(--blue-100);
+
+    --series-1: var(--violet-100);
+    --series-2: var(--orange-200);
+    --series-3: var(--pink-200);
+    --series-4: var(--sky-200);
+    --series-5: var(--green-200);
+    --series-6: var(--yellow-200);
+    --series-7: var(--purple-100);
+    --series-8: var(--red-100);
+
+    --btn-top: oklch(0.3 0 0);
+    --btn-mid: oklch(0.255 0 0);
+    --btn-edge: oklch(0.34 0 0);
+    --btn1-top: oklch(1 0 0);
+    --btn1-mid: oklch(0.93 0 0);
+    --btn1-edge: oklch(0.8 0 0);
+    --btn1-fg: oklch(0.15 0 0);
+    --btn-hover: brightness(1.1);
+    --thumb: oklch(0.964 0 0 / 0.12);
+    --thumb-edge: oklch(0.964 0 0 / 0.14);
+    --thumb-shadow: none;
+    color-scheme: dark;
   }
-  :root:not(.keep-theme), :root[data-theme="dark"]:not(.keep-theme) {
-    --page: var(--grey-0);
-    --raised: var(--grey-50);
-    --panel: var(--grey-100);
-    --ink: oklch(0.293 0.011 293);
-    --ink-2: var(--grey-600);
-    --ink-3: var(--grey-500);
-    --rule: var(--grey-150);
-    --rule-strong: var(--grey-300);
-    --accent: var(--violet-300);
-    --positive: var(--green-700);
-    --warning: var(--amber-700);
-    --negative: var(--red-300);
-    --info: var(--blue-400);
-    --accent-soft: color-mix(in oklab, var(--accent) 12%, var(--page));
-    --positive-soft: color-mix(in oklab, var(--positive) 12%, var(--page));
-    --warning-soft: color-mix(in oklab, var(--warning) 14%, var(--page));
-    --negative-soft: color-mix(in oklab, var(--negative) 12%, var(--page));
-    --info-soft: color-mix(in oklab, var(--info) 12%, var(--page));
-    --series-1: var(--violet-300);
-    --series-2: var(--orange-400);
-    --series-3: var(--pink-400);
-    --series-4: var(--sky-500);
-    --series-5: var(--green-500);
-    --series-6: var(--yellow-500);
-    --series-7: var(--purple-300);
-    --series-8: var(--red-300);
-    --btn-top: oklch(0.975 0 0);
-    --btn-mid: oklch(0.95 0 0);
-    --btn-edge: var(--grey-200);
-    --btn-fg: var(--ink);
-    --btn1-top: oklch(0.42 0.011 293);
-    --btn1-mid: oklch(0.293 0.011 293);
-    --btn1-edge: oklch(0.22 0.011 293);
-    --btn1-fg: oklch(1 0 0);
-    --btn-hover: brightness(0.97);
-    --thumb: oklch(1 0 0);
-    --thumb-edge: transparent;
-    --thumb-shadow: 0 1px 2px oklch(0.25 0.02 278 / 0.18), 0 0 0 0.5px oklch(0.25 0.02 278 / 0.12);
-    color-scheme: light;
+}
+
+/* canzano base. Load after palette.css and tokens.css.
+
+   The rules live in cascade layers. A later layer beats an earlier one whatever the selectors say,
+   so a helper class always wins over a component, and a component over an element default:
+
+     base        element defaults: type, links, tables, wrapping
+     controls    buttons, inputs, selects, checks
+     components  strips, ledgers, panels, rows, forms, menus, figures
+     ui          the interface layer (ui.css)
+     viz         charts and generated diagrams (kits/charts/viz.css)
+     print       paper
+     deck        slides (kits/decks/deck.css)
+     helpers     width, colour and layout helpers
+
+   Styles a page writes for itself sit outside the layers and beat all of them. Do not raise a
+   selector's specificity to win a fight here: put the rule in the right layer. */
+
+@layer base, controls, components, ui, viz, print, deck, helpers;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; font-synthesis: none; }   /* never fake a bold or an italic the page did not load */
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font: 400 var(--text-body)/1.6 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased;
   }
-  body { font-size: 10.5pt; }
-  main { max-width: none; padding: 0; }
-  h2, h3 { break-after: avoid; }
-  tr, li, figure, .metrics { break-inside: avoid; }
-  .table-wrap, figure.diagram { overflow: visible; background: none; }
-  figure.diagram svg { max-width: 100% !important; height: auto; }   /* a wide diagram shrinks to the page; it cannot scroll on paper */
-  .table-wrap > table { min-width: 0; }
-  a { border: 0; }
-  button, nav, .no-print { display: none; }
+  main { max-width: 1120px; margin: 0 auto; padding: var(--s6) var(--gutter) var(--s7); }
+
+  /* Type: mono carries structure, the reading face carries prose. */
+  h1, h2, h3, .label, th, figcaption, .meta, nav, .figure { font-family: var(--mono); font-weight: 400; }
+  h1 { font-size: var(--text-title); line-height: 1.35; letter-spacing: -0.01em; margin: 0 0 var(--s3); }
+  h2, .label, th {
+    font-size: var(--text-label); line-height: 1.6; letter-spacing: var(--tracking-caps);
+    text-transform: uppercase; color: var(--ink-2); margin: 0;
+  }
+  h3 { font-size: var(--text-small); line-height: 1.5; margin: 0 0 6px; }
+  p { margin: 0 0 var(--s3); color: var(--ink-2); }
+  p.lead { color: var(--ink); font-size: var(--text-lead); }
+  .meta, figcaption { font-size: var(--text-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3); }
+  figcaption { margin-top: 10px; }
+  strong, b { font-weight: 600; color: var(--ink); }
+  /* The mono face is loaded upright at 400 and 500: emphasis inside it is 500 and full ink, never italic. */
+  :is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num) :is(strong, b) { font-weight: 500; }
+  :is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num) :is(em, i) { font-style: normal; color: var(--ink); }
+  code, pre, kbd { font: var(--text-small)/1.6 var(--mono); }
+  pre { margin: 0 0 var(--s4); padding: var(--s3) var(--s4); background: var(--panel); border-radius: var(--r-control); overflow-x: auto; }
+  a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule-strong); transition: border-color var(--fast); }
+  a:hover { border-color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* Wrapping: headings and short display lines balance, so no line ends in one stranded word.
+     Running text avoids a short last line. A number keeps its unit through &nbsp; in the markup. */
+  h1, h2, h3, .lead, .meta, figcaption, th, .label, blockquote { text-wrap: balance; }
+  p, li, td, dd { text-wrap: pretty; }
+  p, li { orphans: 2; widows: 2; }
+  h1, h2, h3 { break-after: avoid; }
+
+  /* Section: a hairline and a mono caps label. */
+  section { border-top: 1px solid var(--rule-strong); padding-top: 14px; margin-top: var(--s6); }
+  section > h2:first-child { margin-bottom: 20px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 var(--s4); }
+  th { text-align: left; white-space: nowrap; padding: 0 var(--s4) 10px 0; border-bottom: 1px solid var(--rule-strong); }
+  td { padding: 11px var(--s4) 11px 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+  td.num, th.num { text-align: right; font-family: var(--mono); }
+
+  figure { margin: var(--s5) 0; }
+  figure img, figure svg, figure video { display: block; width: 100%; height: auto; }
+
+  @media (max-width: 640px) {
+    :root { --gutter: 16px; }
+    main { padding-top: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+}
+
+@layer controls {
+  /* One recipe for every control, so any mix in a row lines up: the same height (--control-h), radius,
+     1px edge and 14/21 text. Buttons and selects carry the subtle fill; inputs sit on the page colour. */
+  button, .button, select,
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea {
+    box-sizing: border-box; height: var(--control-h); margin: 0; padding: 0 var(--control-px);
+    font: 400 14px/21px var(--sans); letter-spacing: 0.02em;
+    border: 1px solid var(--btn-edge); border-radius: var(--r-control);
+  }
+  .sm :is(button, .button, select, input, textarea), :is(button, .button, select, input).sm { font-size: 13px; }
+
+  button, .button, select {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    white-space: nowrap; text-decoration: none; cursor: pointer; color: var(--btn-fg);
+    background: linear-gradient(var(--btn-top) 0%, var(--btn-mid) 37%, var(--btn-mid) 61%, color-mix(in oklab, var(--btn-top) 55%, var(--btn-mid)) 100%);
+    transition: filter var(--fast), transform var(--fast), color var(--fast);
+  }
+  button::after, .button::after {            /* the hit area: wider than the painted box, never visible */
+    content: ""; position: absolute; left: 0; right: 0; top: 50%;
+    height: var(--hit); transform: translateY(-50%);
+  }
+  button:hover, .button:hover, select:hover { filter: var(--btn-hover); }
+  button:active, .button:active { transform: scale(0.97); }
+  button.primary, .button.primary {
+    color: var(--btn1-fg); border-color: var(--btn1-edge);
+    background: linear-gradient(var(--btn1-top) 0%, var(--btn1-mid) 37%, var(--btn1-mid) 61%, color-mix(in oklab, var(--btn1-top) 55%, var(--btn1-mid)) 100%);
+  }
+  button.quiet, .button.quiet { background: none; border-color: transparent; color: var(--ink-2); }
+  button.quiet:hover, .button.quiet:hover { color: var(--ink); filter: none; }
+  button.danger, .button.danger { color: var(--negative); }
+  button:disabled, select:disabled { color: var(--ink-3); cursor: default; filter: none; transform: none; opacity: 0.6; }
+  button[aria-busy="true"] { color: transparent; cursor: progress; }
+  button[aria-busy="true"]::before {
+    content: ""; position: absolute; inset: 0; margin: auto; width: 10px; height: 10px;
+    border: 1.5px solid var(--ink-3); border-top-color: transparent; border-radius: 50%; animation: cz-spin 0.7s linear infinite;
+  }
+  button.primary[aria-busy="true"]::before { border-color: var(--btn1-fg); border-top-color: transparent; }
+  @keyframes cz-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { button[aria-busy="true"]::before { animation-duration: 2s; } }
+
+  /* Select: a button with a chevron drawn from two gradients, so it follows the theme. */
+  select {
+    appearance: none; -webkit-appearance: none; justify-content: flex-start; padding-right: 24px;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%),
+      linear-gradient(var(--btn-top) 0%, var(--btn-mid) 37%, var(--btn-mid) 61%, color-mix(in oklab, var(--btn-top) 55%, var(--btn-mid)) 100%);
+    background-size: 4px 4px, 4px 4px, 100% 100%;
+    background-position: right 12px top 50%, right 8px top 50%, 0 0; background-repeat: no-repeat;
+  }
+
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea {
+    width: 100%; min-width: 0; color: var(--ink); background: var(--page); transition: border-color var(--fast);
+  }
+  textarea { height: auto; min-height: calc(var(--control-h) * 3); padding: 5px var(--control-px); resize: vertical; }
+  input::placeholder, textarea::placeholder { color: var(--ink-3); }
+  input:hover, textarea:hover { border-color: var(--rule-strong); }
+  :is(input, select, textarea):focus-visible { outline-offset: 1px; }
+  :is(input, select, textarea)[aria-invalid="true"] { border-color: var(--negative); }
+  label { display: block; font: var(--text-label)/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
+
+  /* Checkbox, radio, switch: 16px, the same edge, ink when on. */
+  input[type="checkbox"], input[type="radio"] {
+    appearance: none; -webkit-appearance: none; flex: none; width: 16px; height: 16px; margin: 0; cursor: pointer;
+    background: var(--page); border: 1px solid var(--rule-strong); border-radius: 4px; transition: background-color var(--fast), border-color var(--fast);
+  }
+  input[type="radio"] { border-radius: 50%; }
+  input[type="checkbox"]:checked, input[type="radio"]:checked { background: var(--ink); border-color: var(--ink); box-shadow: inset 0 0 0 3px var(--page); }
+  input[type="checkbox"].switch { width: 28px; border-radius: 8px; background: var(--panel) radial-gradient(circle at 8px 50%, var(--ink-3) 0 5px, transparent 5.5px); box-shadow: none; }
+  input[type="checkbox"].switch:checked { background: var(--ink) radial-gradient(circle at 19px 50%, var(--page) 0 5px, transparent 5.5px); box-shadow: none; }
+  .check { display: inline-flex; align-items: center; gap: var(--s2); margin: 0; min-height: var(--control-h); font: 400 14px/21px var(--sans); letter-spacing: 0.02em; text-transform: none; color: var(--ink); cursor: pointer; }
+
+  /* Phones zoom the page on input text under 16px, so every control steps up together and a row stays even. */
+  @media (max-width: 640px) {
+    button, .button, select, .check, textarea,
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+    .sm :is(button, .button, select, input, textarea), :is(button, .button, select, input).sm { font-size: 16px; }
+  }
+}
+
+@layer components {
+  /* Metric strip: columns between two rules. */
+  .metrics {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    border-top: 1px solid var(--rule-strong); border-bottom: 1px solid var(--rule); margin: var(--s5) 0;
+  }
+  .metrics + section { border-top: 0; margin-top: var(--s4); padding-top: 0; }
+  .metrics > div { padding: var(--s4) var(--s4) var(--s4) 0; min-width: 0; }
+  .figure { display: block; font-size: var(--text-figure); line-height: 1.2; margin-top: 10px; color: var(--ink); }
+  .metrics .label, .metrics .meta, .panel .label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* one line each, so figures share a baseline */
+
+  /* Ledger: label left, value right, hairline rows. */
+  .ledger { list-style: none; margin: 0; padding: 0; }
+  .ledger li { display: flex; justify-content: space-between; gap: var(--s5); align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--rule); }
+  .ledger li > :last-child { font-family: var(--mono); text-align: right; }
+  .ledger li > :last-child :is(strong, b) { font-weight: 500; }
+  .ledger li > :last-child :is(em, i) { font-style: normal; color: var(--ink); }
+
+  /* Settings row: a ledger row with the label and one line of detail left, one control right. It stays a row on a phone. */
+  .ledger.settings li { align-items: center; }
+  .ledger.settings li > :last-child { flex: none; font-family: var(--sans); }
+  .ledger.settings small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-3); }
+
+  /* Selected row in a table or ledger: full ink and a mark in a narrow first cell, while the other rows dim. */
+  td.mark { width: 20px; padding-right: 0; font-family: var(--mono); color: transparent; }
+  tbody:has(tr[aria-selected]) td, ul:has(> li[aria-selected]) > li { color: var(--ink-2); }
+  tbody:has(tr[aria-selected]) td.mark { color: transparent; }
+  tbody:has(tr[aria-selected]) tr[aria-selected="true"] td, ul:has(> li[aria-selected]) > li[aria-selected="true"] { color: var(--ink); }
+
+  /* Columns: items divided by a top rule, not boxed. */
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s5); }
+  .cols > * { border-top: 1px solid var(--rule); padding-top: var(--s3); min-width: 0; }
+
+  /* A table or a diagram wider than its container scrolls sideways. A hairline on its right edge shows
+     while more lies beyond it. Inside a panel the cue is off (its cover would show on the panel fill). */
+  .table-wrap, figure.diagram {
+    overflow-x: auto;
+    background: linear-gradient(var(--page), var(--page)) right / 1px 100% no-repeat local, linear-gradient(var(--ink-3), var(--ink-3)) right / 1px 100% no-repeat scroll;
+  }
+  .panel .table-wrap, .panel figure.diagram { background: none; }
+  /* A diagram keeps the size it was drawn at, so its labels stay readable. Give a hand-drawn svg a
+     width attribute equal to its viewBox width. */
+  figure.diagram svg { width: auto; max-width: none; }
+
+  /* Hand-drawn diagram: add class "dg" to the svg. One stroke, mono caps labels, colour through the tokens.
+     .s a stroke, .s.a the accented path, .at accent text, .mid and .dim the quieter inks, .pkt a moving mark. */
+  svg.dg text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; fill: var(--ink); }
+  svg.dg .s { stroke: var(--ink); stroke-width: 1; fill: none; }
+  svg.dg .s.a { stroke: var(--accent); }
+  svg.dg .at { fill: var(--accent); }
+  svg.dg .mid { fill: var(--ink-2); }
+  svg.dg .dim { fill: var(--ink-3); }
+  svg.dg .pkt { fill: var(--accent); }
+
+  /* Panel: a flat fill with a 12px radius. No edge, no shadow. */
+  .panel { background: var(--panel); border-radius: var(--r-panel); padding: var(--s4); min-width: 0; }
+  .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s2); }
+  .panel .figure { font-size: 22px; margin-top: 6px; }
+
+  /* Wide action: a full-width panel row, label left, arrow right. */
+  .wide {
+    display: flex; justify-content: space-between; align-items: center; padding: var(--s2) var(--s3);
+    background: var(--panel); border: 0; border-radius: var(--r-control); color: var(--ink-2);
+    font: 400 14px/21px var(--sans); letter-spacing: 0.02em; transition: color var(--fast);
+  }
+  .wide::after { content: "→"; color: var(--ink-3); }
+  .wide:hover { color: var(--ink); }
+
+  /* Segmented control: a panel track the same height as a button; the selected segment is a raised thumb. It does not slide. */
+  .segmented { box-sizing: border-box; display: inline-flex; gap: 2px; height: var(--control-h); padding: 2px; background: var(--panel); border-radius: var(--r-control); }
+  .segmented button {
+    height: 100%; padding: 0 calc(var(--control-px) - 1px); background: none; border-color: transparent; color: var(--ink-2);
+    border-radius: calc(var(--r-control) - 2px); transition: color var(--fast);
+  }
+  .segmented button:hover { filter: none; color: var(--ink); }
+  .segmented button:active { transform: none; }
+  .segmented button[aria-pressed="true"] { color: var(--ink); background: var(--thumb); border-color: var(--thumb-edge); box-shadow: var(--thumb-shadow); }
+
+  /* Row: controls side by side. They share one height; inputs take a sensible width, not the rest. */
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+  .row > :is(input, select, .affix) { width: auto; flex: 0 1 200px; }
+
+  /* Joined: controls that act as one (search and its button, a stepper). One shared edge, outer corners only. */
+  .joined { display: inline-flex; }
+  .joined > * { border-radius: 0; margin-left: -1px; }
+  .joined > :first-child { margin-left: 0; border-radius: var(--r-control) 0 0 var(--r-control); }
+  .joined > :last-child { border-radius: 0 var(--r-control) var(--r-control) 0; }
+  .joined > :only-child { border-radius: var(--r-control); }
+  .joined > :is(:focus-visible, :hover) { z-index: 1; }
+  .joined > input { width: auto; flex: 1 1 160px; }
+  .joined.stepper > button { width: var(--control-h); padding: 0; flex: none; }   /* equal squares either side of the number */
+  .joined.stepper > input { width: 48px; flex: 0 0 48px; text-align: center; }
+
+  /* Affix: an input with a unit or prefix inside the same box. */
+  .affix {
+    box-sizing: border-box; display: inline-flex; align-items: center; width: 100%; height: var(--control-h); margin: 0;
+    background: var(--page); border: 1px solid var(--btn-edge); border-radius: var(--r-control);
+  }
+  .affix:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .affix > input { border: 0; background: none; height: 100%; min-width: 0; outline: 0; }
+  .affix > span { padding: 0 var(--control-px); font: 12px/1 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+  .affix > span:first-child { padding-right: 0; }
+
+  /* Form: label above, control, then one line of hint or error. Actions close the form. */
+  .form { display: grid; gap: var(--s4); max-width: 440px; }
+  .field { display: grid; gap: 6px; min-width: 0; justify-items: start; }
+  .field > :is(input, select, textarea, .affix, .joined) { justify-self: stretch; }
+  .field > label { margin: 0; }
+  .field > .hint, .field > .error { font: 400 13px/18px var(--sans); color: var(--ink-3); }
+  .field > .error { color: var(--negative); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+  .actions.end { justify-content: flex-end; }
+
+  /* Stack: radios or checks one under another, each with room for a line of explanation. */
+  .stack { display: grid; gap: var(--s2); }
+  .stack .check { align-items: flex-start; }
+  .stack .check small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-3); letter-spacing: 0; }
+
+  /* Menu: the one floating surface, and the one shadow in the system. */
+  .menu { position: absolute; z-index: 10; min-width: 180px; padding: var(--s1); background: var(--raised); border: 1px solid var(--rule-strong); border-radius: var(--r-control); box-shadow: 0 8px 24px oklch(0.2 0.02 278 / 0.16); }
+  .menu > :is(a, button) { display: flex; align-items: center; justify-content: flex-start; width: 100%; height: var(--control-h); padding: 0 var(--control-px); background: none; border: 0; border-radius: calc(var(--r-control) - 2px); font: 400 14px/21px var(--sans); letter-spacing: 0.02em; text-decoration: none; color: var(--ink); }
+  .menu > :is(a, button):hover, .menu > [aria-current] { background: var(--panel); filter: none; }
+  .menu > .danger { color: var(--negative); }
+
+  /* ASCII (kits/ascii). A system mono face, because it must have the box and block glyphs at one width;
+     a tight line height keeps vertical strokes joined. */
+  pre.ascii { margin: 0 0 var(--s4); padding: 0; background: none; border-radius: 0; overflow-x: auto; color: var(--ink);
+    font: 13px/1.15 ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+  pre.ascii.hero { font-size: clamp(3px, 1.15vw, 16px); line-height: 1; overflow-x: visible; }   /* scales with the page so a banner is never cut */
+
+  @media (max-width: 640px) {
+    .ledger:not(.settings) li { flex-direction: column; gap: var(--s1); }
+    .ledger:not(.settings) li > :last-child { text-align: left; }
+    .ledger.settings li { gap: var(--s4); }
+    .table-wrap > table { min-width: 560px; }   /* a wide table scrolls sideways; it does not wrap to a word per line */
+  }
+}
+
+@layer print {
+  @media print {
+    body { font-size: 10.5pt; }
+    main { max-width: none; padding: 0; }
+    tr, li, figure, .metrics { break-inside: avoid; }
+    .table-wrap, figure.diagram { overflow: visible; background: none; }
+    figure.diagram svg { max-width: 100% !important; height: auto; }   /* a wide diagram shrinks to the page; it cannot scroll on paper */
+    .table-wrap > table { min-width: 0; }
+    a { border: 0; }
+    button, nav, .no-print { display: none; }
+  }
+}
+
+@layer helpers {
+  /* Control size, set once on a parent: .sm for dense tables and toolbars, .lg for the main actions on a phone. */
+  .lg { --control-h: 34px; --control-px: 12px; }
+  .sm { --control-h: 23px; --control-px: 6px; }
+
+  /* Widths for a control whose content has a known length. */
+  .w-xs { width: 64px; flex: 0 0 64px; }
+  .w-s { width: 120px; flex: 0 0 120px; }
+  .w-m { width: 200px; max-width: 100%; flex: 0 1 200px; }
+  .w-l { width: 320px; max-width: 100%; flex: 0 1 320px; }
+  .grow { flex: 1 1 200px; }
+  .push { margin-left: auto; }
+  .read { max-width: var(--measure); }
+
+  /* Colour: one job each. */
+  .accent { color: var(--accent); }
+  .positive { color: var(--positive); }
+  .warning { color: var(--warning); }
+  .negative { color: var(--negative); }
+  .info { color: var(--info); }
+}
+
+/* Paper: A4, 20mm margins, mono page numbers. The running header text is set per document in
+   template.html, because it has to be a literal string. Print is light unless <html> has class
+   keep-theme (see tokens.css). */
+@page {
+  size: A4; margin: 20mm;
+  @bottom-right { content: counter(page) " / " counter(pages); font: 8pt "Geist Mono", monospace; color: oklch(0.557 0.008 286); }
 }
 
 
-svg text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; fill: var(--ink); }
-svg .s { stroke: var(--ink); stroke-width: 1; fill: none; }
-svg .s.a { stroke: var(--accent); }
-svg .at { fill: var(--accent); }
-svg .dim { fill: var(--ink-3); }
-svg .mid { fill: var(--ink-2); }
 
-/* canzano deck. Load after palette.css, tokens.css and base.css.
+/* canzano charts kit. Styles for what viz.js draws. Load after base.css. It is the `viz` layer.
+   --viz-text sets the label size: 11px on a page, 13px on a slide. */
+
+@layer viz {
+  figure.chart { margin: var(--s5) 0; }
+  svg.cz { display: block; width: 100%; height: auto; overflow: visible; }
+  svg.cz text { font-family: var(--mono); font-size: var(--viz-text, 11px); letter-spacing: 0.04em; fill: var(--ink-2); }
+  svg.cz .ink { fill: var(--ink); }
+  svg.cz .dim { fill: var(--ink-3); }
+  svg.cz .at { fill: var(--accent); }
+  svg.cz .onfill { fill: var(--page); }
+  svg.cz .ln { stroke: var(--ink); stroke-width: 1; fill: none; }
+  svg.cz .ln.a { stroke: var(--accent); }
+  svg.cz .dash { stroke-dasharray: 3 3; }
+  svg.cz .halo { paint-order: stroke; stroke: var(--page); stroke-width: 5px; stroke-linejoin: round; }
+  svg.cz .grid { stroke: var(--rule); fill: none; }
+  svg.cz .grid.strong, svg.cz .axis { stroke: var(--rule-strong); fill: none; }
+}
+
+/* canzano deck. Load after base.css. It is the `deck` layer, above print, so its rules hold on paper too.
    Slides are a fixed 1280 x 720 and scale to the window, so every size below is in slide pixels.
    Print gives one slide per page: scripts/pdf.sh deck.html deck.pdf */
 
-body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
-.deck { --z: 1; --x: 16px; padding: 16px 0 0; counter-reset: slide; }
+@layer deck {
+  body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
+  .deck { --z: 1; --x: 16px; padding: 16px 0 0; counter-reset: slide; }
 
-.slide {
-  --viz-text: 13px; --text-label: 13px;
-  position: relative; box-sizing: border-box; width: 1280px; height: 720px; padding: 104px 72px 72px; border: 0;
-  display: flex; flex-direction: column; overflow: hidden; counter-increment: slide;
-  background: var(--page); color: var(--ink); font: 400 20px/1.5 var(--sans);
-  transform-origin: 0 0; transform: scale(var(--z));
-  margin: 0 calc(1280px * (var(--z) - 1)) calc(720px * (var(--z) - 1) + 16px) var(--x);
+  .slide {
+    --viz-text: 13px; --text-label: 13px;
+    position: relative; box-sizing: border-box; width: 1280px; height: 720px; padding: 104px 72px 72px; border: 0;
+    display: flex; flex-direction: column; overflow: hidden; counter-increment: slide;
+    background: var(--page); color: var(--ink); font: 400 20px/1.5 var(--sans);
+    transform-origin: 0 0; transform: scale(var(--z));
+    margin: 0 calc(1280px * (var(--z) - 1)) calc(720px * (var(--z) - 1) + 16px) var(--x);
+  }
+  .slide::before, .slide::after {
+    position: absolute; font: 12px/1 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3);
+  }
+  .slide::before { content: attr(data-label); left: 72px; top: 44px; }
+  .slide::after { content: counter(slide, decimal-leading-zero) " / " attr(data-total); right: 72px; bottom: 36px; }
+
+  /* Type. The headline is the slide's claim, in mono, two lines at most, balanced so no word is stranded. */
+  .slide h1 { font: 400 56px/1.14 var(--mono); letter-spacing: -0.02em; margin: 0 0 24px; max-width: none; text-wrap: balance; }
+  .slide h2 { font: 400 36px/1.22 var(--mono); letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin: 0 0 44px; max-width: 30ch; text-wrap: balance; }
+  .slide h3 { font: 400 13px/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-2); margin: 0 0 10px; }
+  .slide p { font-size: 22px; line-height: 1.45; color: var(--ink-2); max-width: 34ch; margin: 0 0 16px; letter-spacing: 0; text-wrap: pretty; }
+  .slide p.lead { font-size: 28px; line-height: 1.3; color: var(--ink); text-wrap: balance; }
+  .slide .meta, .slide figcaption { font-size: 12px; }
+  .slide th { font-size: 13px; padding-bottom: 14px; }
+  .slide td { font-size: 22px; padding: 18px 24px 18px 0; }
+  .slide .ledger li { font-size: 22px; padding: 18px 0; }
+  .slide .figure { font-size: 50px; margin-top: 16px; white-space: nowrap; }
+  .slide .metrics { margin: auto 0; }
+  .slide .metrics > div { padding: 32px 32px 32px 0; }
+  .slide .metrics .meta { font-size: 13px; }
+  .slide .panel { padding: 24px; }
+  .slide .panel .figure { font-size: 44px; }
+  .slide figure { margin: 0; }
+  .slide .cols { gap: 40px; }
+  .slide .cols > * { border-top-color: var(--rule-strong); padding-top: 16px; }
+
+  /* Body: everything under the headline. It starts right under it and takes the remaining height,
+     so the evidence is as large as the slide allows. Never a small graphic floating in the middle. */
+  .slide .body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-start; }
+  .slide .body.middle { justify-content: center; }
+  .slide figure.chart { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .slide figure.chart > div { flex: 1; min-height: 0; }
+  .slide figure.diagram { overflow: visible; }
+  .slide .body > figure.diagram:only-child { margin: auto 0; }   /* a lone diagram sits in the middle of the room it has */
+  .slide figcaption { margin-top: 14px; }
+
+  /* Points: a short numbered list, one line each, sized to fill the slide. Not a bullet dump. */
+  .slide .points { list-style: none; margin: 0; padding: 0; counter-reset: point; flex: 1; display: flex; flex-direction: column; }
+  .slide .points li { flex: 1; max-height: 132px; display: grid; grid-template-columns: 72px 1fr; align-items: center; border-top: 1px solid var(--rule-strong); font-size: 30px; line-height: 1.25; color: var(--ink); counter-increment: point; text-wrap: balance; }
+  .slide .points li::before { content: counter(point, decimal-leading-zero); font: 14px/1 var(--mono); letter-spacing: var(--tracking-caps); color: var(--ink-3); }
+
+  /* Layouts. */
+  .slide.title { justify-content: flex-end; padding-bottom: 96px; }
+  .slide.title p { font-size: 22px; margin: 0; max-width: none; }
+  .slide.statement { justify-content: center; padding-top: 72px; }
+  .slide.statement h2 { font-size: 54px; line-height: 1.16; max-width: 22ch; margin: 0; }
+  .slide.statement p { margin-top: 28px; }
+  .slide.section { justify-content: center; padding-top: 72px; }
+  .slide.section h2 { font-size: 60px; margin: 20px 0 0; }
+  .slide.section .meta { color: var(--accent); font-size: 14px; }
+  .slide.split .body { display: grid; grid-template-columns: 5fr 7fr; gap: 64px; align-items: center; }
+  .slide.split.flip .body { grid-template-columns: 7fr 5fr; }
+  .slide.split.even .body { grid-template-columns: 1fr 1fr; }
+  .slide.split .body > figure.chart { align-self: stretch; }
+
+  @media print {
+    body.deck-page { background: none; font-size: 20px; }
+    .deck { padding: 0; --z: 1 !important; --x: 0px !important; }
+    .slide { transform: none; margin: 0; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
 }
-.slide::before, .slide::after {
-  position: absolute; font: 12px/1 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3);
-}
-.slide::before { content: attr(data-label); left: 72px; top: 44px; }
-.slide::after { content: counter(slide, decimal-leading-zero) " / " attr(data-total); right: 72px; bottom: 36px; }
 
-/* Type. The headline is the slide's claim, in mono, two lines at most, balanced so no word is stranded. */
-.deck .slide h1 { font: 400 56px/1.14 var(--mono); letter-spacing: -0.02em; margin: 0 0 24px; max-width: none; text-wrap: balance; }
-.deck .slide h2 { font: 400 36px/1.22 var(--mono); letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin: 0 0 44px; max-width: 30ch; text-wrap: balance; }
-.slide h3 { font: 400 13px/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-2); margin: 0 0 10px; }
-.slide p { font-size: 22px; line-height: 1.45; color: var(--ink-2); max-width: 34ch; margin: 0 0 16px; letter-spacing: 0; text-wrap: pretty; }
-.slide p.lead { font-size: 28px; line-height: 1.3; color: var(--ink); text-wrap: balance; }
-.slide .meta, .slide figcaption { font-size: 12px; }
-.slide th { font-size: 13px; padding-bottom: 14px; }
-.slide td { font-size: 22px; padding: 18px 24px 18px 0; }
-.slide .ledger li { font-size: 22px; padding: 18px 0; }
-.slide .figure { font-size: 50px; margin-top: 16px; white-space: nowrap; }
-.slide .metrics { margin: auto 0; }
-.slide .metrics > div { padding: 32px 32px 32px 0; }
-.slide .metrics .meta { font-size: 13px; }
-.slide .panel { padding: 24px; }
-.slide .panel .figure { font-size: 44px; }
-.slide figure { margin: 0; }
-.slide .cols { gap: 40px; }
-.slide .cols > * { border-top-color: var(--rule-strong); padding-top: 16px; }
-
-/* Body: everything under the headline. It starts right under it and takes the remaining height,
-   so the evidence is as large as the slide allows. Never a small graphic floating in the middle. */
-.slide .body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-start; }
-.slide .body.middle { justify-content: center; }
-.slide figure.chart { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.slide figure.chart > div { flex: 1; min-height: 0; }
-.slide figure.diagram { overflow: visible; }
-.slide .body > figure.diagram:only-child { margin: auto 0; }   /* a lone diagram sits in the middle of the room it has */
-.slide figcaption { margin-top: 14px; }
-
-/* Points: a short numbered list, one line each, sized to fill the slide. Not a bullet dump. */
-.slide .points { list-style: none; margin: 0; padding: 0; counter-reset: point; flex: 1; display: flex; flex-direction: column; }
-.slide .points li { flex: 1; max-height: 132px; display: grid; grid-template-columns: 72px 1fr; align-items: center; border-top: 1px solid var(--rule-strong); font-size: 30px; line-height: 1.25; color: var(--ink); counter-increment: point; text-wrap: balance; }
-.slide .points li::before { content: counter(point, decimal-leading-zero); font: 14px/1 var(--mono); letter-spacing: var(--tracking-caps); color: var(--ink-3); }
-
-/* Layouts. */
-.slide.title { justify-content: flex-end; padding-bottom: 96px; }
-.slide.title p { font-size: 22px; margin: 0; max-width: none; }
-.slide.statement { justify-content: center; padding-top: 72px; }
-.deck .slide.statement h2 { font-size: 54px; line-height: 1.16; max-width: 22ch; margin: 0; }
-.slide.statement p { margin-top: 28px; }
-.slide.section { justify-content: center; padding-top: 72px; }
-.deck .slide.section h2 { font-size: 60px; margin: 20px 0 0; }
-.slide.section .meta { color: var(--accent); font-size: 14px; }
-.slide.split .body { display: grid; grid-template-columns: 5fr 7fr; gap: 64px; align-items: center; }
-.slide.split.flip .body { grid-template-columns: 7fr 5fr; }
-.slide.split.even .body { grid-template-columns: 1fr 1fr; }
-.slide.split .body > figure.chart { align-self: stretch; }
-
-@media print {
-  @page { size: 1280px 720px; margin: 0; @bottom-right { content: none; } @top-left { content: none; } }
-  body.deck-page { background: none; font-size: 20px; }
-  .deck { padding: 0; --z: 1 !important; --x: 0px !important; }
-  .slide { transform: none; margin: 0; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-}
+@page { size: 1280px 720px; margin: 0; @bottom-right { content: none; } @top-left { content: none; } }
 
 
 
@@ -822,11 +862,59 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
   </section>
 
 </div>
+<script>/* canzano lint. Finds the layout faults that are easy to miss. Load it on any page, run cz.lint() in
+   the console or from a script, and fix what it lists. It returns an array of { issue, text }:
+
+     stranded           a heading or line whose last line is one short word
+     long-headline      a slide headline over two lines (four on a statement slide)
+     overflow           content cut off by its slide, or a page wider than the window
+     label-overlap      two labels in a drawing collide
+     label-struck       a wire runs through a label
+     label-covers-mark  a label sits on another point's marker
+     tiny-labels        a drawing shown so small its labels fall under 9.5px
+     small-graphic      a drawing under 30% of the room it has on a slide
+
+   An empty array means none of these were found, not that the page is right: still look at it. */
+(function () {
+  function lint(scope) {
+    const out = [], lines = n => { const r = document.createRange(); r.selectNodeContents(n); const rows = []; [...r.getClientRects()].forEach(q => { if (q.width < 1) return; const row = rows.find(x => Math.abs(x.top - q.top) < q.height / 2); if (row) { row.left = Math.min(row.left, q.left); row.right = Math.max(row.right, q.right); } else rows.push({ top: q.top, left: q.left, right: q.right }); }); return rows.sort((a, b) => a.top - b.top); };
+    (scope || document).querySelectorAll('h1, h2, h3, p, li, figcaption, .lead').forEach(n => {
+      if (!n.offsetParent || n.closest('svg') || /flex|grid/.test(getComputedStyle(n).display)) return;   // a row of parts is laid out, not wrapped
+      const rows = lines(n), txt = n.textContent.trim().replace(/\s+/g, ' '); if (rows.length < 2) return;
+      const widest = Math.max(...rows.map(r => r.right - r.left)), last = rows[rows.length - 1], lastWord = txt.split(' ').pop();
+      if ((last.right - last.left) < widest * 0.2 || (rows.length <= 3 && /^H[123]$/.test(n.tagName) && (last.right - last.left) < widest * 0.34 && lastWord.length < 9)) out.push({ issue: 'stranded', text: txt.slice(0, 80) });
+      if (n.closest('.slide') && /^H[12]$/.test(n.tagName) && rows.length > (n.closest('.statement') ? 4 : 2)) out.push({ issue: 'long-headline', text: txt.slice(0, 80) });
+    });
+    (scope || document).querySelectorAll('.slide').forEach((sl, i) => { if (sl.scrollHeight > sl.clientHeight + 2 || sl.scrollWidth > sl.clientWidth + 2) out.push({ issue: 'overflow', text: 'slide ' + (i + 1) }); });
+    (scope || document).querySelectorAll('svg.cz').forEach(svg => {
+      const T = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim() && !t.getAttribute('transform')).map(t => ({ t, b: t.getBBox() }));
+      const hit = (a, b) => Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
+      T.forEach((a, i) => T.slice(i + 1).forEach(b => { if (hit(a.b, b.b) > 0.15 * Math.min(a.b.width * a.b.height, b.b.width * b.b.height)) out.push({ issue: 'label-overlap', text: a.t.textContent + ' / ' + b.t.textContent }); }));
+      const vb = svg.viewBox.baseVal, shown = vb && vb.width ? svg.clientWidth / vb.width : 1, size = T.length ? parseFloat(getComputedStyle(T[0].t).fontSize) * shown : 99;
+      if (size < 9.5) out.push({ issue: 'tiny-labels', text: 'labels render at ' + size.toFixed(1) + 'px; split the drawing or give it more room' });
+      svg.querySelectorAll('rect.mark').forEach(mk => { const b = mk.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2, x = T.find(o => cx > o.b.x && cx < o.b.x + o.b.width && cy > o.b.y && cy < o.b.y + o.b.height); if (x) out.push({ issue: 'label-covers-mark', text: x.t.textContent }); });
+      svg.querySelectorAll('path.ln').forEach(p => {
+        const len = p.getTotalLength(); if (!len) return;
+        for (let d = 0; d <= len; d += 3) { const q = p.getPointAtLength(d), x = T.find(o => !o.struck && q.x > o.b.x + 2 && q.x < o.b.x + o.b.width - 2 && q.y > o.b.y + 3 && q.y < o.b.y + o.b.height - 3); if (x) { x.struck = 1; out.push({ issue: 'label-struck', text: x.t.textContent }); } }
+      });
+    });
+    (scope || document).querySelectorAll('.slide .body svg').forEach(svg => {
+      const body = svg.closest('.body'); if (svg.closest('p, td, li, .metrics')) return;
+      const cell = svg.closest('.split') ? [...body.children].find(ch => ch.contains(svg)) || body : body;   // on a split slide the room is the column
+      const r = svg.getBoundingClientRect(), bb = cell.getBoundingClientRect();
+      if (r.width * r.height < 0.3 * bb.width * bb.height) out.push({ issue: 'small-graphic', text: 'fills ' + Math.round(100 * r.width * r.height / (bb.width * bb.height)) + '% of its slide body' });
+    });
+    if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 2 && !document.querySelector('.deck')) out.push({ issue: 'overflow', text: 'page is wider than the window' });
+    return out;
+  }
+  window.cz = Object.assign(window.cz || {}, { lint });
+})();
+</script>
 <script>/* canzano viz. Dependency-free SVG charts and diagrams in the house style.
    Colours and type come from tokens.css through CSS variables, so both themes work.
    Use: put a JSON spec in a script tag of type application/json inside <figure class="chart" data-cz>,
    or call cz.chart(el, spec), cz.diagram(el, spec), cz.spark(el, values).
-   Specs are documented in references/charts.md and references/diagrams.md. */
+   Specs are documented in the README.md beside this file. Needs viz.css. */
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
   const $ = e => (typeof e === 'string' ? document.querySelector(e) : e);
@@ -1204,25 +1292,28 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
 
   D.timeline = function (host, s) {                    // columns: [labels]; rows: [{label, from, to, accent} | {label, at, accent}]
     const f = fsize(host), W = s.width || Math.max(480, host.clientWidth || 720), lw = Math.max(...s.rows.map(r => tw(r.label, f))) + 20, top = f + 12, rh = s.rowHeight || Math.max(34, Math.min(96, (room(host) - top) / s.rows.length || 0));
-    const H = top + rh * s.rows.length + 1, g = root(host, W, H, s.label, !s.fit), cw = (W - lw - 1) / s.columns.length, X = v => lw + v * cw;
-    s.columns.forEach((c, i) => { el('path', { class: 'grid', d: `M${px(X(i))} ${top} V${H}` }, g); text(g, X(i) + 6, f, up(c), 'dim'); });
-    el('path', { class: 'grid', d: `M${px(X(s.columns.length))} ${top} V${H}` }, g);
-    if (s.now != null) { el('path', { class: 'ln a', d: `M${px(X(s.now))} ${top - 4} V${H}` }, g); text(g, X(s.now) + 6, top + f, up(s.nowLabel || 'now'), 'at'); }
+    const foot = s.now != null ? f + 8 : 0, grid = top + rh * s.rows.length, H = grid + 1 + foot, g = root(host, W, H, s.label, !s.fit), cw = (W - lw - 1) / s.columns.length, X = v => lw + v * cw;
+    s.columns.forEach((c, i) => { el('path', { class: 'grid', d: `M${px(X(i))} ${top} V${grid}` }, g); text(g, X(i) + 6, f, up(c), 'dim'); });
+    el('path', { class: 'grid', d: `M${px(X(s.columns.length))} ${top} V${grid}` }, g);
+    const nowX = s.now != null ? X(s.now) : null;
+    if (nowX != null) { el('path', { class: 'ln a', d: `M${px(nowX)} ${top - 4} V${grid + 3}` }, g); const nl = up(s.nowLabel || 'now'), end = nowX + tw(nl, f) / 2 > W; text(g, end ? W : Math.max(nowX, lw + tw(nl, f) / 2), H - 2, nl, 'at', end ? 'end' : 'middle'); }
     s.rows.forEach((r, i) => {
       const y = top + i * rh, cy = y + rh / 2, c = r.accent ? 'var(--accent)' : 'var(--ink-3)';
       el('path', { class: 'grid', d: `M0 ${px(y)} H${W}` }, g);
       text(g, 0, cy + f * 0.36, up(r.label), r.accent ? 'ink' : null);
       const note = (x0, x1) => {                        // right of the mark, else left of it, else inside the bar; never onto the row label
         if (!r.note) return; const w = tw(r.note, f), cls = (r.accent ? 'at' : 'dim') + ' halo', y = cy + f * 0.36;
-        if (x1 + 10 + w <= W) text(g, x1 + 10, y, up(r.note), cls);
-        else if (x0 - 10 - w >= lw + 4) text(g, x0 - 10, y, up(r.note), cls, 'end');
-        else if (x1 - x0 >= w + 12) text(g, (x0 + x1) / 2, y, up(r.note), 'onfill', 'middle');
-        else el('title', {}, g.lastChild, r.label + ': ' + r.note);
+        const clear = (a, b) => nowX == null || nowX < a - 3 || nowX > b + 3;                              // a note does not sit on the "now" line
+        const spots = [[x1 + 10, x1 + 10 + w, () => text(g, x1 + 10, y, up(r.note), cls), x1 + 10 + w <= W],
+                       [x0 - 10 - w, x0 - 10, () => text(g, x0 - 10, y, up(r.note), cls, 'end'), x0 - 10 - w >= lw + 4],
+                       [(x0 + x1 - w) / 2, (x0 + x1 + w) / 2, () => text(g, (x0 + x1) / 2, y, up(r.note), 'onfill', 'middle'), x1 - x0 >= w + 12]];
+        const pick = spots.find(o => o[3] && clear(o[0], o[1])) || spots.find(o => o[3]);
+        if (pick) pick[2](); else el('title', {}, g.lastChild, r.label + ': ' + r.note);
       };
       if (r.at != null) { el('rect', { x: X(r.at) - 4, y: cy - 4, width: 8, height: 8, style: `fill:${c}` }, g); note(X(r.at) - 4, X(r.at) + 4); }
       else { el('rect', { x: X(r.from), y: cy - 6, width: Math.max(2, X(r.to) - X(r.from)), height: 12, style: `fill:${c}` }, g); note(X(r.from), X(r.to)); }
     });
-    el('path', { class: 'grid', d: `M0 ${px(H - 1)} H${W}` }, g);
+    el('path', { class: 'grid', d: `M0 ${px(grid)} H${W}` }, g);
   };
 
   D.quadrant = function (host, s) {                    // x: [low, high], y: [low, high], items: [{label, x, y, accent}] in 0..1
@@ -1274,44 +1365,7 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
       (D[spec.type] ? diagram : chart)(mount, spec);
     });
   }
-  /* Lint: finds the layout faults that are easy to miss. Run cz.lint() in the page and fix what it lists.
-     stranded: a heading or line whose last line is one short word. long-headline: more than two lines on a slide.
-     overflow: content cut off by its slide or wider than the page. label-overlap, label-struck: two labels in a
-     drawing collide, or a wire runs through one. label-covers-mark: a label sits on another point's marker.
-     tiny-labels: a drawing shown so small its labels fall under 9.5px. small-graphic: a drawing under 30% of
-     the room it has on a slide. */
-  function lint(scope) {
-    const out = [], lines = n => { const r = document.createRange(); r.selectNodeContents(n); const rows = []; [...r.getClientRects()].forEach(q => { if (q.width < 1) return; const row = rows.find(x => Math.abs(x.top - q.top) < q.height / 2); if (row) { row.left = Math.min(row.left, q.left); row.right = Math.max(row.right, q.right); } else rows.push({ top: q.top, left: q.left, right: q.right }); }); return rows.sort((a, b) => a.top - b.top); };
-    (scope || document).querySelectorAll('h1, h2, h3, p, li, figcaption, .lead').forEach(n => {
-      if (!n.offsetParent || n.closest('svg') || /flex|grid/.test(getComputedStyle(n).display)) return;   // a row of parts is laid out, not wrapped
-      const rows = lines(n), txt = n.textContent.trim().replace(/\s+/g, ' '); if (rows.length < 2) return;
-      const widest = Math.max(...rows.map(r => r.right - r.left)), last = rows[rows.length - 1], lastWord = txt.split(' ').pop();
-      if ((last.right - last.left) < widest * 0.2 || (rows.length <= 3 && /^H[123]$/.test(n.tagName) && (last.right - last.left) < widest * 0.34 && lastWord.length < 9)) out.push({ issue: 'stranded', text: txt.slice(0, 80) });
-      if (n.closest('.slide') && /^H[12]$/.test(n.tagName) && rows.length > (n.closest('.statement') ? 4 : 2)) out.push({ issue: 'long-headline', text: txt.slice(0, 80) });
-    });
-    (scope || document).querySelectorAll('.slide').forEach((sl, i) => { if (sl.scrollHeight > sl.clientHeight + 2 || sl.scrollWidth > sl.clientWidth + 2) out.push({ issue: 'overflow', text: 'slide ' + (i + 1) }); });
-    (scope || document).querySelectorAll('svg.cz').forEach(svg => {
-      const T = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim() && !t.getAttribute('transform')).map(t => ({ t, b: t.getBBox() }));
-      const hit = (a, b) => Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
-      T.forEach((a, i) => T.slice(i + 1).forEach(b => { if (hit(a.b, b.b) > 0.15 * Math.min(a.b.width * a.b.height, b.b.width * b.b.height)) out.push({ issue: 'label-overlap', text: a.t.textContent + ' / ' + b.t.textContent }); }));
-      const vb = svg.viewBox.baseVal, shown = vb && vb.width ? svg.clientWidth / vb.width : 1, size = T.length ? parseFloat(getComputedStyle(T[0].t).fontSize) * shown : 99;
-      if (size < 9.5) out.push({ issue: 'tiny-labels', text: 'labels render at ' + size.toFixed(1) + 'px; split the drawing or give it more room' });
-      svg.querySelectorAll('rect.mark').forEach(mk => { const b = mk.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2, x = T.find(o => cx > o.b.x && cx < o.b.x + o.b.width && cy > o.b.y && cy < o.b.y + o.b.height); if (x) out.push({ issue: 'label-covers-mark', text: x.t.textContent }); });
-      svg.querySelectorAll('path.ln').forEach(p => {
-        const len = p.getTotalLength(); if (!len) return;
-        for (let d = 0; d <= len; d += 3) { const q = p.getPointAtLength(d), x = T.find(o => !o.struck && q.x > o.b.x + 2 && q.x < o.b.x + o.b.width - 2 && q.y > o.b.y + 3 && q.y < o.b.y + o.b.height - 3); if (x) { x.struck = 1; out.push({ issue: 'label-struck', text: x.t.textContent }); } }
-      });
-    });
-    (scope || document).querySelectorAll('.slide .body svg').forEach(svg => {
-      const body = svg.closest('.body'); if (svg.closest('p, td, li, .metrics')) return;
-      const cell = svg.closest('.split') ? [...body.children].find(ch => ch.contains(svg)) || body : body;   // on a split slide the room is the column
-      const r = svg.getBoundingClientRect(), bb = cell.getBoundingClientRect();
-      if (r.width * r.height < 0.3 * bb.width * bb.height) out.push({ issue: 'small-graphic', text: 'fills ' + Math.round(100 * r.width * r.height / (bb.width * bb.height)) + '% of its slide body' });
-    });
-    if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 2 && !document.querySelector('.deck')) out.push({ issue: 'overflow', text: 'page is wider than the window' });
-    return out;
-  }
-  window.cz = { chart, diagram, spark, auto, lint };
+  window.cz = Object.assign(window.cz || {}, { chart, diagram, spark, auto });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => auto()); else auto();
 })();
 </script>

@@ -13,47 +13,17 @@ The brief in one line: very technical and utilitarian, ASCII brackets, one strok
 - Every connector has a real source and destination and attaches to a port, never to the open side of a bracket. Captions sit inside their group or on the edge they describe.
 - Pick the structure the idea needs: a route, ordered stages, nested aggregation, a state diff or a register. Not everything is a row of boxes.
 
-## Boilerplates
+## Two ways to make one
 
-`assets/viz.js` draws six diagram types from a JSON spec, already to this contract. Use them before drawing by hand; hand-drawn SVG is for a structure none of them fits.
+- **Generate it.** The charts kit (`kits/charts/`) draws flow, sequence, layers, tree, timeline and quadrant diagrams from a JSON spec, already to this contract. Use it when the idea fits one of those shapes.
+- **Draw it by hand** as SVG when none of them fits. The steps are below.
+- For a README, a terminal or a code comment, where SVG cannot go, use the ASCII kit (`kits/ascii/`).
 
-```html
-<figure class="diagram" data-cz>
-  <script type="application/json">
-    { "type": "flow",
-      "nodes": [ { "id": "c", "label": "Client", "col": 0 }, { "id": "a", "label": "API", "col": 1 },
-                 { "id": "d", "label": "DB", "col": 1, "row": 1, "kind": "store" } ],
-      "edges": [ { "from": "c", "to": "a", "label": "POST", "accent": true }, { "from": "a", "to": "d" } ],
-      "groups": [ { "label": "Service", "nodes": ["a", "d"] } ] }
-  </script>
-</figure>
-<script src="viz.js"></script>
-```
-
-| Type | For | Spec |
-|---|---|---|
-| `flow` | A route through a system, a pipeline, a fan-out | `nodes: [ { id, label, col, row, note, accent, kind: "store" } ]`, `edges: [ { from, to, label, accent, dashed } ]`, `groups: [ { label, nodes } ]`, `cell: { w, h, gx, gy }` |
-| `sequence` | Who talks to whom, in order | `actors: [ { id, label } ]`, `messages: [ { from, to, label, accent, reply } ]` |
-| `layers` | A stack, top to bottom | `layers: [ { label, items: [ "Web", { label, accent } ] } ]` |
-| `tree` | A hierarchy or a breakdown | `root: { label, accent, children: [ ... ] }` |
-| `timeline` | Spans and milestones on one scale | `columns: [...]`, `rows: [ { label, from, to, note, accent } or { label, at, note } ]`, `now`. `from`, `to`, `at` and `now` are column positions: 0 is the start of the first column, 1.5 is halfway through the second |
-| `quadrant` | Items on two axes | `x: [low, high]`, `y: [low, high]`, `corners: [tl, tr, bl, br]`, `items: [ { label, x, y, accent } ]` with x and y from 0 to 1 |
-
-A note sits under its node. When a wire leaves the node downward, the note moves above the node, or beside the wire if the top is taken too. Place flow nodes on a grid with `col` and `row`. Wires route themselves at right angles: forward along a row, down a column, or around a corner. Keep forward edges going left to right and put the store or the side effect one row down. Labels in a node may break with `\n`. A diagram keeps its drawn size. Wider than its container, it scales down until its labels reach 10px and then stops; the figure scrolls sideways from there. On a slide it grows to fill the room. `cz.lint()` reports `tiny-labels` when a drawing is shown too small: split it into two diagrams.
-
-In print a diagram cannot scroll, so one wider than the page shrinks to fit it. Check the PDF: if its labels come out too small, give it fewer columns or split it. Decks are made for a screen or a projector, not a phone; lint a deck at full size.
-
-A quadrant sizes itself to a narrow container. An edge to an earlier column (a backward edge) runs in its own lane in the corridor under its row, with its own ports, so it never rides a forward wire. Add `"via": "top"` to send it over the row instead. More than two backward edges usually means the diagram should be a sequence or two flows.
-
-Other options: `fit: true` scales any diagram to its container width; `cell: { w, h, gx, gy }` sizes flow nodes and gaps; `step` sets the row pitch of a sequence; `nodeWidth` and `gapY` size a tree; `rowHeight` and `width` size layers and timelines; `now` and `nowLabel` mark the present on a timeline; `size` sets a quadrant's side. Layers wrap their items onto more lines when the labels would not fit.
-
-For text-only places (a README, a terminal, a code comment) use `scripts/ascii.py`, described in `ascii.md`.
-
-## Build and check
+## Draw by hand
 
 1. Write the one-sentence takeaway. List the entities, the directed relationships and the boundaries before drawing.
-2. Build editable SVG with real `<text>`, coloured through the tokens (`stroke: var(--ink)`) so both themes work. Put strokes on half pixels (`x="0.5"`) so 1px stays 1px. Use `xml:space="preserve"` when columns depend on spaces. Wrap it in `<figure class="diagram">` and give the `<svg>` a `width` attribute equal to its viewBox width, so it keeps its drawn size and labels stay 11px; narrow screens scroll instead of shrinking the type. On a slide, set that width to the size you want it shown at. `assets/specimen.html` has a worked example.
-3. Look at the rendered pixels at use size. Check connector attachment, collisions between text and lines, bracket grouping, column alignment and that the font loaded.
+2. Build editable SVG with real `<text>` and give the `<svg>` class `dg`. That class sets the mono caps labels and gives you `.s` (a stroke), `.s.a` (the accented path), `.at` (accent text), `.mid` and `.dim` (quieter inks) and `.pkt` (a moving mark), all through the tokens so both themes work. Put strokes on half pixels (`x="0.5"`) so 1px stays 1px. Use `xml:space="preserve"` when columns depend on spaces. Wrap it in `<figure class="diagram">` and give the `<svg>` a `width` attribute equal to its viewBox width, so it keeps its drawn size and labels stay 11px; narrow screens scroll instead of shrinking the type. On a slide, set that width to the size you want it shown at. `assets/specimen.html` has a worked example.
+3. Load `assets/lint.js` and run `cz.lint()`, then look at the rendered pixels at use size. Check connector attachment, collisions between text and lines, bracket grouping, column alignment and that the font loaded.
 
 Mermaid and other auto-layout tools are acceptable only after restyling to this contract. Their default theme (rounded nodes, pastel fills, curved edges) is exactly the look to avoid.
 
@@ -68,3 +38,5 @@ Animate only when the idea is a sequence: a request, a handshake, a state change
 - Give it PLAY/PAUSE and STEP buttons. With reduced motion, do not autoplay and let STEP jump between states.
 - Loop with a short hold at the end and reset to the first state. Keep one pass under about ten seconds.
 - Plain SVG plus a small script or CSS is enough. Do not add an animation library for this.
+
+In print a diagram cannot scroll, so one wider than the page shrinks to fit it. Check the PDF: if its labels come out too small, redraw it narrower or split it.

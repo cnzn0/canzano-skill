@@ -1,0 +1,18 @@
+/* canzano charts kit. Styles for what viz.js draws. Load after base.css. It is the `viz` layer.
+   --viz-text sets the label size: 11px on a page, 13px on a slide. */
+
+@layer viz {
+  figure.chart { margin: var(--s5) 0; }
+  svg.cz { display: block; width: 100%; height: auto; overflow: visible; }
+  svg.cz text { font-family: var(--mono); font-size: var(--viz-text, 11px); letter-spacing: 0.04em; fill: var(--ink-2); }
+  svg.cz .ink { fill: var(--ink); }
+  svg.cz .dim { fill: var(--ink-3); }
+  svg.cz .at { fill: var(--accent); }
+  svg.cz .onfill { fill: var(--page); }
+  svg.cz .ln { stroke: var(--ink); stroke-width: 1; fill: none; }
+  svg.cz .ln.a { stroke: var(--accent); }
+  svg.cz .dash { stroke-dasharray: 3 3; }
+  svg.cz .halo { paint-order: stroke; stroke: var(--page); stroke-width: 5px; stroke-linejoin: round; }
+  svg.cz .grid { stroke: var(--rule); fill: none; }
+  svg.cz .grid.strong, svg.cz .axis { stroke: var(--rule-strong); fill: none; }
+}

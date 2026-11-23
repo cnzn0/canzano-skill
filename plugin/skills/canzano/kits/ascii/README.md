@@ -1,16 +1,18 @@
-# ASCII
+# ASCII kit
 
-For places an SVG cannot go: READMEs, terminals, code comments, commit messages, chat replies, plain-text email. Generate it with `scripts/ascii.py`, which guarantees the columns line up. Hand-typed box drawings drift by a character and break.
+Optional. Open this when the output is plain text.
+
+For places an SVG cannot go: READMEs, terminals, code comments, commit messages, chat replies, plain-text email. Generate it with `kits/ascii/ascii.py`, which guarantees the columns line up. Hand-typed box drawings drift by a character and break.
 
 ```bash
-python3 scripts/ascii.py flow "Client -[POST]-> Gateway -> API -> [DB]"
-python3 scripts/ascii.py seq "Browser->App: sign in" "App-->Browser: 200"
-python3 scripts/ascii.py table "Plan | Seats | Price" "Team | 12 | $240"
-python3 scripts/ascii.py bars "Search=41" "Direct=24" --unit %
-python3 scripts/ascii.py spark 3 5 4 8 12 9 15
-python3 scripts/ascii.py tree < outline.txt
-python3 scripts/ascii.py box "Deploy" "api-gateway  a41f9c2"
-python3 scripts/ascii.py banner "SHIP IT" --style half
+python3 kits/ascii/ascii.py flow "Client -[POST]-> Gateway -> API -> [DB]"
+python3 kits/ascii/ascii.py seq "Browser->App: sign in" "App-->Browser: 200"
+python3 kits/ascii/ascii.py table "Plan | Seats | Price" "Team | 12 | $240"
+python3 kits/ascii/ascii.py bars "Search=41" "Direct=24" --unit %
+python3 kits/ascii/ascii.py spark 3 5 4 8 12 9 15
+python3 kits/ascii/ascii.py tree < outline.txt
+python3 kits/ascii/ascii.py box "Deploy" "api-gateway  a41f9c2"
+python3 kits/ascii/ascii.py banner "SHIP IT" --style half
 ```
 
 | Command | Gives |
@@ -31,5 +33,5 @@ Put the output in a fenced code block in Markdown, or `<pre class="ascii">` in H
 - The same grammar as the SVG diagrams: boxes are entities, arrows have a real source and target, square brackets mark a store or a set. No decorative borders, no filler characters.
 - Keep it under 100 columns so it survives a terminal and a code review. Use `--down` or split the diagram when a flow is wider.
 - Hero text is opt-in: only when the user asks for a banner or a title treatment, once per output, and short (one to three words). It is never a substitute for stating the point, and a report or UI does not open with one.
-- In an HTML page or a deck prefer the SVG diagrams from `viz.js`. ASCII there is a deliberate choice of register, such as a terminal product or a developer README rendered as a page.
+- In an HTML page or a deck prefer the SVG diagrams from the charts kit. ASCII there is a deliberate choice of register, such as a terminal product or a developer README rendered as a page.
 - Paste the script's output unchanged. If a label must change, rerun the script.

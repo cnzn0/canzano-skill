@@ -124,23 +124,33 @@ Aligned diagrams, tables, bars and hero text for READMEs, terminals and code com
 
 ## What is in it
 
+The core is the style itself and is all most work needs. The three kits are optional and the skill opens them only when a task calls for one.
+
 ```
 plugin/skills/canzano/
-  SKILL.md                 the rules, the token table, the ban list
-  assets/palette.css       11 hue scales and a grey scale, generated
-  assets/tokens.css        the semantic tokens pages use
-  assets/base.css          type, tables, ledgers, controls, forms, print
-  assets/ui.css            the extra layer for interfaces
-  assets/viz.js            charts and diagrams from a JSON spec, plus a layout lint
-  assets/deck.html         the starting point for a deck (deck.css, deck.js)
-  assets/template.html     the starting point for any HTML output
-  assets/specimen.html     the whole system on one page
-  references/              ascii, charts, colour, controls and forms, decks, diagrams, PDFs, UIs, writing
-  scripts/pdf.sh           prints a page to PDF with headless Chrome
-  scripts/palette.py       regenerates the palette
-  scripts/ascii.py         aligned ASCII diagrams, tables, bars and hero text
+  SKILL.md                 the rules, the token table, the never-ship list
+  assets/                  core
+    palette.css            11 hue scales and a grey scale, generated
+    tokens.css             the semantic tokens pages use
+    base.css               type, tables, ledgers, controls, forms, print
+    ui.css                 the extra layer for interfaces
+    lint.js                cz.lint(): finds stranded words, overflow, colliding labels
+    template.html          the starting point for any HTML output
+    specimen.html          the core on one page
+  references/              colour, controls and forms, diagrams, PDFs, UIs, writing
+  scripts/                 pdf.sh (print to PDF), palette.py (regenerate the palette)
+  kits/                    optional
+    charts/                viz.js and viz.css: 8 chart types and 6 diagram types from a JSON spec
+    decks/                 deck.html, deck.css, deck.js: 1280 x 720 slides
+    ascii/                 ascii.py: aligned text diagrams, tables, bars and banners
 examples/                  the outcomes above; rebuild with build_examples.py
-plugin/                    the Claude Code plugin: this skill plus its manifest and icon
+tests/                     the regression check
+```
+
+To install the core without the kits, pass `--core`:
+
+```bash
+git clone --depth 1 https://github.com/cnzn0/canzano-skill && sh canzano-skill/install.sh --core
 ```
 
 ## Make it yours
@@ -152,3 +162,13 @@ plugin/                    the Claude Code plugin: this skill plus its manifest 
 ## Notes
 
 The interface structure (frame, small controls, flat panels) follows measurements of sfcompute.com. The fonts are Inter and Geist Mono, loaded from Google Fonts. MIT licence.
+
+## Development
+
+Run the regression check before every release:
+
+```bash
+python3 tests/check.py
+```
+
+It rebuilds the examples, checks that everything the guides name exists, renders the fixtures and every example at phone and desktop width in headless Chrome, runs `cz.lint()` and the fixture assertions, prints the deck and the report, and fails on any finding. When something breaks in use, add the case to the fixtures in `build_examples.py` first, then fix it.
