@@ -521,7 +521,7 @@ page("deck.html", "Checkout review", "", """
   </section>
 
   <section class="slide">
-    <h2>Four numbers carry the year</h2>
+    <h2>Checkout is twice as fast and converts 2.1 points better</h2>
     <div class="body">
       <div class="metrics">
         <div><span class="label">Median checkout</span><span class="figure accent">0.88 s</span><span class="meta">From 1.8 s</span></div>
@@ -553,7 +553,7 @@ page("deck.html", "Checkout review", "", """
   </section>
 
   <section class="slide">
-    <h2>Four projects, sixteen weeks of work</h2>
+    <h2>All four projects shipped inside sixteen weeks</h2>
     <div class="body middle">
       <div class="table-wrap"><table>
         <thead><tr><th>Project</th><th class="num">Saved</th><th class="num">Cost</th></tr></thead>

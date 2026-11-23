@@ -7,6 +7,10 @@ A PDF is the HTML page, printed. Do not build it in a separate tool with a separ
 3. Print it: `scripts/pdf.sh page.html out.pdf` (headless Chrome 131 or newer, which the margin boxes need). For Letter, change `size` in the `@page` rule.
 4. Open the PDF and look at every page. Check that the fonts embedded, that nothing is clipped at the right margin, and where the page breaks fell. Use `break-before: page` on a section to move a bad break.
 
+Printing changes two things. Charts are drawn at the width of the printed text column, because `pdf.sh` lays the page out at that width first, so their labels print at full size. Diagrams cannot scroll on paper, so one wider than the page shrinks to fit: look at it in the PDF and split it if its labels got small.
+
+A one-page report holds about 350 words, one chart or diagram and one short table. Print it, read the page count, and when it runs over, cut content: a row, a sentence, a figure. Never shrink type or margins to make it fit.
+
 Rules:
 
 - No cover page unless the brief asks for one. Page one starts with the title and the answer.

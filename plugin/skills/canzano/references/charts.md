@@ -46,7 +46,7 @@ Data comes in one of two shapes:
 |---|---|
 | `bar` | `stacked`, `highlight` (a label for one series, a series name for several), `target: { value, label }`, `values: false` to hide value labels |
 | `hbar` | `stacked`, `highlight`, `rowHeight` |
-| `line` | `area` (one series), `highlight` (a series name; the rest go grey), `marks: [ { at, text } ]`, `target`, `zero: false` to let the axis start above zero |
+| `line` | `area` (one series; always from zero, since a filled area that does not start at zero overstates the change), `highlight` (a series name; the rest go grey), `marks: [ { at, text } ]`, `target`, `zero: false` to let the axis start above zero |
 | `scatter` | `series: [ { name, points: [ { x, y, label, accent } ] } ]`, `x`, `y` (axis names), `xAxis: { prefix, suffix }` |
 | `slope` | `labels` (two), `series` with two values each, `highlight` |
 | `waterfall` | `data: [ { label, value, total } ]`; a `total` row without a value takes the running total; `good: "down"` when a decrease is the good news, `good: "none"` for neutral |

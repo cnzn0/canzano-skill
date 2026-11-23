@@ -63,7 +63,7 @@ Do not use a select for two options, a segmented control for eight, a switch ins
 <div class="menu"><button>Rename</button><button>Duplicate</button><button class="danger">Delete</button></div>
 ```
 
-On a phone every control's text steps up to 16px together, so a row stays even and the page does not zoom on focus.
+On a phone every control's text steps up to 16px together, `.sm` included, so a row stays even and the page does not zoom on focus. In a table whose rows can be selected, the rows that are not selected dim to the body ink.
 
 ## Combos
 

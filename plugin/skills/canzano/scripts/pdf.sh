@@ -13,7 +13,9 @@ for c in "${CHROME:-}" \
 done
 [ -n "$chrome" ] || { echo "No Chrome found. Set CHROME=/path/to/chrome." >&2; exit 1; }
 abs="$(cd "$(dirname "$in")" && pwd)/$(basename "$in")"
-flags="--headless=new --disable-gpu --no-pdf-header-footer"
+# Lay out at the width of the printed text column (A4 minus 20mm margins, plus the page gutters), so
+# charts are drawn at the size they print and their labels stay 11px. Override with PDF_WIDTH.
+flags="--headless=new --disable-gpu --no-pdf-header-footer --hide-scrollbars --window-size=${PDF_WIDTH:-690},1000"
 [ "$(id -u)" = "0" ] && flags="$flags --no-sandbox"      # Chrome refuses to run sandboxed as root
 log="$(mktemp)"; rm -f "$out"
 "$chrome" $flags ${CHROME_FLAGS:-} --virtual-time-budget=5000 --print-to-pdf="$out" "file://$abs" 2>"$log" || true

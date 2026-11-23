@@ -23,9 +23,12 @@ h3 { font-size: var(--text-small); line-height: 1.5; margin: 0 0 6px; }
 p { margin: 0 0 var(--s3); color: var(--ink-2); }
 p.lead { color: var(--ink); font-size: var(--text-lead); }
 .meta { font-size: var(--text-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3); }
-strong { font-weight: 600; color: var(--ink); }
+html { font-synthesis: none; }   /* never fake a bold or an italic the page did not load */
+strong, b { font-weight: 600; color: var(--ink); }
+/* Mono has no italic: emphasis there is full ink, upright. */
+:is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num, .ledger li > :last-child) :is(em, i), :is(em, i):is(.label, .meta, .figure) { font-style: normal; color: var(--ink); }
 /* In mono, emphasis is 500 and full ink: the mono face is loaded at 400 and 500 only. */
-:is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num, .ledger li > :last-child) strong, strong:is(.label, .meta, .figure) { font-weight: 500; }
+:is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num, .ledger li > :last-child) :is(strong, b), :is(strong, b):is(.label, .meta, .figure) { font-weight: 500; }
 code, pre, kbd { font: var(--text-small)/1.6 var(--mono); }
 pre { margin: 0 0 var(--s4); padding: var(--s3) var(--s4); background: var(--panel); border-radius: var(--r-control); overflow-x: auto; }
 a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule-strong); transition: border-color var(--fast); }
@@ -51,6 +54,7 @@ section > h2:first-child { margin-bottom: 20px; }
 .metrics + section { border-top: 0; margin-top: var(--s4); padding-top: 0; }
 .metrics > div { padding: var(--s4) var(--s4) var(--s4) 0; min-width: 0; }
 .figure { display: block; font-size: var(--text-figure); line-height: 1.2; margin-top: 10px; color: var(--ink); }
+.metrics .label, .metrics .meta, .panel .label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* one line each, so figures share a baseline */
 
 /* Ledger: label left, value right, hairline rows. */
 .ledger { list-style: none; margin: 0; padding: 0; }
@@ -64,7 +68,13 @@ table { width: 100%; border-collapse: collapse; margin: 0 0 var(--s4); }
 th { text-align: left; white-space: nowrap; padding: 0 var(--s4) 10px 0; border-bottom: 1px solid var(--rule-strong); }
 td { padding: 11px var(--s4) 11px 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
 td.num, th.num { text-align: right; font-family: var(--mono); }
-.table-wrap { overflow-x: auto; }
+/* Scroll cue: a hairline on the right edge of a table or diagram while more lies beyond it. */
+.table-wrap, figure.diagram {
+  overflow-x: auto;
+  background: linear-gradient(var(--page), var(--page)) right / 1px 100% no-repeat local, linear-gradient(var(--ink-3), var(--ink-3)) right / 1px 100% no-repeat scroll;
+}
+/* (Inside a panel the cue is off: its cover would show as a line on the panel fill.) */
+.panel .table-wrap, .panel figure.diagram { background: none; }
 
 /* Columns: items divided by a top rule, not boxed. */
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s5); }
@@ -240,13 +250,15 @@ input[type="checkbox"].switch:checked { background: var(--ink) radial-gradient(c
 
 /* Menu: the one floating surface, and the one shadow in the system. */
 .menu { position: absolute; z-index: 10; min-width: 180px; padding: var(--s1); background: var(--raised); border: 1px solid var(--rule-strong); border-radius: var(--r-control); box-shadow: 0 8px 24px oklch(0.2 0.02 278 / 0.16); }
-.menu > :is(a, button) { display: flex; width: 100%; justify-content: flex-start; height: var(--control-h); padding: 0 var(--control-px); background: none; border: 0; border-radius: calc(var(--r-control) - 2px); font: 400 14px/21px var(--sans); color: var(--ink); }
+.menu > :is(a, button) { box-sizing: border-box; display: flex; align-items: center; width: 100%; justify-content: flex-start; text-decoration: none; height: var(--control-h); padding: 0 var(--control-px); background: none; border: 0; border-radius: calc(var(--r-control) - 2px); font: 400 14px/21px var(--sans); color: var(--ink); }
 .menu > :is(a, button):hover, .menu > [aria-current] { background: var(--panel); filter: none; }
+.menu > .danger { color: var(--negative); }
 
-/* Selected row in a table or ledger: full ink and a mark in a narrow first cell. */
-tr[aria-selected="true"] td, li[aria-selected="true"] { color: var(--ink); }
+/* Selected row in a table or ledger: full ink and a mark in a narrow first cell, while the other rows dim. */
 td.mark { width: 20px; padding-right: 0; font-family: var(--mono); color: transparent; }
-tr[aria-selected="true"] td.mark { color: var(--ink); }
+tbody:has(tr[aria-selected]) td, ul:has(> li[aria-selected]) > li { color: var(--ink-2); }
+tbody:has(tr[aria-selected]) td.mark { color: transparent; }
+tbody:has(tr[aria-selected]) tr[aria-selected="true"] td, ul:has(> li[aria-selected]) > li[aria-selected="true"] { color: var(--ink); }
 
 /* Panel: a flat fill with a 12px radius. No edge, no shadow. */
 .panel { background: var(--panel); border-radius: var(--r-panel); padding: var(--s4); min-width: 0; }
@@ -272,7 +284,8 @@ tr[aria-selected="true"] td.mark { color: var(--ink); }
 @media (max-width: 640px) {
   :root { --gutter: 16px; }
   /* Phones zoom the page on input text under 16px, so every control steps up together and a row stays even. */
-  button, .button, select, .check, .wide, :is(input, textarea):not([type="checkbox"], [type="radio"], [type="range"], [type="file"]) { font-size: 16px; }
+  button, .button, select, .check, .wide, :is(input, textarea):not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+  .sm :is(button, .button, select, input, textarea), :is(button, .button, select, input).sm { font-size: 16px; }
   main { padding-top: 28px; }
   .ledger li { flex-direction: column; gap: var(--s1); }
   .ledger li > :last-child { text-align: left; }
@@ -334,6 +347,9 @@ tr[aria-selected="true"] td.mark { color: var(--ink); }
   main { max-width: none; padding: 0; }
   h2, h3 { break-after: avoid; }
   tr, li, figure, .metrics { break-inside: avoid; }
+  .table-wrap, figure.diagram { overflow: visible; background: none; }
+  figure.diagram svg { max-width: 100% !important; height: auto; }   /* a wide diagram shrinks to the page; it cannot scroll on paper */
+  .table-wrap > table { min-width: 0; }
   a { border: 0; }
   button, nav, .no-print { display: none; }
 }

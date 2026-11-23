@@ -99,6 +99,7 @@
     grid(g, T, Y, m.l, W - m.r, F, f);
     if (LG) legend(g, s, LG, f);
     const bw = pw / s.labels.length, gap = Math.max(2, Math.min(14, bw * 0.18)), inner = bw - gap * 2;
+    const each = n > 1 && !stacked && s.values !== false && s.series.every(ser => ser.values.every(v => v == null || inner / n - 2 > tw(F(v), f) + 2));   // grouped values: all or none
     s.labels.forEach((lab, i) => {
       const x = m.l + bw * i + gap; let acc = 0;
       s.series.forEach((ser, j) => {
@@ -108,7 +109,7 @@
         const hi = n === 1 && (s.highlight === i || s.highlight === lab);
         el('rect', { x: bx, y: a, width: Math.max(1, w), height: Math.max(0, b - a), style: `fill:${hi ? 'var(--accent)' : colour(s, j)}` }, g);
         if (n === 1 && s.values !== false && bw > tw(F(v), f) + 2) text(g, bx + w / 2, v >= 0 ? a - 6 : b + f + 3, F(v), hi ? 'at' : 'ink', 'middle');
-        else if (n > 1 && !stacked && s.values !== false && w > tw(F(v), f) + 2) text(g, bx + w / 2, v >= 0 ? a - 5 : b + f + 2, F(v), 'dim', 'middle');
+        else if (each) text(g, bx + w / 2, v >= 0 ? a - 5 : b + f + 2, F(v), 'dim', 'middle');
       });
       if (stacked && s.values !== false && bw > tw(F(acc), f) + 2) text(g, x + inner / 2, Y(acc) - 6, F(acc), 'ink', 'middle');
     });
@@ -121,7 +122,7 @@
     const tot = s.labels.map((_, i) => stacked ? s.series.reduce((a, x) => a + (x.values[i] || 0), 0) : Math.max(...s.series.map(x => x.values[i] || 0)));
     const max = Math.max(...tot) || 1, lw = Math.min(Math.max(...s.labels.map(l => tw(l, f))) + 14, W * 0.42), vw = Math.max(...tot.map(v => tw(F(v), f))) + 10;
     const fit = l => { const room = Math.max(3, Math.floor((lw - 14) / (f * 0.64))); l = String(l); return l.length > room ? l.slice(0, room - 1) + '…' : l; };   // long row labels are cut, never allowed to squeeze the bars
-    const LG = n > 1 ? legendLayout(s, lw, W, f) : null, top = LG ? LG.height + 8 : 0, rh = s.rowHeight || Math.max(f + 12, Math.min(40, ((s.height ? H : 0) - top) / rows || 30));
+    const LG = n > 1 ? legendLayout(s, 0, W, f) : null, top = LG ? LG.height + 8 : 0, rh = s.rowHeight || Math.max(f + 12, Math.min(40, ((s.height ? H : 0) - top) / rows || 30));
     H = s.height ? H : top + rows * rh;
     const g = root(host, W, H, s.label), pw = W - lw - vw, X = v => lw + v / max * pw;
     if (LG) legend(g, s, LG, f);
@@ -142,7 +143,7 @@
 
   C.line = function (host, s, W, H) {
     const f = fsize(host), F = fmt(s), n = s.series.length, all = s.series.flatMap(x => x.values.filter(v => v != null));
-    const T = ticks(s.zero === false ? Math.min(...all) : Math.min(0, ...all), Math.max(...all, s.target ? s.target.value : 0)), y0 = T[0], y1 = T[T.length - 1];
+    const T = ticks(s.zero === false && !s.area ? Math.min(...all) : Math.min(0, ...all), Math.max(...all, s.target ? s.target.value : 0)), y0 = T[0], y1 = T[T.length - 1];
     const tag = ser => { const v = ser.values.filter(v => v != null).pop(); return (ser.name ? up(ser.name) + ' ' : '') + F(v); };
     const m = { l: Math.max(...T.map(t => tw(F(t), f))) + 12, r: Math.max(...s.series.map(x => tw(tag(x), f))) + 14, t: f + 10, b: f + 14 };
     const g = root(host, W, H, s.label), pw = W - m.l - m.r, ph = H - m.t - m.b, N = s.labels.length;
@@ -293,7 +294,14 @@
       if (e.via === 'top') high = Math.max(high, off + f + 10); else deep = Math.max(deep, off + 12);
     });
     c.gy = Math.max(c.gy, deep + 10, high + 10);
-    const padX = s.groups ? 28 : 1, padT = Math.max(s.groups ? 28 : 1, high), X = col => padX + col * (c.w + c.gx), Y = row => padT + row * (c.h + c.gy);
+    const below = {}, above = {};                     // which ports already carry a wire or a group label
+    E.forEach(e => { const a = N[e.from], b = N[e.to];
+      if (a.col === b.col) { const up_ = b.row < a.row; below[(up_ ? b : a).id] = 1; above[(up_ ? a : b).id] = 1; }
+      else if (b.col < a.col) (e.via === 'top' ? above : below)[a.id] = (e.via === 'top' ? above : below)[b.id] = 1; });
+    (s.groups || []).forEach(gr => { const top = Math.min(...gr.nodes.map(id => N[id].row)); gr.nodes.forEach(id => { if (N[id].row === top) above[id] = 1; }); });
+    s.nodes.forEach(n => { n._lift = !!(n.note && below[n.id] && !above[n.id]); });   // a note moves above its node when a wire leaves below it
+    const lift0 = s.nodes.some(n => n._lift && n.row === 0) ? f + 12 : 0;
+    const padX = s.groups ? 28 : 1, padT = Math.max(s.groups ? 28 : 1, high, lift0), X = col => padX + col * (c.w + c.gx), Y = row => padT + row * (c.h + c.gy);
     let tail = s.groups ? 28 : 1; s.nodes.forEach(n => { if (n.note && n.row === mr) tail = Math.max(tail, f + 14); });
     const W = X(mc) + c.w + padX, H = Y(mr) + c.h + Math.max(tail, deep) + 1, g = root(host, W, H, s.label, !s.fit);
     (s.groups || []).forEach(gr => {
@@ -322,12 +330,13 @@
       else { const mx = bx - c.gx / 2; p = [[ax + c.w, acy], [mx, acy], [mx, bcy], [bx, bcy]]; }
       wire(g, p, e, f);
     });
-    const below = {};                                 // nodes with a wire on their bottom port
-    E.forEach(e => { const a = N[e.from], b = N[e.to]; if (a.col === b.col) below[(b.row > a.row ? a : b).id] = 1; else if (b.col < a.col && e.via !== 'top') below[a.id] = below[b.id] = 1; });
     s.nodes.forEach(n => {
-      box(g, X(n.col), Y(n.row), c.w, c.h, n.kind === 'store' ? '[ ' + n.label + ' ]' : n.label, f, n.accent);
-      if (n.note) below[n.id] ? text(g, X(n.col) + c.w / 2 - 34, Y(n.row) + c.h + f + 8, up(n.note), 'dim halo', 'end')
-                              : text(g, X(n.col) + c.w / 2, Y(n.row) + c.h + f + 8, up(n.note), 'dim', 'middle');
+      const x = X(n.col), y = Y(n.row);
+      box(g, x, y, c.w, c.h, n.kind === 'store' ? '[ ' + n.label + ' ]' : n.label, f, n.accent);
+      if (!n.note) return;
+      if (n._lift) text(g, x + c.w / 2, y - 8, up(n.note), 'dim halo', 'middle');
+      else if (below[n.id]) text(g, x + c.w / 2 - 10, y + c.h + f + 8, up(n.note), 'dim halo', 'end');
+      else text(g, x + c.w / 2, y + c.h + f + 8, up(n.note), 'dim', 'middle');
     });
   };
 
@@ -379,7 +388,13 @@
       const y = top + i * rh, cy = y + rh / 2, c = r.accent ? 'var(--accent)' : 'var(--ink-3)';
       el('path', { class: 'grid', d: `M0 ${px(y)} H${W}` }, g);
       text(g, 0, cy + f * 0.36, up(r.label), r.accent ? 'ink' : null);
-      const note = (x0, x1) => { if (!r.note) return; const fits = x1 + 10 + tw(r.note, f) <= W; text(g, fits ? x1 + 10 : x0 - 10, cy + f * 0.36, up(r.note), (r.accent ? 'at' : 'dim') + ' halo', fits ? null : 'end'); };
+      const note = (x0, x1) => {                        // right of the mark, else left of it, else inside the bar; never onto the row label
+        if (!r.note) return; const w = tw(r.note, f), cls = (r.accent ? 'at' : 'dim') + ' halo', y = cy + f * 0.36;
+        if (x1 + 10 + w <= W) text(g, x1 + 10, y, up(r.note), cls);
+        else if (x0 - 10 - w >= lw + 4) text(g, x0 - 10, y, up(r.note), cls, 'end');
+        else if (x1 - x0 >= w + 12) text(g, (x0 + x1) / 2, y, up(r.note), 'onfill', 'middle');
+        else el('title', {}, g.lastChild, r.label + ': ' + r.note);
+      };
       if (r.at != null) { el('rect', { x: X(r.at) - 4, y: cy - 4, width: 8, height: 8, style: `fill:${c}` }, g); note(X(r.at) - 4, X(r.at) + 4); }
       else { el('rect', { x: X(r.from), y: cy - 6, width: Math.max(2, X(r.to) - X(r.from)), height: 12, style: `fill:${c}` }, g); note(X(r.from), X(r.to)); }
     });
@@ -387,17 +402,22 @@
   };
 
   D.quadrant = function (host, s) {                    // x: [low, high], y: [low, high], items: [{label, x, y, accent}] in 0..1
-    const f = fsize(host), S = s.size || 420, m = f + 14, x0 = m, y0 = f, W = m + S + 12, H = y0 + S + m + 2, g = root(host, W, H, s.label, true);
+    const f = fsize(host), m = f + 14, wide = host.clientWidth || 0;
+    const S = Math.max(220, Math.min(s.size || 420, wide ? wide - m - 14 : 420)), x0 = m, y0 = f, W = m + S + 12, H = y0 + S + m + 2, g = root(host, W, H, s.label, true);
     el('path', { class: 'axis', d: `M${px(x0 + S / 2)} ${y0} V${y0 + S} M${x0} ${px(y0 + S / 2)} H${x0 + S}` }, g);
     el('rect', { class: 'grid', x: px(x0), y: px(y0), width: S, height: S }, g);
     text(g, x0, H - 3, up(s.x[0]) + ' →', 'dim'); text(g, x0 + S, H - 3, up(s.x[1]), 'dim', 'end');
     el('text', { class: 'dim', transform: `translate(${f} ${y0 + S}) rotate(-90)` }, g, up(s.y[0]) + ' →');
     el('text', { class: 'dim', 'text-anchor': 'end', transform: `translate(${f} ${y0}) rotate(-90)` }, g, up(s.y[1]));
-    const band = f + 12;                                 // the strip along the top and bottom edge that the corner names own
+    const band = f + 12, midX = x0 + S / 2, midY = y0 + S / 2;   // the corner names own a strip along the top and bottom edge
     (s.corners || []).forEach((c, i) => c && text(g, x0 + (i % 2 ? S - 8 : 8), y0 + (i < 2 ? f + 6 : S - 8), up(c), 'dim', i % 2 ? 'end' : 'start'));
     s.items.forEach(it => {
-      const x = x0 + it.x * S, y = y0 + (1 - it.y) * S, left = x + 9 + tw(it.label, f) > x0 + S - 4;      // near the right edge the label goes left of its point
-      let ty = y + f * 0.36; if (s.corners) ty = Math.max(y0 + band + f, Math.min(y0 + S - band - 4, ty));  // and it keeps out of the corner names
+      const x = x0 + it.x * S, y = y0 + (1 - it.y) * S, w = tw(it.label, f);
+      let left = x + 9 + w > x0 + S - 4;                                                                  // near the right edge the label goes left of its point
+      if (!left && x < midX && x + 9 + w > midX - 4 && x - 9 - w > x0 + 4) left = true;                   // and it does not straddle the vertical midline when it can avoid it
+      let ty = y + f * 0.36;
+      if (Math.abs(ty - f * 0.36 - midY) < f * 0.8) ty += (y <= midY ? -1 : 1) * f * 0.9;                 // nor sit on the horizontal one
+      if (s.corners) ty = Math.max(y0 + band + f, Math.min(y0 + S - band - 4, ty));
       ty = Math.max(y0 + f, Math.min(y0 + S - 3, ty));
       el('rect', { class: 'mark', x: Math.max(x0, Math.min(x0 + S - 7, x - 3.5)), y: Math.max(y0, Math.min(y0 + S - 7, y - 3.5)), width: 7, height: 7, style: `fill:${it.accent ? 'var(--accent)' : 'var(--ink)'}` }, g);
       text(g, left ? x - 9 : x + 9, ty, up(it.label), (it.accent ? 'at' : 'ink') + ' halo', left ? 'end' : null);
@@ -439,7 +459,7 @@
   function lint(scope) {
     const out = [], lines = n => { const r = document.createRange(); r.selectNodeContents(n); const rows = []; [...r.getClientRects()].forEach(q => { if (q.width < 1) return; const row = rows.find(x => Math.abs(x.top - q.top) < q.height / 2); if (row) { row.left = Math.min(row.left, q.left); row.right = Math.max(row.right, q.right); } else rows.push({ top: q.top, left: q.left, right: q.right }); }); return rows.sort((a, b) => a.top - b.top); };
     (scope || document).querySelectorAll('h1, h2, h3, p, li, figcaption, .lead').forEach(n => {
-      if (!n.offsetParent || n.closest('svg')) return;
+      if (!n.offsetParent || n.closest('svg') || /flex|grid/.test(getComputedStyle(n).display)) return;   // a row of parts is laid out, not wrapped
       const rows = lines(n), txt = n.textContent.trim().replace(/\s+/g, ' '); if (rows.length < 2) return;
       const widest = Math.max(...rows.map(r => r.right - r.left)), last = rows[rows.length - 1], lastWord = txt.split(' ').pop();
       if ((last.right - last.left) < widest * 0.2 || (rows.length <= 3 && /^H[123]$/.test(n.tagName) && (last.right - last.left) < widest * 0.34 && lastWord.length < 9)) out.push({ issue: 'stranded', text: txt.slice(0, 80) });

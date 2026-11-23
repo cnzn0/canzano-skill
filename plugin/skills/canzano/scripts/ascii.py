@@ -46,8 +46,9 @@ FONT = {
 
 def _pixels(text):
     rows = [""] * 5
-    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().upper()      # é becomes E
-    bad = sorted({ch for ch in text if ch not in FONT})
+    plain = [unicodedata.normalize("NFKD", ch).encode("ascii", "ignore").decode().upper() for ch in text]   # é becomes E
+    bad = sorted({ch for ch, p in zip(text, plain) if not p or any(c not in FONT for c in p)})
+    text = "".join(plain)
     if bad: raise Usage("banner has no glyph for: " + " ".join(bad))
     if not text.strip(): raise Usage("banner needs some text")
     for ch in text:
@@ -197,13 +198,17 @@ def main(argv):
     def flag(name):
         if name in args: args.remove(name); return True
         return False
+    def lines(example):                    # arguments, or standard input when it is piped; never a silent wait on a terminal
+        if args: return args
+        if sys.stdin.isatty(): raise Usage(cmd + " needs input, for example: " + example)
+        return sys.stdin.read().splitlines()
     if cmd == "banner": style, char = opt("--style", "block"), opt("--char", "#"); print(banner(" ".join(args), style, char))
     elif cmd == "flow": down = flag("--down"); print(flow(" ".join(args), down))
-    elif cmd == "seq": print(seq(args or sys.stdin.read().splitlines()))
-    elif cmd == "table": print(table(args or sys.stdin.read().splitlines()))
+    elif cmd == "seq": print(seq(lines('ascii.py seq "A->B: text" "B-->A: reply"')))
+    elif cmd == "table": print(table(lines('ascii.py table "Plan | Seats" "Team | 12"')))
     elif cmd == "bars": width, unit = int(opt("--width", 32)), opt("--unit", ""); print(bars(args, width, unit))
     elif cmd == "spark": print(spark(args))
-    elif cmd == "tree": print(tree(sys.stdin.read()))
+    elif cmd == "tree": print(tree("\n".join(lines("ascii.py tree < outline.txt"))))
     elif cmd == "box": print(box(args[0] if args else "", args[1:]))
     else: raise Usage("unknown command: " + cmd)
 
