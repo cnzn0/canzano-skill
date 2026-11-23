@@ -1,0 +1,165 @@
+/* canzano tokens: the semantic layer. Needs palette.css first.
+   Pages use these names, never a raw palette step, so both themes and a rebrand stay one edit.
+   Fonts load from Google Fonts (see template.html). Light is the default; dark follows the
+   system or data-theme="dark". */
+
+:root {
+  /* Neutrals */
+  --page: var(--grey-0);
+  --raised: var(--grey-50);
+  --panel: var(--grey-100);              /* panels, code, segmented tracks */
+  --ink: oklch(0.293 0.011 293);         /* primary text, the primary button */
+  --ink-2: var(--grey-600);              /* body copy, labels */
+  --ink-3: var(--grey-500);              /* meta, captions, disabled */
+  --rule: var(--grey-150);               /* row dividers */
+  --rule-strong: var(--grey-300);        /* section rules */
+
+  /* Accent: the one live thing. Never a button fill. Point it at another hue to rebrand. */
+  --accent: var(--violet-300);
+
+  /* Status: a real state only, always next to a word. */
+  --positive: var(--green-700);
+  --warning: var(--amber-700);
+  --negative: var(--red-300);
+  --info: var(--blue-400);
+
+  /* Soft: a tint of the same colour for a selected row, a diff line or a highlight.
+     Never a callout box or a chip. Works in both themes. */
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, var(--page));
+  --positive-soft: color-mix(in oklab, var(--positive) 12%, var(--page));
+  --warning-soft: color-mix(in oklab, var(--warning) 14%, var(--page));
+  --negative-soft: color-mix(in oklab, var(--negative) 12%, var(--page));
+  --info-soft: color-mix(in oklab, var(--info) 12%, var(--page));
+
+  /* Series: categorical chart colours, used in this order. Neighbours differ in hue and
+     in lightness, so they hold up for colour-blind readers. Series 1 is the accent. */
+  --series-1: var(--violet-300);
+  --series-2: var(--orange-400);
+  --series-3: var(--pink-400);
+  --series-4: var(--sky-500);
+  --series-5: var(--green-500);
+  --series-6: var(--yellow-500);
+  --series-7: var(--purple-300);
+  --series-8: var(--red-300);
+
+  /* Controls: a fill that is a touch lighter at the top and bottom edge, inside a crisp 1px edge. */
+  --btn-top: oklch(0.975 0 0);
+  --btn-mid: oklch(0.95 0 0);
+  --btn-edge: var(--grey-200);
+  --btn-fg: var(--ink);
+  --btn1-top: oklch(0.42 0.011 293);     /* primary: ink on light, white on dark. Never the accent. */
+  --btn1-mid: oklch(0.293 0.011 293);
+  --btn1-edge: oklch(0.22 0.011 293);
+  --btn1-fg: oklch(1 0 0);
+  --btn-hover: brightness(0.97);
+  --thumb: oklch(1 0 0);                 /* selected segment */
+  --thumb-edge: transparent;
+  --thumb-shadow: 0 1px 2px oklch(0.25 0.02 278 / 0.18), 0 0 0 0.5px oklch(0.25 0.02 278 / 0.12);
+
+  /* Type */
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --text-label: 11px;   /* mono caps, +0.04em */
+  --text-small: 13px;
+  --text-body: 15px;    /* Inter, 1.6 line height */
+  --text-lead: 16px;
+  --text-title: 22px;   /* mono */
+  --text-figure: 28px;  /* mono, tabular */
+  --tracking-caps: 0.04em;
+  --measure: 68ch;
+
+  /* Space: 4px base */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 40px; --s7: 80px;
+  --gutter: 24px;
+
+  /* Geometry and motion */
+  --r-control: 6px;      /* buttons, inputs, segments */
+  --r-panel: 12px;       /* panels */
+  --radius-media: 2px;
+  --hairline: 1px;
+  --control-h: 27px;     /* one height for every control in a row; hit area is expanded separately */
+  --control-px: 8px;
+  --hit: 44px;
+  --fast: 120ms;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: var(--grey-950);
+    --raised: oklch(0.19 0.003 286);
+    --panel: var(--grey-900);
+    --ink: oklch(0.964 0 0);
+    --ink-2: oklch(0.964 0 0 / 0.7);
+    --ink-3: oklch(0.964 0 0 / 0.5);
+    --rule: oklch(0.964 0 0 / 0.1);
+    --rule-strong: oklch(0.964 0 0 / 0.2);
+
+    --accent: var(--violet-100);
+    --positive: var(--green-200);
+    --warning: var(--amber-200);
+    --negative: var(--red-100);
+    --info: var(--blue-100);
+
+    --series-1: var(--violet-100);
+    --series-2: var(--orange-200);
+    --series-3: var(--pink-200);
+    --series-4: var(--sky-200);
+    --series-5: var(--green-200);
+    --series-6: var(--yellow-200);
+    --series-7: var(--purple-100);
+    --series-8: var(--red-100);
+
+    --btn-top: oklch(0.3 0 0);
+    --btn-mid: oklch(0.255 0 0);
+    --btn-edge: oklch(0.34 0 0);
+    --btn1-top: oklch(1 0 0);
+    --btn1-mid: oklch(0.93 0 0);
+    --btn1-edge: oklch(0.8 0 0);
+    --btn1-fg: oklch(0.15 0 0);
+    --btn-hover: brightness(1.1);
+    --thumb: oklch(0.964 0 0 / 0.12);
+    --thumb-edge: oklch(0.964 0 0 / 0.14);
+    --thumb-shadow: none;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: var(--grey-950);
+  --raised: oklch(0.19 0.003 286);
+  --panel: var(--grey-900);
+  --ink: oklch(0.964 0 0);
+  --ink-2: oklch(0.964 0 0 / 0.7);
+  --ink-3: oklch(0.964 0 0 / 0.5);
+  --rule: oklch(0.964 0 0 / 0.1);
+  --rule-strong: oklch(0.964 0 0 / 0.2);
+
+  --accent: var(--violet-100);
+  --positive: var(--green-200);
+  --warning: var(--amber-200);
+  --negative: var(--red-100);
+  --info: var(--blue-100);
+
+  --series-1: var(--violet-100);
+  --series-2: var(--orange-200);
+  --series-3: var(--pink-200);
+  --series-4: var(--sky-200);
+  --series-5: var(--green-200);
+  --series-6: var(--yellow-200);
+  --series-7: var(--purple-100);
+  --series-8: var(--red-100);
+
+  --btn-top: oklch(0.3 0 0);
+  --btn-mid: oklch(0.255 0 0);
+  --btn-edge: oklch(0.34 0 0);
+  --btn1-top: oklch(1 0 0);
+  --btn1-mid: oklch(0.93 0 0);
+  --btn1-edge: oklch(0.8 0 0);
+  --btn1-fg: oklch(0.15 0 0);
+  --btn-hover: brightness(1.1);
+  --thumb: oklch(0.964 0 0 / 0.12);
+  --thumb-edge: oklch(0.964 0 0 / 0.14);
+  --thumb-shadow: none;
+  color-scheme: dark;
+}

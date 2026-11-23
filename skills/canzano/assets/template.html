@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short name</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<!-- For a single-file output, replace these links with one <style> holding palette.css, tokens.css, base.css. -->
+<link rel="stylesheet" href="palette.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<style>
+/* Running header for print and PDF. Replace the text. */
+@page { @top-left { content: "SHORT NAME // 1 JAN 2026"; font: 8pt "Geist Mono", monospace; letter-spacing: 0.04em; color: oklch(0.557 0.008 286); } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="meta">Context // 1 Jan 2026</div>
+    <h1>One line that states the result</h1>
+    <p class="lead read">Two sentences with the answer and what it means. The evidence follows.</p>
+  </header>
+
+  <div class="metrics">
+    <div><span class="label">Label</span><span class="figure">72.90</span><span class="meta">Unit and period</span></div>
+    <div><span class="label">Label</span><span class="figure accent">0.8 ms</span><span class="meta">The one figure that matters</span></div>
+    <div><span class="label">Label</span><span class="figure">14</span><span class="meta">Short context</span></div>
+  </div>
+
+  <section>
+    <h2>Section label</h2>
+    <ul class="ledger">
+      <li><span>Row label</span><span>Value</span></li>
+      <li><span>Row label</span><span class="positive">PASSED</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Comparison</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Option</th><th>Trade-off</th><th class="num">Cost</th></tr></thead>
+      <tbody><tr><td>A</td><td>What it gives and what it costs.</td><td class="num">$120</td></tr></tbody>
+    </table></div>
+  </section>
+</main>
+</body>
+</html>

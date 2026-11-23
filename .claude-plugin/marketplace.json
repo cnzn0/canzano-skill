@@ -1,0 +1,11 @@
+{
+  "name": "canzano",
+  "owner": { "name": "cnzn0", "url": "https://github.com/cnzn0" },
+  "plugins": [
+    {
+      "name": "canzano",
+      "source": "./",
+      "description": "House style and minimal design system for agent output: pages, reports, PDFs, decks, charts, diagrams and UIs."
+    }
+  ]
+}
