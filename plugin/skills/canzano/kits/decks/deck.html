@@ -37,8 +37,10 @@
     <div class="body">
       <div><p class="lead">The one sentence the audience should repeat.</p><p>One supporting sentence.</p></div>
       <figure class="diagram" data-cz><script type="application/json">
-        { "type": "flow", "nodes": [ { "id": "a", "label": "Input", "col": 0 }, { "id": "b", "label": "Step", "col": 1 }, { "id": "c", "label": "Output", "col": 2, "kind": "store" } ],
-          "edges": [ { "from": "a", "to": "b", "label": "raw", "accent": true }, { "from": "b", "to": "c", "label": "clean" } ] }
+        { "type": "flow",
+          "nodes": [ { "id": "a", "label": "Input", "col": 0 }, { "id": "b", "label": "Step", "col": 1 }, { "id": "c", "label": "Output", "col": 2 },
+                     { "id": "s", "label": "Store", "col": 1, "row": 1, "kind": "store" }, { "id": "l", "label": "Log", "col": 2, "row": 1, "kind": "store" } ],
+          "edges": [ { "from": "a", "to": "b", "label": "raw", "accent": true }, { "from": "b", "to": "c", "label": "clean" }, { "from": "b", "to": "s" }, { "from": "c", "to": "l" } ] }
       </script></figure>
     </div>
   </section>

@@ -597,7 +597,7 @@ def pre(txt, cls="ascii"): return f'<pre class="{cls}">{_html.escape(txt)}</pre>
 page("ascii.html", "ASCII", "ASCII", """
 """, f"""<main>
   <header>
-    <div class="meta">canzano // scripts/ascii.py</div>
+    <div class="meta">canzano // kits/ascii/ascii.py</div>
     {pre(A.banner("SHIP IT", "half"), "ascii hero")}
   </header>
   <section><h2>Flow</h2>{pre(A.flow("Client -[POST /checkout]-> Gateway -[auth ok]-> Orders API -> [Orders DB]"))}</section>
@@ -619,7 +619,7 @@ page("ascii.html", "ASCII", "ASCII", """
 
 # ---------------------------------------------------------------- index
 ex = [
- ("01","PDF report","Compare our three hosting options for the orders API and give me a one-pager as a PDF.","report.pdf","report.html",760),
+ ("01","PDF report","Compare our three hosting options for the orders API and give me a short report as a PDF.","report.pdf","report.html",760),
  ("02","Diagram","Draw how a checkout request moves through our services.","diagram.html","diagram.html",640),
  ("03","Animated diagram","Animate how a write gets replicated before it is committed.","animated-diagram.html","animated-diagram.html",760),
  ("04","Web UI","Quick internal tool to review today's deploys.","web-ui.html","web-ui.html",560),
@@ -730,8 +730,101 @@ window.__assert = function () {
   ok(Math.abs(q('#hand').getBoundingClientRect().width - 900) < 1, 'hand-drawn diagram is ' + q('#hand').getBoundingClientRect().width + 'px wide, not 900');
   ok(q('#sp2 svg') && !/NaN/.test(q('#sp2').innerHTML), 'one-value sparkline has NaN');
   all('svg.cz').forEach(function (v, i) { var t = v.querySelector('text'); if (!t) return; var px = parseFloat(cs(t).fontSize) * v.clientWidth / v.viewBox.baseVal.width; ok(px >= 9.9, 'drawing ' + i + ' labels render at ' + px.toFixed(1) + 'px'); });
+  ok(document.fonts.check('12px "Geist Mono"') && document.fonts.check('12px Inter'), 'the web fonts did not load');
   all('svg.cz text').forEach(function (t) { var b = t.getBBox(), vb = t.ownerSVGElement.viewBox.baseVal; if (t.getAttribute('transform')) return; ok(b.x >= -1 && b.x + b.width <= vb.width + 1 && b.y >= -2 && b.y + b.height <= vb.height + 3, 'label leaves its drawing: ' + t.textContent); });
   return bad;
 };
 """, viz=True, dest=root/"tests")
-print("built", sorted(p.name for p in out.glob("*.html")), "+ tests/fixtures.html")
+
+# Colour helper shared by the fixture assertions: contrast of an element's text against the page.
+CONTRAST_JS = """
+function __rgb(c) { var x = document.createElement('canvas'); x.width = x.height = 1; var g = x.getContext('2d'); g.fillStyle = c; g.fillRect(0, 0, 1, 1); return g.getImageData(0, 0, 1, 1).data; }
+function __lum(c) { var d = __rgb(c), f = function (v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }; return 0.2126 * f(d[0]) + 0.7152 * f(d[1]) + 0.0722 * f(d[2]); }
+function __contrast(el) { var a = __lum(getComputedStyle(el).color), b = __lum(getComputedStyle(document.body).backgroundColor); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); }
+"""
+
+page("fixtures-ui.html", "UI fixtures", "UI FIXTURES", """
+.fx-page { border-radius: 3px; }   /* a page-level rule: it must beat the layered .joined rule without !important */
+""", f"""<div class="shell">
+  <aside>
+    <span class="label" style="color:var(--ink)">Acme // Keys</span>
+    <nav class="nav"><a href="#" aria-current="page">Keys</a><a href="#">Usage</a><a href="#">Settings</a></nav>
+  </aside>
+  <main>
+    <div class="head"><h1>API keys</h1><button class="primary">Create key</button></div>
+    <div class="panels"><div class="panel"><span class="label">Active</span><span class="figure">6</span></div><div class="panel"><span class="label">Calls today</span><span class="figure accent">18,204</span></div><div class="panel"><span class="label">Errors</span><span class="figure">12</span></div></div>
+    <div class="row" style="margin:16px 0">
+      <div class="segmented" role="group" aria-label="State"><button aria-pressed="true">Active</button><button aria-pressed="false">Revoked</button></div>
+      <input type="search" class="w-s" id="ws" placeholder="Name" aria-label="Name">
+      <div class="joined"><input class="fx-page" id="pagewin" aria-label="Prefix" value="sk_"><button>Copy</button></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Prefix</th><th>Created</th><th>Last used</th><th>Scope</th><th>Status</th><th class="num">Calls</th></tr></thead>
+      <tbody>
+        <tr><td>Production server</td><td class="num">sk_live_9f2a</td><td>4 Nov 2026</td><td>2 minutes ago</td><td>Read and write</td><td><span class="status positive" id="st-pos">Active</span></td><td class="num">14,902</td></tr>
+        <tr><td>Staging</td><td class="num">sk_test_41bc</td><td>12 Oct 2026</td><td>Yesterday</td><td>Read and write</td><td><span class="status warning" id="st-warn">Expires soon</span></td><td class="num">3,120</td></tr>
+        <tr><td>Old laptop</td><td class="num">sk_live_07de</td><td>2 Feb 2026</td><td>Never</td><td>Read only</td><td><span class="status negative" id="st-neg">Revoked</span></td><td class="num">0</td></tr>
+        <tr><td>Reporting job</td><td class="num">sk_live_c3a1</td><td>9 Sep 2026</td><td>1 hour ago</td><td>Read only</td><td><span class="status info" id="st-info">Rotating</span></td><td class="num">182</td></tr>
+      </tbody>
+    </table></div>
+    <ul class="ledger settings" style="margin-top:16px"><li><span>Alert on errors<small>Email the owner</small></span><span><input type="checkbox" class="switch" checked aria-label="Alert on errors"></span></li></ul>
+    <div style="position:relative;height:110px;margin-top:16px"><div class="menu" id="menu"><button>Rename</button><button>Duplicate</button><button class="danger">Revoke</button></div></div>
+    <p><span class="accent" id="st-acc">Accent text</span></p>
+    <figure class="diagram"><svg class="dg" id="bad" viewBox="0 0 300 90" width="300"><text x="10" y="30">OVERLAPPING</text><text x="14" y="33">LABELS</text><path class="s" d="M0 70.5 H300"/><text x="100" y="74">STRUCK</text></svg></figure>
+    <div class="actionbar" id="actionbar"><button class="primary">Create key</button><button>Import</button></div>
+    <nav class="tabbar" id="tabbar"><a href="#" aria-current="page">Keys</a><a href="#">Usage</a><a href="#">Settings</a></nav>
+  </main>
+</div>""", CONTRAST_JS + """
+window.__lintOk = ['label-overlap', 'label-struck'];      // the deliberately bad hand-drawn svg below must be reported
+window.__assert = function () {
+  var bad = [], q = function (s) { return document.querySelector(s) }, cs = getComputedStyle, w = innerWidth;
+  function ok(cond, msg) { if (!cond) bad.push(msg) }
+  var found = cz.lint().map(function (f) { return f.issue });
+  ok(found.indexOf('label-overlap') > -1 && found.indexOf('label-struck') > -1, 'lint misses overlapping or struck labels in a hand-drawn svg.dg: ' + found);
+  ok(cs(q('#pagewin')).borderTopLeftRadius === '3px', 'a page-level rule does not beat the layered component: radius ' + cs(q('#pagewin')).borderTopLeftRadius);
+  ok(Math.abs(q('#ws').getBoundingClientRect().width - 120) < 1, 'the .w-s helper does not beat .row > input: ' + q('#ws').getBoundingClientRect().width);
+  ['#st-pos', '#st-warn', '#st-neg', '#st-info', '#st-acc'].forEach(function (s) { var c = __contrast(q(s)); ok(c >= 4.5, s + ' text contrast is ' + c.toFixed(2) + ', under 4.5'); });
+  var items = [].slice.call(document.querySelectorAll('#menu > *'));
+  q('#menu').scrollIntoView({ block: 'center' });       // elementFromPoint only sees what is in the viewport
+  items.forEach(function (it, i) { var r = it.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.bottom - 2); ok(hit === it, 'the bottom edge of menu item ' + (i + 1) + ' belongs to another element'); });
+  var phone = w <= 800, shown = function (s) { return cs(q(s)).display !== 'none' };
+  ok(shown('#tabbar') === phone && shown('#actionbar') === phone, 'tab bar and action bar should show only at 800px and under (width ' + w + ')');
+  ok(phone ? cs(q('.shell > aside')).position === 'static' : cs(q('.shell > aside')).position === 'sticky', 'the aside did not switch for width ' + w);
+  return bad;
+};
+""", ui=True, dest=root/"tests")
+
+page("fixtures-deck.html", "Deck fixtures", "", "", f"""<div class="deck" data-label="Deck fixtures">
+  <section class="slide split" id="small">
+    <h2>A split slide whose drawing is too small</h2>
+    <div class="body"><div><p class="lead">The lint must report this one.</p></div>
+      {cz("diagram", {"type":"flow","nodes":[{"id":"a","label":"A","col":0},{"id":"b","label":"B","col":1}],"edges":[{"from":"a","to":"b"}],"cell":{"w":60,"h":30}})}
+    </div>
+  </section>
+  <section class="slide split" id="fine">
+    <h2>A split slide whose drawing fills its column</h2>
+    <div class="body"><div><p class="lead">This one is fine.</p></div>
+      {cz("diagram", {"type":"flow","nodes":[{"id":"a","label":"Input","col":0},{"id":"b","label":"Step","col":1},{"id":"c","label":"Output","col":2},{"id":"s","label":"Store","col":1,"row":1,"kind":"store"},{"id":"l","label":"Log","col":2,"row":1,"kind":"store"}],"edges":[{"from":"a","to":"b","label":"raw","accent":True},{"from":"b","to":"c","label":"clean"},{"from":"b","to":"s"},{"from":"c","to":"l"}]})}
+    </div>
+  </section>
+  <section class="slide title"><h1>Edge caching halved checkout latency in six weeks</h1><p>A 49-character title</p></section>
+  <section class="slide"><h2>A chart with no height fills the slide body</h2><div class="body">{cz("chart", {"type":"bar","highlight":"Q4","data":[{"label":"Q1","value":120},{"label":"Q2","value":160},{"label":"Q3","value":210},{"label":"Q4","value":340}]})}</div></section>
+</div>""", """
+window.__lintOk = ['small-graphic'];
+window.__assert = function () {
+  var bad = [], q = function (s) { return document.querySelector(s) };
+  function ok(cond, msg) { if (!cond) bad.push(msg) }
+  var small = cz.lint(q('#small')), fine = cz.lint(q('#fine'));
+  ok(small.some(function (f) { return f.issue === 'small-graphic' }), 'lint does not report a small drawing on a split slide');
+  ok(!fine.some(function (f) { return f.issue === 'small-graphic' }), 'lint reports a drawing that fills its column: ' + JSON.stringify(fine));
+  var h1 = q('.title h1'), r = document.createRange(); r.selectNodeContents(h1);
+  var lines = []; [].forEach.call(r.getClientRects(), function (x) { var t = Math.round(x.top); if (lines.indexOf(t) < 0) lines.push(t) });
+  ok(lines.length === 2, 'a 49-character title wraps to ' + lines.length + ' lines, not 2');
+  var svg = document.querySelectorAll('.slide')[3].querySelector('svg.cz'), body = svg.closest('.body');
+  ok(svg.getBoundingClientRect().height > 0.8 * body.getBoundingClientRect().height, 'a chart with no height does not fill its slide body');
+  var h2 = q('#fine h2'), gap = q('#fine .body').getBoundingClientRect().top - h2.getBoundingClientRect().bottom, z = q('#fine').getBoundingClientRect().width / 1280;
+  ok(gap / z > 40, 'the headline sits ' + Math.round(gap / z) + 'px above the body, under 40');
+  return bad;
+};
+""", viz=True, deck=True, dest=root/"tests")
+print("built", sorted(p.name for p in out.glob("*.html")), "+ tests/fixtures*.html")

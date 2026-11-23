@@ -8,7 +8,7 @@ example at phone and desktop width in headless Chrome, runs cz.lint() and the fi
 prints the deck and the report, and exits non-zero on any finding.
 Set CHROME to the browser binary if it is not in a usual place. Use --static to skip the browser.
 """
-import json, os, pathlib, re, shutil, subprocess, sys, tempfile
+import glob, json, os, pathlib, re, shutil, subprocess, sys, tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKILL = ROOT / "plugin" / "skills" / "canzano"
@@ -20,7 +20,7 @@ def fail(where, what):
 def chrome():
     for c in [os.environ.get("CHROME"), "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
               "/Applications/Chromium.app/Contents/MacOS/Chromium", shutil.which("google-chrome"),
-              shutil.which("chromium"), shutil.which("chromium-browser"), "/opt/pw-browsers/chromium"]:
+              shutil.which("chromium"), shutil.which("chromium-browser")] + sorted(glob.glob("/opt/pw-browsers/chromium*/chrome-linux*/chrome")):
         if c and os.path.isfile(c) and os.access(c, os.X_OK):
             return c
     return None
@@ -65,8 +65,18 @@ def static():
             m = re.fullmatch(r"((?:assets|references|scripts|kits)/[\w./-]+\.\w+)", tok)
             if m and not (SKILL / m.group(1)).exists():
                 fail(name, f"points at {m.group(1)}, which does not exist")
-        for stale in ("references/charts.md", "references/decks.md", "references/ascii.md", "assets/viz.js", "assets/deck", "scripts/ascii.py"):
-            if stale in text: fail(name, f"still mentions {stale}")
+    # 4b. no file anywhere in the repository still uses a path from before the kits
+    STALE = ("references/charts.md", "references/decks.md", "references/ascii.md", "assets/viz.js", "assets/deck.", "scripts/ascii.py", "skills/canzano/assets/viz", '"skills/canzano')
+    tracked_text = subprocess.run(["git", "-C", str(ROOT), "ls-files"], capture_output=True, text=True).stdout.split()
+    for f in tracked_text:
+        if f.endswith((".png", ".gif", ".pdf", ".zip")) or f == "tests/check.py": continue
+        try: text = (ROOT / f).read_text()
+        except (UnicodeDecodeError, FileNotFoundError): continue
+        for stale in STALE:
+            if stale in text: fail(f, f"still mentions {stale}")
+    # 4c. the version is the same wherever it is written
+    version = json.loads((ROOT / "plugin/.claude-plugin/plugin.json").read_text())["version"]
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version): fail("plugin.json", f"odd version {version}")
 
     # 5. the examples on disk are what the build makes
     snap = {p.name: p.read_text() for p in (ROOT / "examples").glob("*.html")}
@@ -83,22 +93,24 @@ def static():
 
 # ---------------------------------------------------------------- rendered checks
 def render(c):
-    pages = [ROOT / "tests/fixtures.html"] + sorted((ROOT / "examples").glob("*.html"))
+    pages = sorted((ROOT / "tests").glob("fixtures*.html")) + sorted((ROOT / "examples").glob("*.html"))
     for page in pages:
-        if page.name == "index.html": widths = [1100]          # the gallery frames other pages; they are checked on their own
-        elif page.name == "deck.html": widths = [1312]          # a deck is for a screen, not a phone
-        else: widths = [390, 1100]
-        for w in widths:
-            url = (ROOT / "tests/harness.html").as_uri() + f"?w={w}&src=" + page.as_uri()
+        fixture = page.name.startswith("fixtures")
+        if page.name == "index.html": runs = [(1100, "")]                                   # the gallery frames other pages; they are checked on their own
+        elif page.name in ("deck.html", "fixtures-deck.html"): runs = [(1312, "")]          # a deck is for a screen, not a phone
+        elif fixture: runs = [(390, "light"), (720, "light"), (1100, "light"), (390, "dark"), (1100, "dark")]
+        else: runs = [(390, ""), (1100, ""), (1100, "dark")]
+        for w, theme in runs:
+            url = (ROOT / "tests/harness.html").as_uri() + f"?w={w}&theme={theme}&src=" + page.as_uri()
             with tempfile.TemporaryDirectory() as prof:
                 try:
                     r = subprocess.run([c, f"--user-data-dir={prof}", "--headless=new", "--disable-gpu", "--no-first-run", "--no-sandbox",
                                         "--allow-file-access-from-files", f"--window-size={max(w, 500) + 20},1000", "--virtual-time-budget=9000",
                                         "--timeout=12000", "--dump-dom", url], capture_output=True, text=True, timeout=90)
                 except subprocess.TimeoutExpired:
-                    fail(f"{page.name} @{w}", "Chrome timed out"); continue
+                    fail(f"{page.name} @{w} {theme}", "Chrome timed out"); continue
             m = re.search(r"<title>RESULT (.*?)</title>", r.stdout, re.S)
-            where = f"{page.name} @{w}"
+            where = f"{page.name} @{w}" + (f" {theme}" if theme else "")
             if not m: fail(where, "no result from the page"); continue
             res = json.loads(m.group(1).replace("&quot;", '"').replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">"))
             if res.get("error"): fail(where, res["error"]); continue
@@ -124,12 +136,16 @@ def printing(c):
             print(f"  printed {name}: {pages} pages")
         r = subprocess.run(["sh", str(SKILL / "scripts/pdf.sh"), str(ROOT / "examples/report.html"), str(pathlib.Path(tmp) / "x.pdf")], capture_output=True, text=True, env=dict(os.environ, CHROME="/usr/bin/false"))
         if r.returncode == 0: fail("pdf.sh", "exits 0 when Chrome fails")
+        odd = pathlib.Path(tmp) / "my docs #1 50%"; odd.mkdir(); shutil.copy(ROOT / "examples/report.html", odd / "a b.html")
+        r = subprocess.run(["sh", str(SKILL / "scripts/pdf.sh"), str(odd / "a b.html"), str(odd / "out.pdf")], capture_output=True, text=True, env=env, timeout=120)
+        data = (odd / "out.pdf").read_bytes() if (odd / "out.pdf").exists() else b""
+        if r.returncode or b"Hosting options" not in data: fail("pdf.sh", "does not print a file whose path has spaces, # or %")
 
 def scripts():
     a = [sys.executable, "-B", str(SKILL / "kits/ascii/ascii.py")]
     good = [["banner", "OK", "--style", "half"], ["flow", "A -[x]-> B -> [C]"], ["flow", "A -> B", "--down"], ["seq", "A->B: hi", "B-->A: ok"],
             ["table", "a | b", "c | 1"], ["bars", "a=3", "b=1"], ["spark", "1", "2", "3"], ["box", "T", "line"]]
-    bad = [["nope"], ["flow"], ["spark", "a"], ["bars", "x"], ["bars", "a=-1"], ["seq", "nonsense"], ["banner", "X", "--style", "nope"], ["banner", "a✓b"], ["box"], ["table", "a|b", "c"]]
+    bad = [["nope"], ["flow"], ["flow", "A -> B", "C -> D"], ["spark", "a"], ["bars", "x"], ["bars", "a=-1"], ["seq", "nonsense"], ["banner", "X", "--style", "nope"], ["banner", "a✓b"], ["box"], ["table", "a|b", "c"]]
     for g in good:
         r = subprocess.run(a + g, capture_output=True, text=True)
         if r.returncode or not r.stdout.strip(): fail("ascii.py " + " ".join(g), f"exit {r.returncode}")
@@ -145,7 +161,12 @@ def scripts():
             r = subprocess.run(["sh", str(ROOT / "install.sh"), str(target)], capture_output=True, text=True)
             if r.returncode: fail("install.sh", r.stderr.strip() or "failed")
         if not (target / "canzano/SKILL.md").exists() or not (target / "canzano.previous").exists(): fail("install.sh", "did not install or did not keep the previous copy")
+        if (target / "canzano.previous/SKILL.md").exists(): fail("install.sh", "the kept copy still has a SKILL.md and could load as a second skill")
         if list(target.rglob("__pycache__")): fail("install.sh", "copied a cache folder")
+        for args in (["--core", str(pathlib.Path(tmp) / "c1")], [str(pathlib.Path(tmp) / "c2"), "--core"]):
+            r = subprocess.run(["sh", str(ROOT / "install.sh")] + args, capture_output=True, text=True)
+            d = pathlib.Path(tmp) / ("c1" if args[0] == "--core" else "c2") / "canzano"
+            if r.returncode or not (d / "SKILL.md").exists() or (d / "kits").exists(): fail("install.sh " + " ".join(a if a.startswith("--") else "<dir>" for a in args), "did not make a core-only install")
 
 if __name__ == "__main__":
     print("static checks"); static()

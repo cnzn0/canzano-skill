@@ -22,7 +22,7 @@
 The structure follows sfcompute.com (frame, small controls, flat panels), measured, not its brand.
 
 - **Frame.** A sticky aside of about 224px with the name and the navigation, then one bordered main column (`.shell`). On a phone the aside becomes a top bar, the main actions sit in `.actionbar` (34px controls) and navigation in `.tabbar` at the bottom.
-- **Type.** Inter leads: page title 26/32 at 500, panel title 20/26 at 600, body 15/22, controls and navigation 14/21 with +0.02em. Geist Mono caps at 11px for labels, table heads and status. Every figure is Geist Mono with tabular numerals.
+- **Type.** Inter leads: page title 26/32 at 500, panel title 20/26 at 600, body 15/22, controls and navigation 14/21 with +0.02em. Geist Mono caps at 11px for labels, table heads and status. Every figure is Geist Mono with tabular numerals. These are the interface sizes; the document sizes in `SKILL.md` are for pages and reports.
 - **Controls.** One recipe for every button, input, select and segmented control: 27px tall, radius 6, a 1px edge, Inter 14/21. Buttons and selects carry a four-stop fill that is lighter at the top, flat through the middle and slightly lighter at the bottom. One primary per view: ink with white text in light, white with dark text in dark, never the accent. `quiet` is text only. Hover shifts brightness, press scales to 0.97. No pill buttons, no outlined mono caps buttons.
 - **Rows, combos and forms.** Read `controls.md`. Side-by-side controls go in `.row` and share one height and style. It also says which control fits which need and how a form is laid out, validated and closed.
 - **Segmented control.** A `--panel` track the same height as a button. The selected segment is a raised thumb: white with a 1px soft shadow in light, a 12% light fill with a hairline edge in dark. It does not slide or spring. Never an accent border on a control.
@@ -32,6 +32,47 @@ The structure follows sfcompute.com (frame, small controls, flat panels), measur
 - **Status.** One mono caps word in `--positive`, `--warning` or `--negative`. No coloured chips.
 - **Accent.** The one live thing: the running item, the key figure, the current bar in a chart. Never a button fill.
 - Design light and dark separately through the tokens and look at both.
+
+## Markup
+
+```html
+<div class="shell">
+  <aside>
+    <span class="label">Product // Area</span>
+    <nav class="nav"><a href="#" aria-current="page">Keys</a><a href="#">Usage</a></nav>
+  </aside>
+  <main>
+    <div class="head"><h1>API keys</h1><button class="primary">Create key</button></div>
+
+    <div class="panels">
+      <div class="panel"><span class="label">Active</span><span class="figure">6</span></div>
+      <div class="panel"><span class="label">Calls today</span><span class="figure accent">18,204</span></div>
+    </div>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>Name</th><th>Status</th><th class="num">Calls</th></tr></thead>
+      <tbody>
+        <tr aria-selected="true"><td class="mark">→</td><td>Production</td><td><span class="status positive">Active</span></td><td class="num">14,902</td></tr>
+        <tr aria-selected="false"><td class="mark">→</td><td>Old laptop</td><td><span class="status negative">Revoked</span></td><td class="num">0</td></tr>
+      </tbody>
+    </table></div>
+
+    <!-- Phone only: both are hidden above 800px, where the aside and the page head do their jobs. -->
+    <div class="actionbar"><button class="primary">Create key</button><button>Import</button></div>
+    <nav class="tabbar"><a href="#" aria-current="page">Keys</a><a href="#">Usage</a></nav>
+  </main>
+</div>
+
+<dialog>
+  <h2>Revoke Production?</h2>
+  <p>Apps using this key stop working at once. This cannot be undone.</p>
+  <div class="actions end"><button>Cancel</button><button class="danger">Revoke key</button></div>
+</dialog>
+```
+
+- `.status` is the status word: mono caps, coloured by `positive`, `warning`, `negative` or `info`.
+- A `.menu` goes inside a `position: relative` wrapper around its trigger. Open and close it, and a `<dialog>` with `showModal()`, from your own script; the skill ships no behaviour.
+- One primary per view. When a form is open its submit is the primary, and the button that opened it becomes secondary.
 
 ## Before calling it done
 

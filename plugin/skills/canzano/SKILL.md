@@ -16,7 +16,7 @@ Outputs should look like a precise instrument, not a template: neutral, typograp
 
 ## What is here
 
-The core is all most outputs need. The kits are optional: open one only when the task calls for it.
+The core is all most outputs need. The kits are optional: open one only when the task calls for it. If the `kits` folder is absent (a core-only install), build the chart, deck or text diagram by hand to the rules here and say that the kit was not installed.
 
 | Part | Files | Use it for |
 |---|---|---|
@@ -37,7 +37,7 @@ The stylesheets use cascade layers, so a helper class always beats a component a
 |---|---|---|
 | Structure face | Geist Mono 400 (500 for emphasis) | Headings, labels, table heads, captions, every figure |
 | Reading face | Inter 400, 500, 600 | Prose and control text. Never a document headline |
-| Sizes | 11 caps, 13, 15 body, 16 lead, 22 title, 28 figure | Three sizes per view at most |
+| Sizes | Documents: 11 caps, 13, 15 body, 16 lead, 22 title, 28 figure. Interfaces: 11 caps, 14 controls, 15 body, 20 panel title, 26 page title | Use the scale; never an in-between size |
 | Neutrals | `--page`, `--raised`, `--panel`, `--rule`, `--rule-strong`, `--ink-3`, `--ink-2`, `--ink` | Structure and text. Most of every output |
 | Accent | `--accent` (violet) | Vivid. The one live thing, never a button fill |
 | Status | `--positive`, `--warning`, `--negative`, `--info`, each with a `-soft` tint | A real state only, always next to a word |
@@ -65,7 +65,7 @@ These hold for every output.
 Structure depends on what the output is.
 
 - **A document** (page, report, doc, PDF) is square and built from hairlines and whitespace, not boxes. A section opens with a top rule and a mono caps label. Lists of things are ledgers: hairline rows, label left, value right. Figures sit in a metric strip between two rules. Headings are Geist Mono.
-- **An interface** is built from small crisp controls and flat panels. Controls are 27px tall with a 6px radius, a 1px edge and a fill a touch lighter at the top and bottom. The primary action is dark on a light page and white on a dark page. Panels are a flat fill with a 12px radius, no edge and no shadow, holding a figure, a chart or a detail view. Lists and tables stay hairline ledgers. Inter leads; Geist Mono stays on labels, status and figures. Read `references/ui.md` and `references/controls.md`.
+- **An interface** is built from small crisp controls and flat panels. Controls are 27px tall with a 6px radius, a 1px edge and a fill a touch lighter at the top and bottom. There is one primary action per view, dark on a light page and white on a dark page. Panels are a flat fill with a 12px radius, no edge and no shadow, holding a figure, a chart or a detail view. Lists and tables stay hairline ledgers. Inter leads; Geist Mono stays on labels, status and figures. Read `references/ui.md` and `references/controls.md`.
 
 ## Words
 
@@ -110,7 +110,7 @@ Render it and look at it: at full size and at phone width, in both themes when i
 3. Are labels mono caps, prose in Inter, figures tabular, and did the fonts load?
 4. Does the first screen state the point?
 5. Does the output still work without each sentence and label? Delete the ones it does not need.
-6. In every row of controls, do the boxes share one height and style, with one primary?
+6. In every row of controls, do the boxes share one height and style, and is there one primary per view?
 7. Does any heading end on a stranded word, any label collide with another, or any graphic sit small in empty space?
 
 The lint catches the common layout faults, not all of them. Say what was rendered and checked, and what was not.

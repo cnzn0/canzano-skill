@@ -4,7 +4,7 @@
      stranded           a heading or line whose last line is one short word
      long-headline      a slide headline over two lines (four on a statement slide)
      overflow           content cut off by its slide, or a page wider than the window
-     label-overlap      two labels in a drawing collide
+     label-overlap      two labels in a drawing collide (generated or hand-drawn with class dg)
      label-struck       a wire runs through a label
      label-covers-mark  a label sits on another point's marker
      tiny-labels        a drawing shown so small its labels fall under 9.5px
@@ -22,23 +22,27 @@
       if (n.closest('.slide') && /^H[12]$/.test(n.tagName) && rows.length > (n.closest('.statement') ? 4 : 2)) out.push({ issue: 'long-headline', text: txt.slice(0, 80) });
     });
     (scope || document).querySelectorAll('.slide').forEach((sl, i) => { if (sl.scrollHeight > sl.clientHeight + 2 || sl.scrollWidth > sl.clientWidth + 2) out.push({ issue: 'overflow', text: 'slide ' + (i + 1) }); });
-    (scope || document).querySelectorAll('svg.cz').forEach(svg => {
+    (scope || document).querySelectorAll('svg.cz, svg.dg').forEach(svg => {
       const T = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim() && !t.getAttribute('transform')).map(t => ({ t, b: t.getBBox() }));
       const hit = (a, b) => Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
       T.forEach((a, i) => T.slice(i + 1).forEach(b => { if (hit(a.b, b.b) > 0.15 * Math.min(a.b.width * a.b.height, b.b.width * b.b.height)) out.push({ issue: 'label-overlap', text: a.t.textContent + ' / ' + b.t.textContent }); }));
       const vb = svg.viewBox.baseVal, shown = vb && vb.width ? svg.clientWidth / vb.width : 1, size = T.length ? parseFloat(getComputedStyle(T[0].t).fontSize) * shown : 99;
       if (size < 9.5) out.push({ issue: 'tiny-labels', text: 'labels render at ' + size.toFixed(1) + 'px; split the drawing or give it more room' });
       svg.querySelectorAll('rect.mark').forEach(mk => { const b = mk.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2, x = T.find(o => cx > o.b.x && cx < o.b.x + o.b.width && cy > o.b.y && cy < o.b.y + o.b.height); if (x) out.push({ issue: 'label-covers-mark', text: x.t.textContent }); });
-      svg.querySelectorAll('path.ln').forEach(p => {
+      svg.querySelectorAll('path.ln, path.s, .s path, .ln path').forEach(p => {
         const len = p.getTotalLength(); if (!len) return;
         for (let d = 0; d <= len; d += 3) { const q = p.getPointAtLength(d), x = T.find(o => !o.struck && q.x > o.b.x + 2 && q.x < o.b.x + o.b.width - 2 && q.y > o.b.y + 3 && q.y < o.b.y + o.b.height - 3); if (x) { x.struck = 1; out.push({ issue: 'label-struck', text: x.t.textContent }); } }
       });
     });
     (scope || document).querySelectorAll('.slide .body svg').forEach(svg => {
       const body = svg.closest('.body'); if (svg.closest('p, td, li, .metrics')) return;
-      const cell = svg.closest('.split') ? [...body.children].find(ch => ch.contains(svg)) || body : body;   // on a split slide the room is the column
-      const r = svg.getBoundingClientRect(), bb = cell.getBoundingClientRect();
-      if (r.width * r.height < 0.3 * bb.width * bb.height) out.push({ issue: 'small-graphic', text: 'fills ' + Math.round(100 * r.width * r.height / (bb.width * bb.height)) + '% of its slide body' });
+      const r = svg.getBoundingClientRect(), bb = body.getBoundingClientRect(); let roomW = bb.width, roomH = bb.height;
+      if (svg.closest('.split')) {                      // on a split slide the room is the grid column the drawing sits in, not its own shrink-wrapped box
+        const kids = [...body.children], k = kids.findIndex(ch => ch.contains(svg)), tracks = getComputedStyle(body).gridTemplateColumns.split(' ').map(parseFloat).filter(v => v > 0);
+        if (k > -1 && tracks[k]) roomW = tracks[k] * (bb.width / body.clientWidth);
+      }
+      const share = r.width * r.height / (roomW * roomH);
+      if (share < 0.3) out.push({ issue: 'small-graphic', text: 'fills ' + Math.round(100 * share) + '% of the room it has on its slide' });
     });
     if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 2 && !document.querySelector('.deck')) out.push({ issue: 'overflow', text: 'page is wider than the window' });
     return out;

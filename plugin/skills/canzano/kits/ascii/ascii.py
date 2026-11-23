@@ -191,6 +191,7 @@ def _until(items, i, depth):
 def main(argv):
     if len(argv) < 2 or argv[1] in ("-h", "--help"): print(__doc__); return
     cmd, args = argv[1], argv[2:]
+    if "--help" in args or "-h" in args: print(__doc__); return
     def opt(name, default=None):
         if name in args:
             i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
@@ -203,7 +204,10 @@ def main(argv):
         if sys.stdin.isatty(): raise Usage(cmd + " needs input, for example: " + example)
         return sys.stdin.read().splitlines()
     if cmd == "banner": style, char = opt("--style", "block"), opt("--char", "#"); print(banner(" ".join(args), style, char))
-    elif cmd == "flow": down = flag("--down"); print(flow(" ".join(args), down))
+    elif cmd == "flow":
+        down = flag("--down")
+        if len(args) > 1: raise Usage('flow takes one chain in quotes, for example: flow "A -> B -> C"; draw a branch as a second flow')
+        print(flow(" ".join(args), down))
     elif cmd == "seq": print(seq(lines('ascii.py seq "A->B: text" "B-->A: reply"')))
     elif cmd == "table": print(table(lines('ascii.py table "Plan | Seats" "Team | 12"')))
     elif cmd == "bars": width, unit = int(opt("--width", 32)), opt("--unit", ""); print(bars(args, width, unit))

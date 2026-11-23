@@ -31,6 +31,7 @@ Put the output in a fenced code block in Markdown, or `<pre class="ascii">` in H
 ## Rules
 
 - The same grammar as the SVG diagrams: boxes are entities, arrows have a real source and target, square brackets mark a store or a set. No decorative borders, no filler characters.
+- `flow` draws one chain and cannot branch. Draw a branch as a second flow on its own line, or use `tree` when the shape is a hierarchy.
 - Keep it under 100 columns so it survives a terminal and a code review. Use `--down` or split the diagram when a flow is wider.
 - Hero text is opt-in: only when the user asks for a banner or a title treatment, once per output, and short (one to three words). It is never a substitute for stating the point, and a report or UI does not open with one.
 - In an HTML page or a deck prefer the SVG diagrams from the charts kit. ASCII there is a deliberate choice of register, such as a terminal product or a developer README rendered as a page.

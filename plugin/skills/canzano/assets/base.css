@@ -272,11 +272,22 @@
   .stack .check { align-items: flex-start; }
   .stack .check small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-3); letter-spacing: 0; }
 
-  /* Menu: the one floating surface, and the one shadow in the system. */
+  /* Menu: a floating surface, with the one shadow in the system. Place it under its trigger inside a
+     position: relative wrapper. */
   .menu { position: absolute; z-index: 10; min-width: 180px; padding: var(--s1); background: var(--raised); border: 1px solid var(--rule-strong); border-radius: var(--r-control); box-shadow: 0 8px 24px oklch(0.2 0.02 278 / 0.16); }
   .menu > :is(a, button) { display: flex; align-items: center; justify-content: flex-start; width: 100%; height: var(--control-h); padding: 0 var(--control-px); background: none; border: 0; border-radius: calc(var(--r-control) - 2px); font: 400 14px/21px var(--sans); letter-spacing: 0.02em; text-decoration: none; color: var(--ink); }
   .menu > :is(a, button):hover, .menu > [aria-current] { background: var(--panel); filter: none; }
   .menu > .danger { color: var(--negative); }
+  .menu > :is(a, button)::after { content: none; }   /* stacked items: an enlarged hit area would reach into the next one */
+
+  /* Dialog: the other floating surface. Use the native <dialog>; it shares the menu's edge and shadow. */
+  dialog { width: min(440px, calc(100vw - 2 * var(--gutter))); padding: var(--s5); color: var(--ink); background: var(--raised); border: 1px solid var(--rule-strong); border-radius: var(--r-panel); box-shadow: 0 8px 24px oklch(0.2 0.02 278 / 0.16); }
+  dialog::backdrop { background: oklch(0.15 0 0 / 0.45); }
+  dialog h2 { font: 600 20px/26px var(--sans); letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin: 0 0 var(--s2); }
+  dialog .actions { margin-top: var(--s5); }
+
+  /* Status: one word in mono caps next to the thing it describes. Colour it with a helper. */
+  .status { font: var(--text-label)/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
 
   /* ASCII (kits/ascii). A system mono face, because it must have the box and block glyphs at one width;
      a tight line height keeps vertical strokes joined. */

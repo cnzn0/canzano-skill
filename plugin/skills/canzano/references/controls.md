@@ -58,6 +58,22 @@ Do not use a select for two options, a segmented control for eight, a switch ins
   <label class="check"><input type="radio" name="bill"><span>Yearly<small>Two months free</small></span></label>
 </div>
 
+<form class="form">
+  <div class="field"><label for="email">Email</label>
+    <input id="email" type="email" class="w-l" autocomplete="email" aria-invalid="true" aria-describedby="email-e">
+    <span class="error" id="email-e">Enter a full email address.</span></div>
+  <div class="pair">
+    <div class="field"><label for="first">First name</label><input id="first"></div>
+    <div class="field"><label for="last">Last name</label><input id="last"></div>
+  </div>
+  <div class="field"><label for="role">Role</label><select id="role" class="w-m"><option>Member</option></select><span class="hint">Admins can invite others.</span></div>
+  <div class="actions"><button class="primary">Send invite</button><button type="button">Cancel</button></div>
+</form>
+
+<ul class="ledger settings">
+  <li><span>Failed deploys<small>Email the author</small></span><span><input type="checkbox" class="switch" checked aria-label="Failed deploys"></span></li>
+</ul>
+
 <button class="danger">Delete workspace</button>
 <button class="primary" aria-busy="true">Save</button>
 <div class="menu"><button>Rename</button><button>Duplicate</button><button class="danger">Delete</button></div>
@@ -83,7 +99,7 @@ On a phone every control's text steps up to 16px together, `.sm` included, so a 
 - Mark the optional fields, not the required ones, when most are required.
 - Placeholders are examples of the format, never the label and never instructions.
 - Validate on blur and on submit, not on every keystroke. On error: the field edge turns `--negative`, one sentence under it says what to fix, focus moves to the first invalid field. Wire it with `aria-invalid` and `aria-describedby`.
-- The action row closes the form: primary first, then Cancel, left aligned on a page. In a dialog the row is right aligned with the primary last. The primary names the action ("Save", "Send invite"), not "Submit".
+- The action row closes the form: primary first, then Cancel, left aligned on a page. In a `<dialog>` the row is `.actions.end`: right aligned with the confirming button last. The primary names the action ("Save", "Send invite"), not "Submit".
 - While saving, the primary takes `aria-busy="true"`: it keeps its width and shows a spinner. Nothing else on the form moves. After saving, say "Saved" once, next to the button.
 - Disabled is for controls that cannot apply. A primary that is waiting on a missing field stays enabled and reports the error on click.
 - Use the right input type and `autocomplete`, `inputmode` and `enterkeyhint`, so phones show the right keyboard. Enter submits a single-field form.

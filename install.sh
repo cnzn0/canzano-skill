@@ -6,8 +6,6 @@
 # --core leaves out the optional kits (charts, decks, ASCII).
 set -e
 REPO="https://github.com/cnzn0/canzano-skill"
-core=""
-if [ "${1:-}" = "--core" ]; then core=1; shift; fi
 
 # Use the checkout this script sits in, but only when it was run as a file. Piped through sh,
 # $0 is the shell, and the current folder must not be mistaken for a checkout.
@@ -24,6 +22,16 @@ if [ -z "$src" ]; then
   src="$tmp/repo/plugin/skills/canzano"
 fi
 
+# Read the arguments: --core may come anywhere, everything else is a target folder.
+core=""; n=$#
+while [ "$n" -gt 0 ]; do
+  arg="$1"; shift; n=$((n - 1))
+  case "$arg" in
+    --core) core=1 ;;
+    -*) echo "install.sh: unknown option $arg" >&2; exit 2 ;;
+    *) set -- "$@" "$arg" ;;
+  esac
+done
 if [ "$#" -eq 0 ]; then
   for home in "$HOME/.claude" "$HOME/.agents" "$HOME/.codex"; do
     [ -d "$home" ] && set -- "$@" "$home/skills"
@@ -36,6 +44,8 @@ for dir in "$@"; do
   if [ -e "$dir/canzano" ]; then          # keep the copy being replaced, in case it had local edits
     rm -rf "$dir/canzano.previous"
     mv "$dir/canzano" "$dir/canzano.previous"
+    # Rename its SKILL.md so an agent scanning the folder does not load the old copy as a second skill.
+    [ -f "$dir/canzano.previous/SKILL.md" ] && mv "$dir/canzano.previous/SKILL.md" "$dir/canzano.previous/SKILL.previous.md"
     echo "kept the old copy at $dir/canzano.previous"
   fi
   cp -R "$src" "$dir/canzano"

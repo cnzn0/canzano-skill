@@ -13,7 +13,7 @@
   /* Frame: a sticky aside for navigation, one bordered main column. */
   .shell { display: grid; grid-template-columns: 224px minmax(0, 1fr); max-width: 1248px; margin: 0 auto; min-height: 100vh; }
   .shell > aside { position: sticky; top: 0; align-self: start; height: 100vh; display: flex; flex-direction: column; gap: var(--s5); padding: var(--s5) var(--s4) var(--s4) var(--gutter); }
-  .shell > main { max-width: none; margin: 0; padding: var(--s5) 32px var(--s7); border-left: 1px solid var(--rule); border-right: 1px solid var(--rule); }
+  .shell > main { max-width: none; min-width: 0; margin: 0; padding: var(--s5) 32px var(--s7); border-left: 1px solid var(--rule); border-right: 1px solid var(--rule); }
   .nav { display: flex; flex-direction: column; }
   .nav a { border: 0; padding: 3px 0; font: 400 14px/21px var(--sans); letter-spacing: 0.02em; color: var(--ink-3); transition: color var(--fast); }
   .nav a:hover, .nav a[aria-current] { color: var(--ink); }
@@ -25,8 +25,11 @@
   .tabbar a { position: relative; border: 0; text-align: center; font: 500 12px/1 var(--sans); letter-spacing: 0.02em; color: var(--ink-3); padding: 16px 0; }
   .tabbar a[aria-current] { color: var(--ink); }
 
+  /* The action bar and the tab bar are phone furniture: above 800px the aside and the page head do their jobs. */
+  @media (min-width: 801px) { .actionbar, .tabbar { display: none; } }
+
   @media (max-width: 800px) {
-    .shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
     .shell > aside { position: static; height: auto; flex-direction: row; align-items: center; justify-content: space-between; padding: var(--s3) var(--gutter); border-bottom: 1px solid var(--rule); }
     .shell > aside .nav { flex-direction: row; gap: var(--s4); }
     .shell > aside .foot { display: none; }

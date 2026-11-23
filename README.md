@@ -56,7 +56,7 @@ Ask as you normally would. The skill changes how the answer looks and reads.
 
 | Ask | Outcome |
 |---|---|
-| "Compare our three hosting options, one-pager as a PDF" | [report.pdf](examples/report.pdf) |
+| "Compare our three hosting options, a short report as a PDF" | [report.pdf](examples/report.pdf) |
 | "Draw how a checkout request moves through our services" | [diagram.html](examples/diagram.html) |
 | "Animate how a write gets replicated" | [animated-diagram.html](examples/animated-diagram.html) |
 | "Quick internal tool to review today's deploys" | [web-ui.html](examples/web-ui.html) |

@@ -30,7 +30,7 @@ Set `data-label` on `.deck` for the running label. Slide numbers are automatic. 
 ## Rules
 
 - One point per slide, and the headline states it as a claim: "Mobile closed the gap with desktop", not "Mobile conversion".
-- Headlines are sentence case mono, two lines at most: about 60 characters. The title is about 60 as well. A statement slide is the exception: its one sentence may run to four lines. Body text is 20px or larger. If it does not fit, cut words, never shrink type.
+- Headlines are sentence case mono, two lines at most: about 60 characters. The title is about 60 as well. A statement slide is the exception: its one sentence may run to four lines. Body text (paragraphs, list items, table cells) is 20px or larger; labels, captions and chart text are 12 to 13px. If it does not fit, cut words, never shrink type.
 - A slide body is one thing. Not a chart and three bullets and a callout.
 - The evidence fills the slide. The body starts right under the headline and a chart with no `height` takes all the room there is. Diagrams grow to fit. A small graphic floating in the middle of an empty slide is a fault: enlarge it, switch to a split layout, or cut the slide.
 - Headlines wrap in balanced lines with no stranded last word. Keep a number with its unit using `&nbsp;`.
