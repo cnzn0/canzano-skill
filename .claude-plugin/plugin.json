@@ -1,7 +1,7 @@
 {
   "name": "canzano",
   "description": "House style and minimal design system for agent output: Inter, Geist Mono, OKLCH colour, hairlines, crisp controls, and rules against fluff. Pages, reports, PDFs, decks, charts, diagrams and UIs.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": { "name": "cnzn0", "url": "https://github.com/cnzn0" },
   "homepage": "https://github.com/cnzn0/canzano-skill",
   "repository": "https://github.com/cnzn0/canzano-skill",
