@@ -13,7 +13,10 @@ Run it and paste the result into a fenced code block (or <pre class="ascii"> in 
   ascii.py tree < outline.txt        (indent with two spaces per level)
   ascii.py box "Title" "first line" "second line"
 """
-import re, sys
+import re, sys, unicodedata
+
+class Usage(Exception):
+    pass
 
 FONT = {
  'A': [" ### ", "#   #", "#####", "#   #", "#   #"], 'B': ["#### ", "#   #", "#### ", "#   #", "#### "],
@@ -43,8 +46,12 @@ FONT = {
 
 def _pixels(text):
     rows = [""] * 5
-    for ch in text.upper():
-        g = FONT.get(ch, FONT['?'])
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().upper()      # é becomes E
+    bad = sorted({ch for ch in text if ch not in FONT})
+    if bad: raise Usage("banner has no glyph for: " + " ".join(bad))
+    if not text.strip(): raise Usage("banner needs some text")
+    for ch in text:
+        g = FONT[ch]
         for i in range(5):
             rows[i] += g[i] + " "
     return [r[:-1] for r in rows]
@@ -73,11 +80,13 @@ def _parse_flow(spec):
 
 def flow(spec, down=False):
     """A chain of boxes. 'A -[label]-> B -> [Store]'. Square brackets around a name mark a store."""
+    if not spec.strip(): raise Usage('flow needs a chain, for example: flow "A -> B -> C"')
     nodes, labels = _parse_flow(spec)
+    if any(not n.strip() for n in nodes): raise Usage("flow has an empty node name")
     if down:
         w = max(len(n) for n in nodes) + 4; out = []
         for i, n in enumerate(nodes):
-            out += ["┌" + "─" * (w - 2) + "┐", "│" + n.center(w - 2) + "│", "└" + "─" * (w - 2) + "┘"]
+            out += ["┌" + "─" * (w - 2) + "┐", "│ " + n.ljust(w - 4) + " │", "└" + "─" * (w - 2) + "┘"]
             if i < len(labels):
                 pad = " " * (w // 2)
                 out += [pad + "│" + (" " + labels[i] if labels[i] else ""), pad + "▼"]
@@ -94,8 +103,10 @@ def flow(spec, down=False):
 def seq(messages):
     """Sequence diagram. 'A->B: text' is a call, 'B-->A: text' is a reply (dashed)."""
     msgs, actors = [], []
-    for m in messages:
+    if not [m for m in messages if m.strip()]: raise Usage('seq needs lines like "A->B: text"')
+    for m in [m for m in messages if m.strip()]:
         g = re.match(r"\s*(.+?)\s*(-->|->)\s*(.+?)\s*(?::\s*(.*))?$", m)
+        if not g: raise Usage('seq lines look like "A->B: text"; could not read: ' + m)
         a, arrow, b, label = g.group(1), g.group(2), g.group(3), g.group(4) or ""
         for x in (a, b):
             if x not in actors: actors.append(x)
@@ -128,7 +139,8 @@ def seq(messages):
 
 def table(rows):
     """Aligned table. The first row is the header. Numbers align right."""
-    rows = [[c.strip() for c in (r.split("|") if isinstance(r, str) else r)] for r in rows]
+    rows = [[c.strip() for c in (r.split("|") if isinstance(r, str) else r)] for r in rows if (r.strip() if isinstance(r, str) else r)]
+    if len(rows) < 2: raise Usage('table needs a header row and at least one row, cells split by |')
     n = max(len(r) for r in rows); rows = [r + [""] * (n - len(r)) for r in rows]
     w = [max(len(r[i]) for r in rows) for i in range(n)]
     num = [all(re.fullmatch(r"[-+$€£]?[\d,.]+\s?[%a-zA-Z/]*", r[i]) for r in rows[1:] if r[i]) for i in range(n)]
@@ -137,7 +149,9 @@ def table(rows):
 
 def bars(pairs, width=32, unit=""):
     """Horizontal bars. pairs: [(label, value)] or ['label=value']."""
-    pairs = [(p.split("=")[0].strip(), float(p.split("=")[1])) if isinstance(p, str) else p for p in pairs]
+    try: pairs = [(p.rsplit("=", 1)[0].strip(), float(p.rsplit("=", 1)[1])) if isinstance(p, str) else p for p in pairs]
+    except (IndexError, ValueError): raise Usage('bars needs label=number pairs, for example: bars "Search=41" "Direct=24"')
+    if not pairs: raise Usage("bars needs at least one label=number pair")
     top = max(v for _, v in pairs) or 1; lw = max(len(l) for l, _ in pairs); eighths = " ▏▎▍▌▋▊▉"; out = []
     for l, v in pairs:
         cells = v / top * width; full = int(cells); part = eighths[int((cells - full) * 8)]
@@ -145,7 +159,10 @@ def bars(pairs, width=32, unit=""):
     return "\n".join(out)
 
 def spark(values):
-    values = [float(v) for v in values]; lo, hi = min(values), max(values)
+    try: values = [float(v) for v in values]
+    except ValueError: raise Usage("spark needs numbers, for example: spark 3 5 4 8")
+    if not values: raise Usage("spark needs at least one number")
+    lo, hi = min(values), max(values)
     return "".join("▁▂▃▄▅▆▇█"[min(7, int((v - lo) / ((hi - lo) or 1) * 8))] for v in values)
 
 def tree(text):
@@ -181,7 +198,9 @@ def main(argv):
     elif cmd == "spark": print(spark(args))
     elif cmd == "tree": print(tree(sys.stdin.read()))
     elif cmd == "box": print(box(args[0] if args else "", args[1:]))
-    else: print(__doc__)
+    else: raise Usage("unknown command: " + cmd)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    try: main(sys.argv)
+    except Usage as e: print("ascii.py: " + str(e), file=sys.stderr); print("run ascii.py --help for the commands", file=sys.stderr); sys.exit(2)
+    except IndexError: print("ascii.py: an option is missing its value", file=sys.stderr); sys.exit(2)

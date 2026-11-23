@@ -20,7 +20,7 @@ body.deck-page { margin: 0; background: var(--panel); overflow-x: hidden; }
 .slide::after { content: counter(slide, decimal-leading-zero) " / " attr(data-total); right: 72px; bottom: 36px; }
 
 /* Type. The headline is the slide's claim, in mono, two lines at most, balanced so no word is stranded. */
-.deck .slide h1 { font: 400 60px/1.12 var(--mono); letter-spacing: -0.02em; margin: 0 0 24px; max-width: 24ch; text-wrap: balance; }
+.deck .slide h1 { font: 400 56px/1.14 var(--mono); letter-spacing: -0.02em; margin: 0 0 24px; max-width: none; text-wrap: balance; }
 .deck .slide h2 { font: 400 36px/1.22 var(--mono); letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin: 0 0 44px; max-width: 30ch; text-wrap: balance; }
 .slide h3 { font: 400 13px/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-2); margin: 0 0 10px; }
 .slide p { font-size: 22px; line-height: 1.45; color: var(--ink-2); max-width: 34ch; margin: 0 0 16px; letter-spacing: 0; text-wrap: pretty; }

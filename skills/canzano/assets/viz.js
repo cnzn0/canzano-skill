@@ -389,7 +389,7 @@
       const rows = lines(n), txt = n.textContent.trim().replace(/\s+/g, ' '); if (rows.length < 2) return;
       const widest = Math.max(...rows.map(r => r.right - r.left)), last = rows[rows.length - 1], lastWord = txt.split(' ').pop();
       if ((last.right - last.left) < widest * 0.2 || (rows.length <= 3 && /^H[123]$/.test(n.tagName) && (last.right - last.left) < widest * 0.34 && lastWord.length < 9)) out.push({ issue: 'stranded', text: txt.slice(0, 80) });
-      if (n.closest('.slide') && !n.closest('.statement, .title') && /^H[12]$/.test(n.tagName) && rows.length > 2) out.push({ issue: 'long-headline', text: txt.slice(0, 80) });
+      if (n.closest('.slide') && /^H[12]$/.test(n.tagName) && rows.length > (n.closest('.statement') ? 4 : 2)) out.push({ issue: 'long-headline', text: txt.slice(0, 80) });
     });
     (scope || document).querySelectorAll('.slide').forEach((sl, i) => { if (sl.scrollHeight > sl.clientHeight + 2 || sl.scrollWidth > sl.clientWidth + 2) out.push({ issue: 'overflow', text: 'slide ' + (i + 1) }); });
     (scope || document).querySelectorAll('svg.cz').forEach(svg => {
@@ -400,7 +400,9 @@
         const len = p.getTotalLength(); if (!len) return;
         for (let d = 0; d <= len; d += 3) { const q = p.getPointAtLength(d), x = T.find(o => !o.struck && q.x > o.b.x + 2 && q.x < o.b.x + o.b.width - 2 && q.y > o.b.y + 3 && q.y < o.b.y + o.b.height - 3); if (x) { x.struck = 1; out.push({ issue: 'label-struck', text: x.t.textContent }); } }
       });
-      const body = svg.closest('.slide .body'); if (!body || svg.closest('.split')) return;
+    });
+    (scope || document).querySelectorAll('.slide .body svg').forEach(svg => {
+      const body = svg.closest('.body'); if (svg.closest('.split') || svg.closest('p, td, li, .metrics')) return;
       const r = svg.getBoundingClientRect(), bb = body.getBoundingClientRect();
       if (r.width * r.height < 0.3 * bb.width * bb.height) out.push({ issue: 'small-graphic', text: 'fills ' + Math.round(100 * r.width * r.height / (bb.width * bb.height)) + '% of its slide body' });
     });

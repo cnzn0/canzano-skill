@@ -6,25 +6,29 @@
 set -e
 REPO="https://github.com/cnzn0/canzano-skill"
 
-src="$(cd "$(dirname "$0")" 2>/dev/null && pwd)/skills/canzano"
-if [ ! -f "$src/SKILL.md" ]; then
+# Use the checkout this script sits in, but only when it was run as a file. Piped through sh,
+# $0 is the shell, and the current folder must not be mistaken for a checkout.
+src=""
+case "$0" in
+  */install.sh|install.sh)
+    here="$(cd "$(dirname "$0")" 2>/dev/null && pwd)"
+    [ -f "$here/skills/canzano/SKILL.md" ] && src="$here/skills/canzano" ;;
+esac
+if [ -z "$src" ]; then
   tmp="$(mktemp -d)"
   trap 'rm -rf "$tmp"' EXIT
   git clone --depth 1 --quiet "$REPO" "$tmp/repo"
   src="$tmp/repo/skills/canzano"
 fi
 
-if [ "$#" -gt 0 ]; then
-  targets="$*"
-else
-  targets=""
+if [ "$#" -eq 0 ]; then
   for home in "$HOME/.claude" "$HOME/.agents" "$HOME/.codex"; do
-    [ -d "$home" ] && targets="$targets $home/skills"
+    [ -d "$home" ] && set -- "$@" "$home/skills"
   done
-  [ -n "$targets" ] || targets="$HOME/.claude/skills"
+  [ "$#" -gt 0 ] || set -- "$HOME/.claude/skills"
 fi
 
-for dir in $targets; do
+for dir in "$@"; do
   mkdir -p "$dir"
   if [ -e "$dir/canzano" ]; then          # keep the copy being replaced, in case it had local edits
     rm -rf "$dir/canzano.previous"

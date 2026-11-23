@@ -29,7 +29,7 @@ Put side-by-side controls in `.row`. Then check the rendered row:
 | An independent yes or no saved with the form | Checkbox |
 | A setting that applies the moment it is flipped | Switch |
 | A number with a unit | `.affix` input with the unit inside, mono |
-| A small integer | `.joined` stepper: minus, input, plus |
+| A small integer | `.joined.stepper`: minus, `input.w-xs`, plus. The two buttons are equal squares |
 | Free text with one action | `.joined` input and button |
 | A range of numbers or dates | Two inputs with an en dash between, same widths |
 | Something destructive | A secondary button with `.danger` text, never a red fill, and a confirmation that names the object |

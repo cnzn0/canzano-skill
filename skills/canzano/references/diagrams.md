@@ -46,7 +46,7 @@ For text-only places (a README, a terminal, a code comment) use `scripts/ascii.p
 ## Build and check
 
 1. Write the one-sentence takeaway. List the entities, the directed relationships and the boundaries before drawing.
-2. Build editable SVG with real `<text>`, coloured through the tokens (`stroke: var(--ink)`) so both themes work. Put strokes on half pixels (`x="0.5"`) so 1px stays 1px. Use `xml:space="preserve"` when columns depend on spaces. Wrap it in `<figure class="diagram">` so it keeps its drawn size and labels stay 11px; narrow screens scroll instead of shrinking the type. `assets/specimen.html` has a worked example.
+2. Build editable SVG with real `<text>`, coloured through the tokens (`stroke: var(--ink)`) so both themes work. Put strokes on half pixels (`x="0.5"`) so 1px stays 1px. Use `xml:space="preserve"` when columns depend on spaces. Wrap it in `<figure class="diagram">` and give the `<svg>` a `width` attribute equal to its viewBox width, so it keeps its drawn size and labels stay 11px; narrow screens scroll instead of shrinking the type. On a slide, set that width to the size you want it shown at. `assets/specimen.html` has a worked example.
 3. Look at the rendered pixels at use size. Check connector attachment, collisions between text and lines, bracket grouping, column alignment and that the font loaded.
 
 Mermaid and other auto-layout tools are acceptable only after restyling to this contract. Their default theme (rounded nodes, pastel fills, curved edges) is exactly the look to avoid.

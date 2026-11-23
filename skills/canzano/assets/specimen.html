@@ -6,7 +6,7 @@
 <title>canzano specimen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="palette.css">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
@@ -149,7 +149,7 @@ svg .dim { fill: var(--ink-3); }
       <div class="joined"><input type="search" placeholder="Search" aria-label="Search"><button>Search</button></div>
       <label class="affix w-s"><input value="42.1" aria-label="Distance"><span>km</span></label>
       <label class="affix w-s"><span>$</span><input value="1,840" aria-label="Budget"><span>/ mo</span></label>
-      <div class="joined"><button aria-label="Less">-</button><input class="w-xs" value="12" aria-label="Seats"><button aria-label="More">+</button></div>
+      <div class="joined stepper"><button aria-label="Less">-</button><input class="w-xs" value="12" aria-label="Seats"><button aria-label="More">+</button></div>
       <label class="check"><input type="checkbox" class="switch" checked>Notify me</label>
       <label class="check"><input type="radio" name="r" checked>Monthly</label>
       <label class="check"><input type="radio" name="r">Yearly</label>
@@ -183,7 +183,7 @@ svg .dim { fill: var(--ink-3); }
   <section>
     <h2>Diagram</h2>
     <figure class="diagram">
-      <svg viewBox="0 0 720 150" role="img" aria-label="Client sends a request to the API, which writes to the store">
+      <svg viewBox="0 0 720 150" width="720" role="img" aria-label="Client sends a request to the API, which writes to the store">
         <rect class="s" x="0.5" y="40.5" width="160" height="60"/>
         <text x="80" y="75" text-anchor="middle">CLIENT</text>
         <path class="s a" d="M160.5 70.5 H280.5"/><path class="s a" d="M274.5 66.5 L280.5 70.5 L274.5 74.5"/>

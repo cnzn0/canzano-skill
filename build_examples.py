@@ -18,7 +18,7 @@ def page(name, title, running, extra, body, script="", ui=False, viz=False, deck
 <title>{title}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 {css}
 {'' if deck else '@page { @top-left { content: "' + running + '"; font: 8pt "Geist Mono", monospace; letter-spacing: 0.04em; color: oklch(0.557 0.008 286); } }'}
@@ -443,7 +443,7 @@ page("settings.html", "Settings", "SETTINGS", """
         <div class="field"><label for="ro">Role</label><select id="ro" class="w-m"><option>Member</option><option>Admin</option></select></div>
         <div class="field"><label for="se">Seats</label>
           <div class="row">
-            <div class="joined"><button type="button" aria-label="Fewer seats">-</button><input id="se" class="w-xs" inputmode="numeric" value="12"><button type="button" aria-label="More seats">+</button></div>
+            <div class="joined stepper"><button type="button" aria-label="Fewer seats">-</button><input id="se" class="w-xs" inputmode="numeric" value="12"><button type="button" aria-label="More seats">+</button></div>
             <label class="affix w-s"><span>$</span><input value="240" aria-label="Monthly cost" readonly><span>/ mo</span></label>
           </div>
         </div>
