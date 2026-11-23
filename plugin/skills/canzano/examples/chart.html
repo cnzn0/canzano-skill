@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charts and a diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<!-- For a single-file output, replace these three links with one <style> holding the same files in the same order. -->
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+</head>
+<body>
+<!-- Drawings are hand-written SVG with class "dg". Grey carries context, the accent carries the point.
+     Each sits in <figure class="scroll"> with a width attribute, so labels keep their size and a phone scrolls sideways. -->
+<main>
+  <header>
+    <div class="meta">Example // Drawings</div>
+    <h1>Wednesday carried the week</h1>
+  </header>
+
+  <section>
+    <h2>Bar chart</h2>
+    <figure class="scroll">
+      <svg class="dg" viewBox="0 0 720 280" width="720" height="280" role="img" aria-label="Deploys per day. Wednesday is highest at 31.">
+        <rect class="f" x="24" y="173" width="72" height="77"/><text x="60" y="165" text-anchor="middle" class="mid">12</text>
+        <rect class="f" x="144" y="135" width="72" height="115"/><text x="180" y="127" text-anchor="middle" class="mid">18</text>
+        <rect class="f a" x="264" y="52" width="72" height="198"/><text x="300" y="44" text-anchor="middle" class="a">31</text>
+        <rect class="f" x="384" y="109" width="72" height="141"/><text x="420" y="101" text-anchor="middle" class="mid">22</text>
+        <rect class="f" x="504" y="154" width="72" height="96"/><text x="540" y="146" text-anchor="middle" class="mid">15</text>
+        <rect class="f" x="624" y="224" width="72" height="26"/><text x="660" y="216" text-anchor="middle" class="mid">4</text>
+        <path class="s" d="M0 250.5H720"/>
+        <text x="60" y="270" text-anchor="middle" class="dim">Mon</text><text x="180" y="270" text-anchor="middle" class="dim">Tue</text>
+        <text x="300" y="270" text-anchor="middle">Wed</text><text x="420" y="270" text-anchor="middle" class="dim">Thu</text>
+        <text x="540" y="270" text-anchor="middle" class="dim">Fri</text><text x="660" y="270" text-anchor="middle" class="dim">Sat</text>
+      </svg>
+      <figcaption>Fig&nbsp;1 // Deploys per day, this week</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Line chart</h2>
+    <figure class="scroll">
+      <svg class="dg" viewBox="0 0 720 230" width="720" height="230" role="img" aria-label="Response time fell from 240 to 118 milliseconds this week. Last week stayed near 248.">
+        <path class="g" d="M40 40.5H600M40 120.5H600"/><path class="s" d="M40 200.5H600"/>
+        <text x="0" y="44" class="dim">300</text><text x="0" y="124" class="dim">150</text><text x="0" y="204" class="dim">0</text>
+        <path class="s q" d="M40 70.4L133 67.2L227 73.6L320 69.3L413 72.5L507 66.1L600 68.2"/>
+        <path class="s a" d="M40 72.5L133 78.9L227 74.6L320 99.2L413 120.5L507 130.1L600 137.6"/>
+        <text x="610" y="72" class="dim">Last week 248</text>
+        <text x="610" y="141" class="a">This week 118</text>
+        <text x="40" y="220" text-anchor="middle" class="dim">Mon</text><text x="320" y="220" text-anchor="middle" class="dim">Thu</text><text x="600" y="220" text-anchor="middle" class="dim">Sun</text>
+      </svg>
+      <figcaption>Fig&nbsp;2 // Response time, ms, 95th percentile</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Diagram</h2>
+    <figure class="scroll">
+      <svg class="dg" viewBox="0 0 721 61" width="721" height="61" role="img" aria-label="A request goes from client to API, is queued, and a worker writes it to the store.">
+        <rect class="s" x="0.5" y="10.5" width="120" height="40"/><text x="60.5" y="34" text-anchor="middle">[ Client ]</text>
+        <rect class="s" x="200.5" y="10.5" width="120" height="40"/><text x="260.5" y="34" text-anchor="middle">[ API ]</text>
+        <rect class="s a" x="400.5" y="10.5" width="120" height="40"/><text x="460.5" y="34" text-anchor="middle" class="a">[ Queue ]</text>
+        <rect class="s" x="600.5" y="10.5" width="120" height="40"/><text x="660.5" y="34" text-anchor="middle">[ Store ]</text>
+        <path class="s" d="M120.5 30.5H200.5M194.5 26.5L200.5 30.5L194.5 34.5"/><text x="160.5" y="22" text-anchor="middle" class="dim">HTTPS</text>
+        <path class="s a" d="M320.5 30.5H400.5M394.5 26.5L400.5 30.5L394.5 34.5"/><text x="360.5" y="22" text-anchor="middle" class="a">Enqueue</text>
+        <path class="s" d="M520.5 30.5H600.5M594.5 26.5L600.5 30.5L594.5 34.5"/><text x="560.5" y="22" text-anchor="middle" class="dim">Worker</text>
+      </svg>
+      <figcaption>Fig&nbsp;3 // The write path. The queue is where requests wait.</figcaption>
+    </figure>
+  </section>
+</main>
+</body>
+</html>

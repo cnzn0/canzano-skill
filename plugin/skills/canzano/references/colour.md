@@ -1,10 +1,9 @@
 # Colour
 
-Three layers, all OKLCH. Use the highest layer that fits.
+Two layers, all OKLCH. Use the higher one that fits.
 
 1. **Semantic tokens** (`assets/tokens.css`): `--page`, `--ink`, `--accent`, `--positive`, `--series-3` and so on. Pages use these. They switch with the theme.
 2. **Palette** (`assets/palette.css`): eleven vivid hue scales of seven steps and a grey scale of thirteen. Reach in here only for the cases below, and only by token, never by typing a new colour value.
-3. **Generator** (`scripts/palette.py`): add or change a hue there and regenerate. Do not hand-edit the palette.
 
 ## The palette
 
@@ -24,7 +23,7 @@ Grey: 0, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950, with a faint
 
 - **Structure and text.** The neutrals. Most of every output is grey, which is what lets the colour read as vivid.
 - **The one live thing.** `--accent`. Never a button fill.
-- **State.** `--positive`, `--warning`, `--negative`, `--info`, each next to a word.
+- **State.** `--positive`, `--warning`, `--negative`, `--info`. They are vivid, so they colour a mark, a fill or a large figure. A status word stays ink beside a small square in the colour: `<span class="status positive">Live</span>`.
 - **A selected row, a diff line, a search highlight.** The matching `-soft` token as a background. It is the one pale colour in the system and it is only ever a row or a text highlight. Never a callout box, a chip or a card.
 - **Categories in a chart.** `--series-1` to `--series-8`, in order. Stop at eight: with more categories, group the tail into "Other" in `--ink-3` or use small multiples. Label series directly.
 - **One series that matters among many.** The rest in `--ink-3`, the one in `--accent`.

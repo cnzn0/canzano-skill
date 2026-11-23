@@ -1,9 +1,8 @@
 #!/bin/sh
 # Installs the canzano skill for the agents found on this machine.
-# Usage: sh install.sh [--core] [target-skills-dir ...]
+# Usage: sh install.sh [target-skills-dir ...]
 # With no folder it installs into every one of these whose parent folder exists:
 #   ~/.claude/skills   ~/.agents/skills   ~/.codex/skills
-# --core leaves out the optional kits (charts, decks, ASCII).
 set -e
 REPO="https://github.com/cnzn0/canzano-skill"
 
@@ -22,12 +21,11 @@ if [ -z "$src" ]; then
   src="$tmp/repo/plugin/skills/canzano"
 fi
 
-# Read the arguments: --core may come anywhere, everything else is a target folder.
-core=""; n=$#
+# Read the arguments: every one is a target folder.
+n=$#
 while [ "$n" -gt 0 ]; do
   arg="$1"; shift; n=$((n - 1))
   case "$arg" in
-    --core) core=1 ;;
     -*) echo "install.sh: unknown option $arg" >&2; exit 2 ;;
     *) set -- "$@" "$arg" ;;
   esac
@@ -50,6 +48,5 @@ for dir in "$@"; do
   fi
   cp -R "$src" "$dir/canzano"
   find "$dir/canzano" -name "__pycache__" -type d -prune -exec rm -rf {} + 2>/dev/null || true
-  [ -n "$core" ] && rm -rf "$dir/canzano/kits"
   echo "installed $dir/canzano"
 done

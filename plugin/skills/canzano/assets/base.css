@@ -1,33 +1,24 @@
-/* canzano base. Load after palette.css and tokens.css.
+/* canzano base. Load after palette.css and tokens.css. This is the whole stylesheet.
 
-   The rules live in cascade layers. A later layer beats an earlier one whatever the selectors say,
-   so a helper class always wins over a component, and a component over an element default:
+   The rules sit in cascade layers, so a helper class always beats a component and a component
+   beats an element default, whatever the selectors say. Styles a page writes for itself sit
+   outside the layers and beat all of them, so a page never needs !important. */
 
-     base        element defaults: type, links, tables, wrapping
-     controls    buttons, inputs, selects, checks
-     components  strips, ledgers, panels, rows, forms, menus, figures
-     ui          the interface layer (ui.css)
-     viz         charts and generated diagrams (kits/charts/viz.css)
-     print       paper
-     deck        slides (kits/decks/deck.css)
-     helpers     width, colour and layout helpers
+@layer base, controls, components, ui, print, helpers;
 
-   Styles a page writes for itself sit outside the layers and beat all of them. Do not raise a
-   selector's specificity to win a fight here: put the rule in the right layer. */
-
-@layer base, controls, components, ui, viz, print, deck, helpers;
+[hidden] { display: none !important; }
 
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; font-synthesis: none; }   /* never fake a bold or an italic the page did not load */
+  html { -webkit-text-size-adjust: 100%; font-synthesis: none; }
   body {
-    margin: 0; background: var(--page); color: var(--ink);
+    margin: 0; background: var(--page); color: var(--ink); overflow-wrap: break-word;
     font: 400 var(--text-body)/1.6 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased;
   }
   main { max-width: 1120px; margin: 0 auto; padding: var(--s6) var(--gutter) var(--s7); }
 
   /* Type: mono carries structure, the reading face carries prose. */
-  h1, h2, h3, .label, th, figcaption, .meta, nav, .figure { font-family: var(--mono); font-weight: 400; }
+  h1, h2, h3, .label, th, figcaption, .meta, .figure { font-family: var(--mono); font-weight: 400; }
   h1 { font-size: var(--text-title); line-height: 1.35; letter-spacing: -0.01em; margin: 0 0 var(--s3); }
   h2, .label, th {
     font-size: var(--text-label); line-height: 1.6; letter-spacing: var(--tracking-caps);
@@ -40,18 +31,17 @@
   figcaption { margin-top: 10px; }
   strong, b { font-weight: 600; color: var(--ink); }
   /* The mono face is loaded upright at 400 and 500: emphasis inside it is 500 and full ink, never italic. */
-  :is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num) :is(strong, b) { font-weight: 500; }
-  :is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, kbd, .figure, td.num) :is(em, i) { font-style: normal; color: var(--ink); }
-  code, pre, kbd { font: var(--text-small)/1.6 var(--mono); }
+  :is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, .figure, td.num) :is(strong, b) { font-weight: 500; }
+  :is(h1, h2, h3, .label, th, .meta, figcaption, code, pre, .figure, td.num) :is(em, i) { font-style: normal; color: var(--ink); }
+  code, pre { font: var(--text-small)/1.6 var(--mono); }
   pre { margin: 0 0 var(--s4); padding: var(--s3) var(--s4); background: var(--panel); border-radius: var(--r-control); overflow-x: auto; }
   a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule-strong); transition: border-color var(--fast); }
   a:hover { border-color: var(--ink); }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-  /* Wrapping: headings and short display lines balance, so no line ends in one stranded word.
-     Running text avoids a short last line. A number keeps its unit through &nbsp; in the markup. */
-  h1, h2, h3, .lead, .meta, figcaption, th, .label, blockquote { text-wrap: balance; }
-  p, li, td, dd { text-wrap: pretty; }
+  /* Wrapping: headings balance, so no line ends in one stranded word. Running text avoids a short last line. */
+  h1, h2, h3, .lead, .meta, figcaption, th, .label { text-wrap: balance; }
+  p, li, td { text-wrap: pretty; }
   p, li { orphans: 2; widows: 2; }
   h1, h2, h3 { break-after: avoid; }
 
@@ -63,6 +53,7 @@
   th { text-align: left; white-space: nowrap; padding: 0 var(--s4) 10px 0; border-bottom: 1px solid var(--rule-strong); }
   td { padding: 11px var(--s4) 11px 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
   td.num, th.num { text-align: right; font-family: var(--mono); }
+  :is(td, th):last-child { padding-right: 0; }
 
   figure { margin: var(--s5) 0; }
   figure img, figure svg, figure video { display: block; width: 100%; height: auto; }
@@ -71,33 +62,29 @@
     :root { --gutter: 16px; }
     main { padding-top: 28px; }
   }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 }
 
 @layer controls {
   /* One recipe for every control, so any mix in a row lines up: the same height (--control-h), radius,
      1px edge and 14/21 text. Buttons and selects carry the subtle fill; inputs sit on the page colour. */
-  button, .button, select,
-  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea {
-    box-sizing: border-box; height: var(--control-h); margin: 0; padding: 0 var(--control-px);
+  button, .button, select, input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea {
+    height: var(--control-h); margin: 0; padding: 0 var(--control-px);
     font: 400 14px/21px var(--sans); letter-spacing: 0.02em;
     border: 1px solid var(--btn-edge); border-radius: var(--r-control);
   }
-  .sm :is(button, .button, select, input, textarea), :is(button, .button, select, input).sm { font-size: 13px; }
-
   button, .button, select {
     position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     white-space: nowrap; text-decoration: none; cursor: pointer; color: var(--btn-fg);
     background: linear-gradient(var(--btn-top) 0%, var(--btn-mid) 37%, var(--btn-mid) 61%, color-mix(in oklab, var(--btn-top) 55%, var(--btn-mid)) 100%);
     transition: filter var(--fast), transform var(--fast), color var(--fast);
   }
-  button::after, .button::after {            /* the hit area: wider than the painted box, never visible */
-    content: ""; position: absolute; left: 0; right: 0; top: 50%;
-    height: var(--hit); transform: translateY(-50%);
+  button::after, .button::after {            /* the hit area: taller than the painted box, never visible */
+    content: ""; position: absolute; left: 0; right: 0; top: 50%; height: var(--hit); transform: translateY(-50%);
   }
   button:hover, .button:hover, select:hover { filter: var(--btn-hover); }
   button:active, .button:active { transform: scale(0.97); }
-  button.primary, .button.primary {
+  button.primary, .button.primary {          /* ink on a light page, white on a dark one. Never the accent. */
     color: var(--btn1-fg); border-color: var(--btn1-edge);
     background: linear-gradient(var(--btn1-top) 0%, var(--btn1-mid) 37%, var(--btn1-mid) 61%, color-mix(in oklab, var(--btn1-top) 55%, var(--btn1-mid)) 100%);
   }
@@ -105,14 +92,6 @@
   button.quiet:hover, .button.quiet:hover { color: var(--ink); filter: none; }
   button.danger, .button.danger { color: var(--negative); }
   button:disabled, select:disabled { color: var(--ink-3); cursor: default; filter: none; transform: none; opacity: 0.6; }
-  button[aria-busy="true"] { color: transparent; cursor: progress; }
-  button[aria-busy="true"]::before {
-    content: ""; position: absolute; inset: 0; margin: auto; width: 10px; height: 10px;
-    border: 1.5px solid var(--ink-3); border-top-color: transparent; border-radius: 50%; animation: cz-spin 0.7s linear infinite;
-  }
-  button.primary[aria-busy="true"]::before { border-color: var(--btn1-fg); border-top-color: transparent; }
-  @keyframes cz-spin { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { button[aria-busy="true"]::before { animation-duration: 2s; } }
 
   /* Select: a button with a chevron drawn from two gradients, so it follows the theme. */
   select {
@@ -147,14 +126,12 @@
 
   /* Phones zoom the page on input text under 16px, so every control steps up together and a row stays even. */
   @media (max-width: 640px) {
-    button, .button, select, .check, textarea,
-    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
-    .sm :is(button, .button, select, input, textarea), :is(button, .button, select, input).sm { font-size: 16px; }
+    button, .button, select, .check, textarea, input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]) { font-size: 16px; }
   }
 }
 
 @layer components {
-  /* Metric strip: columns between two rules. */
+  /* Metric strip: figures in columns between two rules. */
   .metrics {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     border-top: 1px solid var(--rule-strong); border-bottom: 1px solid var(--rule); margin: var(--s5) 0;
@@ -162,67 +139,46 @@
   .metrics + section { border-top: 0; margin-top: var(--s4); padding-top: 0; }
   .metrics > div { padding: var(--s4) var(--s4) var(--s4) 0; min-width: 0; }
   .figure { display: block; font-size: var(--text-figure); line-height: 1.2; margin-top: 10px; color: var(--ink); }
-  .metrics .label, .metrics .meta, .panel .label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* one line each, so figures share a baseline */
+  .metrics .label, .metrics .meta, .panel .label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Ledger: label left, value right, hairline rows. */
+  /* Ledger: label left, value or one control right, hairline rows. */
   .ledger { list-style: none; margin: 0; padding: 0; }
-  .ledger li { display: flex; justify-content: space-between; gap: var(--s5); align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--rule); }
-  .ledger li > :last-child { font-family: var(--mono); text-align: right; }
-  .ledger li > :last-child :is(strong, b) { font-weight: 500; }
-  .ledger li > :last-child :is(em, i) { font-style: normal; color: var(--ink); }
-
-  /* Settings row: a ledger row with the label and one line of detail left, one control right. It stays a row on a phone. */
-  .ledger.settings li { align-items: center; }
-  .ledger.settings li > :last-child { flex: none; font-family: var(--sans); }
-  .ledger.settings small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-3); }
-
-  /* Selected row in a table or ledger: full ink and a mark in a narrow first cell, while the other rows dim. */
-  td.mark { width: 20px; padding-right: 0; font-family: var(--mono); color: transparent; }
-  tbody:has(tr[aria-selected]) td, ul:has(> li[aria-selected]) > li { color: var(--ink-2); }
-  tbody:has(tr[aria-selected]) td.mark { color: transparent; }
-  tbody:has(tr[aria-selected]) tr[aria-selected="true"] td, ul:has(> li[aria-selected]) > li[aria-selected="true"] { color: var(--ink); }
+  .ledger li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s1) var(--s5); align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--rule); }
+  .ledger li > * { min-width: 0; }
+  .ledger li > :last-child { font-family: var(--mono); text-align: right; margin-left: auto; }
+  .ledger small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-3); }
 
   /* Columns: items divided by a top rule, not boxed. */
   .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s5); }
   .cols > * { border-top: 1px solid var(--rule); padding-top: var(--s3); min-width: 0; }
 
-  /* A table or a diagram wider than its container scrolls sideways. A hairline on its right edge shows
-     while more lies beyond it. Inside a panel the cue is off (its cover would show on the panel fill). */
-  .table-wrap, figure.diagram {
-    overflow-x: auto;
-    background: linear-gradient(var(--page), var(--page)) right / 1px 100% no-repeat local, linear-gradient(var(--ink-3), var(--ink-3)) right / 1px 100% no-repeat scroll;
-  }
-  .panel .table-wrap, .panel figure.diagram { background: none; }
-  /* A diagram keeps the size it was drawn at, so its labels stay readable. Give a hand-drawn svg a
-     width attribute equal to its viewBox width. */
-  figure.diagram svg { width: auto; max-width: none; }
+  /* Scroll: wrap a table or a diagram that can be wider than a phone. It scrolls sideways; the page does not. */
+  .scroll { overflow-x: auto; }
+  .scroll > svg { width: auto; max-width: none; }   /* a diagram keeps its drawn size, so labels stay readable */
+  tr[aria-selected="true"] td { background: var(--accent-soft); }
+  td.num { white-space: nowrap; }
+  @media (max-width: 640px) { .scroll > table { min-width: 560px; } }   /* a wide table scrolls; it does not wrap to a word per line */
 
-  /* Hand-drawn diagram: add class "dg" to the svg. One stroke, mono caps labels, colour through the tokens.
-     .s a stroke, .s.a the accented path, .at accent text, .mid and .dim the quieter inks, .pkt a moving mark. */
-  svg.dg text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; fill: var(--ink); }
+  /* Drawing: add class "dg" to a hand-written svg (diagram or chart). One stroke, mono caps labels,
+     colour through the tokens. .s a stroke (.s.q a quieter one), .g a gridline, .f a fill, .a makes any of them
+     the accent, .mid and .dim are the quieter inks for text. */
+  svg.dg text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; fill: var(--ink); }
   svg.dg .s { stroke: var(--ink); stroke-width: 1; fill: none; }
+  svg.dg .g { stroke: var(--rule-strong); stroke-width: 1; fill: none; }
+  svg.dg .f { fill: var(--ink-3); stroke: none; }
+  svg.dg .s.q { stroke: var(--ink-3); }
   svg.dg .s.a { stroke: var(--accent); }
-  svg.dg .at { fill: var(--accent); }
-  svg.dg .mid { fill: var(--ink-2); }
-  svg.dg .dim { fill: var(--ink-3); }
-  svg.dg .pkt { fill: var(--accent); }
+  svg.dg .f.a, svg.dg text.a { fill: var(--accent); }
+  svg.dg text.mid { fill: var(--ink-2); }
+  svg.dg text.dim { fill: var(--ink-3); }
 
   /* Panel: a flat fill with a 12px radius. No edge, no shadow. */
   .panel { background: var(--panel); border-radius: var(--r-panel); padding: var(--s4); min-width: 0; }
   .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s2); }
   .panel .figure { font-size: 22px; margin-top: 6px; }
 
-  /* Wide action: a full-width panel row, label left, arrow right. */
-  .wide {
-    display: flex; justify-content: space-between; align-items: center; padding: var(--s2) var(--s3);
-    background: var(--panel); border: 0; border-radius: var(--r-control); color: var(--ink-2);
-    font: 400 14px/21px var(--sans); letter-spacing: 0.02em; transition: color var(--fast);
-  }
-  .wide::after { content: "→"; color: var(--ink-3); }
-  .wide:hover { color: var(--ink); }
-
-  /* Segmented control: a panel track the same height as a button; the selected segment is a raised thumb. It does not slide. */
-  .segmented { box-sizing: border-box; display: inline-flex; gap: 2px; height: var(--control-h); padding: 2px; background: var(--panel); border-radius: var(--r-control); }
+  /* Segmented control: a panel track the same height as a button; the selected segment is a raised thumb. */
+  .segmented { display: inline-flex; gap: 2px; height: var(--control-h); padding: 2px; background: var(--panel); border-radius: var(--r-control); }
   .segmented button {
     height: 100%; padding: 0 calc(var(--control-px) - 1px); background: none; border-color: transparent; color: var(--ink-2);
     border-radius: calc(var(--r-control) - 2px); transition: color var(--fast);
@@ -231,76 +187,46 @@
   .segmented button:active { transform: none; }
   .segmented button[aria-pressed="true"] { color: var(--ink); background: var(--thumb); border-color: var(--thumb-edge); box-shadow: var(--thumb-shadow); }
 
-  /* Row: controls side by side. They share one height; inputs take a sensible width, not the rest. */
+  /* Row: controls side by side. They share one height; an input takes a sensible width, not the rest. */
   .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
-  .row > :is(input, select, .affix) { width: auto; flex: 0 1 200px; }
+  .row > :is(input, select) { width: auto; flex: 0 1 200px; }
 
-  /* Joined: controls that act as one (search and its button, a stepper). One shared edge, outer corners only. */
-  .joined { display: inline-flex; }
+  /* Joined: controls that act as one (an input and its button). One shared edge, outer corners only. */
+  .joined { display: inline-flex; max-width: 100%; }
   .joined > * { border-radius: 0; margin-left: -1px; }
   .joined > :first-child { margin-left: 0; border-radius: var(--r-control) 0 0 var(--r-control); }
   .joined > :last-child { border-radius: 0 var(--r-control) var(--r-control) 0; }
-  .joined > :only-child { border-radius: var(--r-control); }
   .joined > :is(:focus-visible, :hover) { z-index: 1; }
   .joined > input { width: auto; flex: 1 1 160px; }
-  .joined.stepper > button { width: var(--control-h); padding: 0; flex: none; }   /* equal squares either side of the number */
-  .joined.stepper > input { width: 48px; flex: 0 0 48px; text-align: center; }
 
-  /* Affix: an input with a unit or prefix inside the same box. */
-  .affix {
-    box-sizing: border-box; display: inline-flex; align-items: center; width: 100%; height: var(--control-h); margin: 0;
-    background: var(--page); border: 1px solid var(--btn-edge); border-radius: var(--r-control);
-  }
-  .affix:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .affix > input { border: 0; background: none; height: 100%; min-width: 0; outline: 0; }
-  .affix > span { padding: 0 var(--control-px); font: 12px/1 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
-  .affix > span:first-child { padding-right: 0; }
-
-  /* Form: label above, control, then one line of hint or error. Actions close the form. */
+  /* Form: label above, control, then one line of hint or error. An action row closes it. */
   .form { display: grid; gap: var(--s4); max-width: 440px; }
   .field { display: grid; gap: 6px; min-width: 0; justify-items: start; }
-  .field > :is(input, select, textarea, .affix, .joined) { justify-self: stretch; }
+  .field > :is(input, textarea, .joined) { justify-self: stretch; }
   .field > label { margin: 0; }
-  .field > .hint, .field > .error { font: 400 13px/18px var(--sans); color: var(--ink-3); }
-  .field > .error { color: var(--negative); }
-  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
-  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
-  .actions.end { justify-content: flex-end; }
+  .hint, .error { font: 400 13px/18px var(--sans); color: var(--ink-3); }
+  .error { color: var(--negative); }
 
-  /* Stack: radios or checks one under another, each with room for a line of explanation. */
-  .stack { display: grid; gap: var(--s2); }
-  .stack .check { align-items: flex-start; }
-  .stack .check small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-3); letter-spacing: 0; }
+  /* Status: one mono caps word in ink beside a small square in the status colour (see helpers). */
+  .status { font: var(--text-label)/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; white-space: nowrap; }
+  .status::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 6px; vertical-align: 1px; background: var(--ink-3); }
+}
 
-  /* Menu: a floating surface, with the one shadow in the system. Place it under its trigger inside a
-     position: relative wrapper. */
-  .menu { position: absolute; z-index: 10; min-width: 180px; padding: var(--s1); background: var(--raised); border: 1px solid var(--rule-strong); border-radius: var(--r-control); box-shadow: 0 8px 24px oklch(0.2 0.02 278 / 0.16); }
-  .menu > :is(a, button) { display: flex; align-items: center; justify-content: flex-start; width: 100%; height: var(--control-h); padding: 0 var(--control-px); background: none; border: 0; border-radius: calc(var(--r-control) - 2px); font: 400 14px/21px var(--sans); letter-spacing: 0.02em; text-decoration: none; color: var(--ink); }
-  .menu > :is(a, button):hover, .menu > [aria-current] { background: var(--panel); filter: none; }
-  .menu > .danger { color: var(--negative); }
-  .menu > :is(a, button)::after { content: none; }   /* stacked items: an enlarged hit area would reach into the next one */
+@layer ui {
+  /* Interface: put class "ui" on <body>. Inter leads; Geist Mono stays on labels, status and figures. */
+  .ui { font: 400 15px/22px var(--sans); }
+  .ui h1 { font: 500 26px/32px var(--sans); letter-spacing: -0.01em; margin: 0; }
+  .ui h2 { font: 600 20px/26px var(--sans); letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin: 0 0 var(--s3); }
+  .ui h3 { font: 500 15px/22px var(--sans); margin: 0; }
+  .ui section { border-top: 0; padding-top: 0; margin-top: var(--s6); }
+  .ui main { padding-top: var(--s5); }
 
-  /* Dialog: the other floating surface. Use the native <dialog>; it shares the menu's edge and shadow. */
-  dialog { width: min(440px, calc(100vw - 2 * var(--gutter))); padding: var(--s5); color: var(--ink); background: var(--raised); border: 1px solid var(--rule-strong); border-radius: var(--r-panel); box-shadow: 0 8px 24px oklch(0.2 0.02 278 / 0.16); }
-  dialog::backdrop { background: oklch(0.15 0 0 / 0.45); }
-  dialog h2 { font: 600 20px/26px var(--sans); letter-spacing: -0.01em; text-transform: none; color: var(--ink); margin: 0 0 var(--s2); }
-  dialog .actions { margin-top: var(--s5); }
-
-  /* Status: one word in mono caps next to the thing it describes. Colour it with a helper. */
-  .status { font: var(--text-label)/1.6 var(--mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
-
-  /* ASCII (kits/ascii). A system mono face, because it must have the box and block glyphs at one width;
-     a tight line height keeps vertical strokes joined. */
-  pre.ascii { margin: 0 0 var(--s4); padding: 0; background: none; border-radius: 0; overflow-x: auto; color: var(--ink);
-    font: 13px/1.15 ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace; letter-spacing: 0; }
-  pre.ascii.hero { font-size: clamp(3px, 1.15vw, 16px); line-height: 1; overflow-x: visible; }   /* scales with the page so a banner is never cut */
-
-  @media (max-width: 640px) {
-    .ledger:not(.settings) li { flex-direction: column; gap: var(--s1); }
-    .ledger:not(.settings) li > :last-child { text-align: left; }
-    .ledger.settings li { gap: var(--s4); }
-    .table-wrap > table { min-width: 560px; }   /* a wide table scrolls sideways; it does not wrap to a word per line */
-  }
+  /* Navigation: a row of text links, the current one in full ink. Head: the page title and its one primary action. */
+  .nav { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s4); padding-bottom: var(--s3); margin-bottom: var(--s5); border-bottom: 1px solid var(--rule); }
+  .nav a { border: 0; font: 400 14px/21px var(--sans); letter-spacing: 0.02em; color: var(--ink-3); transition: color var(--fast); }
+  .nav a:hover, .nav a[aria-current] { color: var(--ink); }
+  .head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s2) var(--s4); margin-bottom: var(--s5); }
+  .head > * { min-width: 0; }
 }
 
 @layer print {
@@ -308,34 +234,34 @@
     body { font-size: 10.5pt; }
     main { max-width: none; padding: 0; }
     tr, li, figure, .metrics { break-inside: avoid; }
-    .table-wrap, figure.diagram { overflow: visible; background: none; }
-    figure.diagram svg { max-width: 100% !important; height: auto; }   /* a wide diagram shrinks to the page; it cannot scroll on paper */
-    .table-wrap > table { min-width: 0; }
+    .scroll { overflow: visible; }
+    .scroll > svg { max-width: 100%; height: auto; }   /* a wide drawing shrinks to the page; it cannot scroll on paper */
     a { border: 0; }
-    button, nav, .no-print { display: none; }
+    .no-print { display: none; }
   }
 }
 
 @layer helpers {
-  /* Control size, set once on a parent: .sm for dense tables and toolbars, .lg for the main actions on a phone. */
+  /* Control size, set once on a parent: .sm for dense toolbars, .lg for the main actions on a phone. */
   .lg { --control-h: 34px; --control-px: 12px; }
   .sm { --control-h: 23px; --control-px: 6px; }
 
-  /* Widths for a control whose content has a known length. */
-  .w-xs { width: 64px; flex: 0 0 64px; }
-  .w-s { width: 120px; flex: 0 0 120px; }
-  .w-m { width: 200px; max-width: 100%; flex: 0 1 200px; }
-  .w-l { width: 320px; max-width: 100%; flex: 0 1 320px; }
   .grow { flex: 1 1 200px; }
   .push { margin-left: auto; }
   .read { max-width: var(--measure); }
 
-  /* Colour: one job each. */
+  /* Colour: on a figure it colours the text; on a .status word it colours the square and the word stays ink. */
   .accent { color: var(--accent); }
   .positive { color: var(--positive); }
   .warning { color: var(--warning); }
   .negative { color: var(--negative); }
   .info { color: var(--info); }
+  .status { color: var(--ink-2); }
+  .status.accent::before { background: var(--accent); }
+  .status.positive::before { background: var(--positive); }
+  .status.warning::before { background: var(--warning); }
+  .status.negative::before { background: var(--negative); }
+  .status.info::before { background: var(--info); }
 }
 
 /* Paper: A4, 20mm margins, mono page numbers. The running header text is set per document in

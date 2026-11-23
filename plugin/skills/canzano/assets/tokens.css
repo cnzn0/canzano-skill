@@ -19,10 +19,9 @@
   --accent: var(--violet-300);
 
   /* Status: a real state only, always next to a word. */
-  /* Written out: on white, a status word is small text and needs 4.5:1, which is below the lightness
-     where the palette's green and amber bands stop. Both sit at full chroma for their lightness. */
-  --positive: oklch(0.545 0.151 148);
-  --warning: oklch(0.58 0.175 40);
+  /* Vivid, so they are for marks, fills and large figures. A status word stays ink beside a mark. */
+  --positive: var(--green-600);
+  --warning: var(--orange-300);
   --negative: var(--red-300);
   --info: var(--blue-400);
 

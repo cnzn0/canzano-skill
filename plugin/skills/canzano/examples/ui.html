@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<!-- For a single-file output, replace these three links with one <style> holding the same files in the same order. -->
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+</head>
+<body class="ui">
+<!-- An interface: class "ui" on <body>, one column, a text nav, one primary action. Copy the parts you need. -->
+<main>
+  <nav class="nav">
+    <span class="label">Acme // Console</span>
+    <a href="#" aria-current="page">Deploys</a><a href="#">Services</a><a href="#">Logs</a><a href="#">Settings</a>
+  </nav>
+
+  <div class="head"><h1>Deploys</h1><button class="primary">New deploy</button></div>
+
+  <div class="panels">
+    <div class="panel"><span class="label">Today</span><span class="figure">31</span></div>
+    <div class="panel"><span class="label">Running</span><span class="figure accent">2</span></div>
+    <div class="panel"><span class="label">Failed</span><span class="figure">1</span></div>
+    <div class="panel"><span class="label">Median time</span><span class="figure">4m&nbsp;12s</span></div>
+  </div>
+
+  <section>
+    <div class="row">
+      <div class="segmented" role="group" aria-label="Range"><button aria-pressed="true">Day</button><button aria-pressed="false">Week</button><button aria-pressed="false">Month</button></div>
+      <input type="search" placeholder="Service" aria-label="Service">
+      <select aria-label="Region"><option>All regions</option><option>Europe</option><option>Asia</option></select>
+      <label class="check"><input type="checkbox">Failed only</label>
+    </div>
+    <div class="scroll" style="margin-top: var(--s4)"><table>
+      <thead><tr><th>Service</th><th>Commit</th><th>Status</th><th>Author</th><th class="num">Time</th></tr></thead>
+      <tbody>
+        <tr><td>checkout-api</td><td><code>4f2c9a1</code></td><td><span class="status accent">Running</span></td><td>Mira</td><td class="num">1m 40s</td></tr>
+        <tr><td>search-index</td><td><code>b81e0d3</code></td><td><span class="status positive">Live</span></td><td>Tomas</td><td class="num">3m 58s</td></tr>
+        <tr><td>image-resizer</td><td><code>09ac77f</code></td><td><span class="status negative">Failed</span></td><td>Ines</td><td class="num">0m 52s</td></tr>
+        <tr><td>notifications</td><td><code>e3d5512</code></td><td><span class="status warning">Queued</span></td><td>Jun</td><td class="num">&ndash;</td></tr>
+        <tr><td>web</td><td><code>77b0c4e</code></td><td><span class="status positive">Live</span></td><td>Mira</td><td class="num">4m 31s</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Notifications</h2>
+    <ul class="ledger">
+      <li><span>Failed deploys<small>Email the author</small></span><span><input type="checkbox" class="switch" checked aria-label="Failed deploys"></span></li>
+      <li><span>Weekly summary<small>Mondays, 09:00</small></span><span><input type="checkbox" class="switch" aria-label="Weekly summary"></span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Invite</h2>
+    <form class="form">
+      <div class="field"><label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" value="ines@acme" aria-invalid="true" aria-describedby="email-e">
+        <span class="error" id="email-e">Enter a full email address.</span></div>
+      <div class="field"><label for="role">Role</label>
+        <select id="role"><option>Member</option><option>Admin</option></select>
+        <span class="hint">Admins can invite others.</span></div>
+      <div class="row"><button>Send invite</button><button type="button" class="quiet">Cancel</button></div>
+    </form>
+  </section>
+</main>
+</body>
+</html>

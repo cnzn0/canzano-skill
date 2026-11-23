@@ -7,8 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-<!-- For a single-file output, replace these links with one <style> holding the same files in the same order.
-     An interface adds ui.css after base.css. A page with charts adds kits/charts/viz.css and viz.js. -->
+<!-- For a single-file output, replace these three links with one <style> holding the same files in the same order. -->
 <link rel="stylesheet" href="palette.css">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
@@ -28,7 +27,7 @@
 
   <div class="metrics">
     <div><span class="label">Label</span><span class="figure">72.90</span><span class="meta">Unit and period</span></div>
-    <div><span class="label">Label</span><span class="figure accent">0.8 ms</span><span class="meta">The one figure that matters</span></div>
+    <div><span class="label">Label</span><span class="figure accent">0.8&nbsp;ms</span><span class="meta">The one figure that matters</span></div>
     <div><span class="label">Label</span><span class="figure">14</span><span class="meta">Short context</span></div>
   </div>
 
@@ -36,19 +35,20 @@
     <h2>Section label</h2>
     <ul class="ledger">
       <li><span>Row label</span><span>Value</span></li>
-      <li><span>Row label</span><span class="positive">PASSED</span></li>
+      <li><span>Row label</span><span class="status positive">Passed</span></li>
     </ul>
   </section>
 
   <section>
     <h2>Comparison</h2>
-    <div class="table-wrap"><table>
+    <div class="scroll"><table>
       <thead><tr><th>Option</th><th>Trade-off</th><th class="num">Cost</th></tr></thead>
-      <tbody><tr><td>A</td><td>What it gives and what it costs.</td><td class="num">$120</td></tr></tbody>
+      <tbody>
+        <tr><td>A</td><td>What it gives and what it costs.</td><td class="num">$120</td></tr>
+        <tr><td>B</td><td>What it gives and what it costs.</td><td class="num">$90</td></tr>
+      </tbody>
     </table></div>
   </section>
 </main>
-<!-- The check. Run cz.lint() in the console and fix what it lists. Harmless to ship; remove it if you like. -->
-<script src="lint.js"></script>
 </body>
 </html>

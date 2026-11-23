@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<!-- For a single-file output, replace these three links with one <style> holding the same files in the same order. -->
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/base.css">
+<style>
+/* Slides: 16:9 pages that scale with the window and print one per page (1280 x 720).
+   Every size is a multiple of --u, one hundredth of the slide width. Copy this block. */
+@page { size: 1280px 720px; margin: 0; @bottom-right { content: none; } }
+body { background: var(--panel); counter-reset: slide; }
+.slide {
+  --u: calc(min(100vw - 32px, 1280px) / 100);
+  position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: calc(var(--u) * 3);
+  width: calc(var(--u) * 100); height: calc(var(--u) * 56.25); margin: 16px auto; overflow: hidden;
+  padding: calc(var(--u) * 6.5) calc(var(--u) * 6) calc(var(--u) * 6);
+  background: var(--page); border: 0; font-size: calc(var(--u) * 1.6); break-after: page; counter-increment: slide;
+}
+.slide::after { content: counter(slide, decimal-leading-zero); position: absolute; right: calc(var(--u) * 6); bottom: calc(var(--u) * 2.4); font: calc(var(--u) * 1)/1 var(--mono); color: var(--ink-3); }
+.slide h1, .slide h2 { margin: 0; font: 400 calc(var(--u) * 3.2)/1.2 var(--mono); letter-spacing: -0.01em; text-transform: none; color: var(--ink); max-width: 30ch; }
+.slide h1 { font-size: calc(var(--u) * 4.6); max-width: 22ch; }
+.slide .meta { font-size: calc(var(--u) * 1); }
+.slide svg { display: block; width: 100%; height: 100%; }
+.slide svg.dg text { font-size: 14px; }   /* drawn in a 1000-wide viewBox, so labels show at about 16px on a full slide */
+.slide.title, .slide.statement { grid-template-rows: none; align-content: center; gap: calc(var(--u) * 2.4); }
+.slide.statement h2 { font-size: calc(var(--u) * 4.2); max-width: 24ch; }
+@media print { body { background: none; } .slide { --u: 12.8px; margin: 0; } }
+</style>
+</head>
+<body>
+<!-- One claim per slide. The headline states it; one piece of evidence fills the rest. -->
+<section class="slide title">
+  <div class="meta">Platform review // Week 14</div>
+  <h1>Shipping midweek cut failed deploys in half</h1>
+  <div class="meta">Mira Okafor // 6 Apr 2026</div>
+</section>
+
+<section class="slide">
+  <h2>Wednesday now carries a third of the week&rsquo;s deploys</h2>
+  <svg class="dg" viewBox="0 0 1000 420" role="img" aria-label="Deploys per day. Wednesday is highest at 31.">
+    <rect class="f" x="40" y="246" width="100" height="124"/><text x="90" y="236" text-anchor="middle" class="mid">12</text>
+    <rect class="f" x="206" y="184" width="100" height="186"/><text x="256" y="174" text-anchor="middle" class="mid">18</text>
+    <rect class="f a" x="372" y="50" width="100" height="320"/><text x="422" y="40" text-anchor="middle" class="a">31</text>
+    <rect class="f" x="538" y="143" width="100" height="227"/><text x="588" y="133" text-anchor="middle" class="mid">22</text>
+    <rect class="f" x="704" y="215" width="100" height="155"/><text x="754" y="205" text-anchor="middle" class="mid">15</text>
+    <rect class="f" x="870" y="329" width="100" height="41"/><text x="920" y="319" text-anchor="middle" class="mid">4</text>
+    <path class="s" d="M0 370.5H1000"/>
+    <text x="90" y="394" text-anchor="middle" class="dim">Mon</text><text x="256" y="394" text-anchor="middle" class="dim">Tue</text>
+    <text x="422" y="394" text-anchor="middle">Wed</text><text x="588" y="394" text-anchor="middle" class="dim">Thu</text>
+    <text x="754" y="394" text-anchor="middle" class="dim">Fri</text><text x="920" y="394" text-anchor="middle" class="dim">Sat</text>
+  </svg>
+</section>
+
+<section class="slide statement">
+  <h2>Freeze Friday deploys for a month and measure the pager again.</h2>
+</section>
+</body>
+</html>
