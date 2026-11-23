@@ -4,11 +4,14 @@ import pathlib
 root = pathlib.Path(__file__).parent
 css = (root/"skills/canzano/assets/palette.css").read_text() + "\n" + (root/"skills/canzano/assets/tokens.css").read_text() + "\n" + (root/"skills/canzano/assets/base.css").read_text()
 uicss = (root/"skills/canzano/assets/ui.css").read_text()
+vizjs = (root/"skills/canzano/assets/viz.js").read_text()
+deckcss = (root/"skills/canzano/assets/deck.css").read_text()
+deckjs = (root/"skills/canzano/assets/deck.js").read_text()
 out = root/"examples"
 
-def page(name, title, running, extra, body, script="", ui=False):
+def page(name, title, running, extra, body, script="", ui=False, viz=False, deck=False, theme=None):
     html = f"""<!doctype html>
-<html lang="en">
+<html lang="en"{theme or ""}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,7 +21,7 @@ def page(name, title, running, extra, body, script="", ui=False):
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
 {css}
-@page {{ @top-left {{ content: "{running}"; font: 8pt "Geist Mono", monospace; letter-spacing: 0.04em; color: oklch(0.557 0.008 286); }} }}
+{'' if deck else '@page { @top-left { content: "' + running + '"; font: 8pt "Geist Mono", monospace; letter-spacing: 0.04em; color: oklch(0.557 0.008 286); } }'}
 svg text {{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; fill: var(--ink); }}
 svg .s {{ stroke: var(--ink); stroke-width: 1; fill: none; }}
 svg .s.a {{ stroke: var(--accent); }}
@@ -26,11 +29,14 @@ svg .at {{ fill: var(--accent); }}
 svg .dim {{ fill: var(--ink-3); }}
 svg .mid {{ fill: var(--ink-2); }}
 {uicss if ui else ''}
+{deckcss if deck else ''}
 {extra}
 </style>
 </head>
-<body>
+<body{" class=\"deck-page\"" if deck else ""}>
 {body}
+{('<script>' + vizjs + '</script>') if viz else ''}
+{('<script>' + deckjs + '</script>') if deck else ''}
 {('<script>' + script + '</script>') if script else ''}
 </body>
 </html>
@@ -463,6 +469,169 @@ page("settings.html", "Settings", "SETTINGS", """
   </main>
 </div>""", ui=True)
 
+# ---------------------------------------------------------------- 07 viz gallery
+import json
+def cz(kind, spec, caption=None):
+    return f'<figure class="{kind}" data-cz><script type="application/json">{json.dumps(spec)}</script>' + (f'<figcaption>{caption}</figcaption>' if caption else '') + '</figure>'
+months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+G = {}
+G["bar"] = cz("chart", {"type":"bar","label":"Signups per quarter","highlight":"Q4","data":[{"label":"Q1","value":1240},{"label":"Q2","value":1610},{"label":"Q3","value":2130},{"label":"Q4","value":3420}],"height":280}, "Bar // one series, the bar that matters in accent")
+G["grouped"] = cz("chart", {"type":"bar","labels":["Q1","Q2","Q3","Q4"],"series":[{"name":"Free","values":[900,1100,1400,2100]},{"name":"Team","values":[280,400,560,980]},{"name":"Enterprise","values":[60,110,170,340]}],"height":280}, "Bar // grouped series")
+G["stacked"] = cz("chart", {"type":"bar","stacked":True,"labels":months[:8],"series":[{"name":"Web","values":[40,44,52,58,61,70,76,84]},{"name":"iOS","values":[22,25,27,33,38,41,47,52]},{"name":"Android","values":[12,14,15,18,22,25,27,31]}],"suffix":"k","height":280}, "Bar // stacked")
+G["hbar"] = cz("chart", {"type":"hbar","highlight":"Search","suffix":"%","data":[{"label":"Search","value":41},{"label":"Direct","value":24},{"label":"Referral","value":17},{"label":"Social","value":11},{"label":"Email","value":7}]}, "Horizontal bar // ranked categories")
+G["share"] = cz("chart", {"type":"hbar","stacked":True,"labels":["2025","2026"],"series":[{"name":"Compute","values":[52,44]},{"name":"Storage","values":[28,25]},{"name":"Network","values":[12,18]},{"name":"Support","values":[8,13]}],"suffix":"%","rowHeight":40}, "Horizontal bar // stacked shares")
+G["line"] = cz("chart", {"type":"line","labels":months,"series":[{"name":"p50","values":[120,118,121,117,112,110,108,104,99,96,92,88]},{"name":"p95","values":[310,305,322,298,280,276,251,240,221,214,203,190]},{"name":"p99","values":[620,640,610,580,571,540,498,470,455,430,401,380]}],"suffix":" ms","marks":[{"at":"Jul","text":"Cache shipped"}],"height":300}, "Line // direct labels, one marked event")
+G["area"] = cz("chart", {"type":"line","area":True,"labels":months,"series":[{"name":"","values":[2.1,2.4,2.9,3.1,3.8,4.6,5.2,6.1,7.4,8.2,9.6,11.3]}],"prefix":"$","suffix":"M","target":{"value":10,"label":"Plan $10M"},"height":300}, "Line // single series with area and a target")
+G["scatter"] = cz("chart", {"type":"scatter","x":"Monthly price","y":"Retention at 12 months","xAxis":{"prefix":"$"},"suffix":"%","series":[{"name":"Plans","points":[{"x":9,"y":48,"label":"Solo"},{"x":29,"y":61,"label":"Team"},{"x":79,"y":74,"label":"Business","accent":True},{"x":149,"y":71,"label":"Scale"},{"x":19,"y":52},{"x":49,"y":66},{"x":99,"y":70}]}],"height":320}, "Scatter // labelled points")
+G["heatmap"] = cz("chart", {"type":"heatmap","rows":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"cols":["00","03","06","09","12","15","18","21"],"values":[[2,1,4,22,31,28,19,8],[3,1,5,25,34,30,21,9],[2,2,6,27,36,33,22,10],[3,1,5,26,35,31,24,11],[2,1,4,21,29,26,27,16],[4,2,2,8,14,16,18,15],[5,3,2,6,11,13,12,9]]}, "Heatmap // one hue, value printed in each cell")
+G["slope"] = cz("chart", {"type":"slope","labels":["2025","2026"],"highlight":"Mobile","suffix":"%","series":[{"name":"Desktop","values":[58,44]},{"name":"Mobile","values":[31,47]},{"name":"Tablet","values":[11,9]}],"height":260}, "Slope // before and after")
+G["waterfall"] = cz("chart", {"type":"waterfall","prefix":"$","suffix":"k","data":[{"label":"2025","value":820,"total":True},{"label":"New","value":310},{"label":"Expansion","value":140},{"label":"Churn","value":-95},{"label":"Downgrade","value":-45},{"label":"2026","total":True}],"height":300}, "Waterfall // how one total becomes the next")
+G["flow"] = cz("diagram", {"type":"flow","label":"Checkout path","nodes":[{"id":"c","label":"Client","col":0,"row":0},{"id":"g","label":"Gateway","col":1,"row":0,"note":"Rate limit + auth"},{"id":"a","label":"Orders API","col":2,"row":0},{"id":"d","label":"Orders DB","col":2,"row":1,"kind":"store"},{"id":"q","label":"Queue","col":3,"row":0,"note":"At least once"},{"id":"e","label":"Email worker","col":4,"row":0},{"id":"i","label":"Invoice worker","col":4,"row":1}],"edges":[{"from":"c","to":"g","label":"POST /checkout","accent":True},{"from":"g","to":"a","label":"Auth ok","accent":True},{"from":"a","to":"d","label":"Insert","accent":True},{"from":"a","to":"q","label":"order.placed"},{"from":"q","to":"e"},{"from":"q","to":"i"}],"groups":[{"label":"Order service","nodes":["a","d"]}]}, "Flow // grid of nodes, orthogonal wires, one group")
+G["sequence"] = cz("diagram", {"type":"sequence","actors":[{"id":"u","label":"Browser"},{"id":"a","label":"App"},{"id":"i","label":"Identity"},{"id":"r","label":"API"}],"messages":[{"from":"u","to":"a","label":"Sign in"},{"from":"a","to":"i","label":"Redirect with challenge","accent":True},{"from":"i","to":"i","label":"Verify user"},{"from":"i","to":"a","label":"Code","reply":True},{"from":"a","to":"i","label":"Code + verifier","accent":True},{"from":"i","to":"a","label":"Token","reply":True},{"from":"a","to":"r","label":"Request + token"},{"from":"r","to":"a","label":"200","reply":True}]}, "Sequence // who talks to whom, in order")
+G["layers"] = cz("diagram", {"type":"layers","layers":[{"label":"Clients","items":["Web","iOS","Android","CLI"]},{"label":"Edge","items":["CDN","Gateway"]},{"label":"Services","items":["Orders","Billing",{"label":"Search","accent":True},"Notify"]},{"label":"Data","items":["Postgres","Queue","Object store"]}]}, "Layers // a stack, top to bottom")
+G["timeline"] = cz("diagram", {"type":"timeline","columns":["Jan","Feb","Mar","Apr","May","Jun"],"now":2.4,"rows":[{"label":"Discovery","from":0,"to":1.2},{"label":"Design","from":0.8,"to":2.4},{"label":"Build","from":2,"to":4.6,"accent":True,"note":"Critical path"},{"label":"Beta","from":4.2,"to":5.3},{"label":"Launch","at":5.5,"note":"16 Jun","accent":True}]}, "Timeline // spans and milestones on one scale")
+G["quadrant"] = cz("diagram", {"type":"quadrant","x":["Low effort","High effort"],"y":["Low impact","High impact"],"corners":["Do now","Plan","Skip","Avoid"],"items":[{"label":"Saved filters","x":0.22,"y":0.81,"accent":True},{"label":"Bulk edit","x":0.38,"y":0.66},{"label":"Offline mode","x":0.84,"y":0.78},{"label":"Themes","x":0.3,"y":0.2},{"label":"Rewrite sync","x":0.9,"y":0.34}],"size":360}, "Quadrant // two axes, labelled points")
+G["tree"] = cz("diagram", {"type":"tree","root":{"label":"Revenue","children":[{"label":"New","children":[{"label":"Self serve"},{"label":"Sales led","accent":True}]},{"label":"Expansion","children":[{"label":"Seats"},{"label":"Usage"}]},{"label":"Renewal"}]}}, "Tree // a hierarchy, top down")
+def sec(title, *figs): return f'  <section>\n    <h2>{title}</h2>\n' + "\n".join("    "+f for f in figs) + '\n  </section>'
+def duo(a, b): return f'<div class="duo">{a}{b}</div>'
+page("viz.html", "Charts and diagrams", "CHARTS AND DIAGRAMS", """
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); }
+.duo > figure { min-width: 0; }
+@media (max-width: 800px) { .duo { grid-template-columns: 1fr; } }
+section > figure + figure, section > .duo + figure, section > figure + .duo { margin-top: var(--s6); }
+""", f"""<main>
+  <header>
+    <div class="meta">canzano // viz.js</div>
+    <h1>Eight charts and six diagrams from one small script</h1>
+  </header>
+{sec("Bars", duo(G["bar"], G["grouped"]), duo(G["stacked"], G["waterfall"]), duo(G["hbar"], G["share"]))}
+{sec("Lines", duo(G["line"], G["area"]))}
+{sec("Relations", duo(G["scatter"], G["slope"]), G["heatmap"])}
+{sec("Flow", G["flow"])}
+{sec("Sequence", G["sequence"])}
+{sec("Structure", G["layers"], G["tree"])}
+{sec("Plans", G["timeline"], G["quadrant"])}
+</main>""", viz=True)
+
+# ---------------------------------------------------------------- 08 deck
+D = {}
+D["line"] = cz("chart", {"type":"line","labels":months,"highlight":"p95","series":[{"name":"p50","values":[120,118,121,117,112,110,108,104,99,96,92,88]},{"name":"p95","values":[310,305,322,298,280,276,251,240,221,214,203,190]},{"name":"p99","values":[620,640,610,580,571,540,498,470,455,430,401,380]}],"suffix":" ms","marks":[{"at":"Jul","text":"Cache shipped"}]}, "Fig 1 // API latency by percentile, 2026")
+D["fall"] = cz("chart", {"type":"waterfall","good":"down","suffix":" ms","data":[{"label":"Jan","value":1800,"total":True},{"label":"Edge cache","value":-420},{"label":"Image CDN","value":-260},{"label":"Query batching","value":-170},{"label":"Smaller bundle","value":-70},{"label":"Dec","total":True}]}, "Fig 2 // Median checkout time, change by project")
+D["flow"] = cz("diagram", {"type":"flow","cell":{"w":120,"gy":48},"nodes":[{"id":"c","label":"Client","col":0},{"id":"g","label":"Gateway","col":1},{"id":"k","label":"Cache","col":2,"accent":True,"note":"94% hit rate"},{"id":"a","label":"API","col":3},{"id":"d","label":"DB","col":3,"row":1,"kind":"store"}],"edges":[{"from":"c","to":"g"},{"from":"g","to":"k","label":"Read","accent":True},{"from":"k","to":"a","label":"Miss"},{"from":"a","to":"d"}]})
+D["time"] = cz("diagram", {"type":"timeline","columns":["Jan","Feb","Mar","Apr","May","Jun"],"rows":[{"label":"Search rewrite","from":0,"to":3.6,"accent":True,"note":"Critical path"},{"label":"Saved filters","from":0.5,"to":1.8},{"label":"Bulk edit","from":1.8,"to":3.2},{"label":"Offline mode","from":3.6,"to":5.6},{"label":"Checkout v3","at":5.7,"note":"24 Jun","accent":True}]}, "Fig 3 // H1 2027")
+D["quad"] = cz("diagram", {"type":"quadrant","size":360,"x":["Low effort","High effort"],"y":["Low impact","High impact"],"corners":["Do now","Plan","Skip","Avoid"],"items":[{"label":"Saved filters","x":0.22,"y":0.81,"accent":True},{"label":"Bulk edit","x":0.38,"y":0.66},{"label":"Offline mode","x":0.84,"y":0.78},{"label":"Themes","x":0.3,"y":0.2},{"label":"Rewrite sync","x":0.88,"y":0.3}]})
+D["bar"] = cz("chart", {"type":"bar","labels":["Q1","Q2","Q3","Q4"],"series":[{"name":"Desktop","values":[3.1,3.2,3.6,4.4]},{"name":"Mobile","values":[1.9,2.0,2.9,4.1]}],"suffix":"%"}, "Fig 4 // Checkout conversion by device")
+page("deck.html", "Checkout review", "", """
+""", f"""<div class="deck" data-label="Checkout review // Q4 2026 // Example">
+
+  <section class="slide title">
+    <h1>Checkout got 51% faster in 2026</h1>
+    <p>Platform review // 23 Nov 2026 // Example with illustrative figures</p>
+  </section>
+
+  <section class="slide statement">
+    <h2>Median checkout time fell from 1.8 s to 0.88 s, and conversion rose 2.1 points.</h2>
+  </section>
+
+  <section class="slide">
+    <h2>Four numbers carry the year</h2>
+    <div class="body">
+      <div class="metrics">
+        <div><span class="label">Median checkout</span><span class="figure accent">0.88 s</span><span class="meta">From 1.8 s</span></div>
+        <div><span class="label">API p95</span><span class="figure">190 ms</span><span class="meta">From 310 ms</span></div>
+        <div><span class="label">Conversion</span><span class="figure">+2.1 pts</span><span class="meta">Mobile +2.2</span></div>
+        <div><span class="label">Added revenue</span><span class="figure">$1.4M</span><span class="meta">Annualised</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>Every release since July moved p95 down</h2>
+    <div class="body">{D["line"]}</div>
+  </section>
+
+  <section class="slide split">
+    <h2>One cache in front of the API did most of it</h2>
+    <div class="body">
+      <div><p class="lead">94% of reads never reach the&nbsp;API.</p><p>The cache sits behind the gateway, so auth and rate limits still apply to every request.</p></div>
+      {D["flow"]}
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>Where the 920 ms went</h2>
+    <div class="body">{D["fall"]}</div>
+  </section>
+
+  <section class="slide split even">
+    <h2>Mobile closed the gap with desktop</h2>
+    <div class="body">
+      {D["bar"]}
+      <div class="table-wrap"><table>
+        <thead><tr><th>Project</th><th class="num">Saved</th><th class="num">Cost</th></tr></thead>
+        <tbody>
+          <tr><td>Edge cache</td><td class="num">420 ms</td><td class="num">6 weeks</td></tr>
+          <tr><td>Image CDN</td><td class="num">260 ms</td><td class="num">3 weeks</td></tr>
+          <tr><td>Query batching</td><td class="num">170 ms</td><td class="num">5 weeks</td></tr>
+          <tr><td>Smaller bundle</td><td class="num">70 ms</td><td class="num">2 weeks</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="slide section">
+    <span class="meta">02</span>
+    <h2>The 2027 plan</h2>
+  </section>
+
+  <section class="slide">
+    <h2>Search is the critical path for the first half</h2>
+    <div class="body">{D["time"]}</div>
+  </section>
+
+  <section class="slide split flip">
+    <h2>Saved filters come first: high impact, two weeks</h2>
+    <div class="body">
+      {D["quad"]}
+      <div><p class="lead">It is the only item in the top left.</p><p>Offline mode matters as much but takes a quarter. It follows the search rewrite.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>Three decisions needed today</h2>
+    <div class="body"><ol class="points"><li>Approve two engineers for the search rewrite from 6 Jan</li><li>Move offline mode to Q2</li><li>Set the 2027 target: median checkout under 0.7 s</li></ol></div>
+  </section>
+
+</div>""", viz=True, deck=True, theme=' data-theme="dark" class="keep-theme"')
+
+# ---------------------------------------------------------------- 09 ascii
+import sys, html as _html
+sys.path.insert(0, str(root/"skills/canzano/scripts"))
+import ascii as A
+def pre(txt, cls="ascii"): return f'<pre class="{cls}">{_html.escape(txt)}</pre>'
+page("ascii.html", "ASCII", "ASCII", """
+""", f"""<main>
+  <header>
+    <div class="meta">canzano // scripts/ascii.py</div>
+    {pre(A.banner("SHIP IT", "half"), "ascii hero")}
+  </header>
+  <section><h2>Flow</h2>{pre(A.flow("Client -[POST /checkout]-> Gateway -[auth ok]-> Orders API -> [Orders DB]"))}</section>
+  <section><h2>Sequence</h2>{pre(A.seq(["Browser->App: sign in", "App->Identity: redirect with challenge", "Identity->Identity: verify", "Identity-->App: code", "App->API: request + token", "API-->App: 200"]))}</section>
+  <section><h2>Table and bars</h2>
+    <div class="cols">
+      <div>{pre(A.table(["Plan | Seats | Price", "Team | 12 | $240", "Scale | 80 | $1,400", "Enterprise | 400 | $6,000"]))}</div>
+      <div>{pre(A.bars(["Search=41", "Direct=24", "Referral=17", "Social=11", "Email=7"], 24, "%"))}</div>
+    </div>
+  </section>
+  <section><h2>Tree, box, sparkline</h2>
+    <div class="cols">
+      <div>{pre(A.tree("Revenue\n  New\n    Self serve\n    Sales led\n  Expansion\n    Seats\n    Usage\n  Renewal"))}</div>
+      <div>{pre(A.box("Deploy", ["api-gateway  a41f9c2", "status       RUNNING", "p95 ms       " + A.spark([310,305,322,298,280,276,251,240,221,214,203,190])]))}</div>
+    </div>
+  </section>
+  <section><h2>Hero text</h2>{pre(A.banner("CANZANO", "block"), "ascii hero")}{pre(A.banner("V1.1", "shade"), "ascii hero")}</section>
+</main>""")
+
 # ---------------------------------------------------------------- index
 ex = [
  ("01","PDF report","Compare our three hosting options for the orders API and give me a one-pager as a PDF.","report.pdf","report.html",760),
@@ -471,6 +640,9 @@ ex = [
  ("04","Web UI","Quick internal tool to review today's deploys.","web-ui.html","web-ui.html",560),
  ("05","Mobile UI","A phone screen for this week's runs.","mobile-ui.html","mobile-ui.html",844),
  ("06","Form and settings","A settings page: find members, invite one, notification switches.","settings.html","settings.html",900),
+ ("07","Deck","Turn the checkout review into slides for Thursday.","deck.html","deck.html",760),
+ ("08","Charts and diagrams","Every chart and diagram type the skill can draw.","viz.html","viz.html",900),
+ ("09","ASCII","A README diagram of the checkout path, and a banner.","ascii.html","ascii.html",700),
 ]
 secs = "\n".join(f"""  <section>
     <h2>{n} // {t}</h2>
@@ -483,7 +655,7 @@ iframe { display: block; width: 100%; border: 1px solid var(--rule-strong); marg
 """, f"""<main>
   <header>
     <div class="meta">canzano // examples</div>
-    <h1>Six asks and what the skill returns</h1>
+    <h1>Nine asks and what the skill returns</h1>
     
   </header>
 {secs}

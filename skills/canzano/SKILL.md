@@ -79,9 +79,10 @@ No fluff, and no interface that explains itself. Read `references/writing.md` be
 - **Report, explainer or comparison.** The answer, then the evidence, then the detail. Plain section labels. See `references/writing.md`.
 - **Doc (Google Docs, Word, Markdown).** Text first. Short sentence-case headings, tables for comparisons, no emoji, no callout blocks, no rule spam.
 - **PDF.** The same HTML, printed. Read `references/pdf.md`.
-- **Deck.** One point per slide: a short mono title and a visual explanation. Neutral page, mono caps labels, the diagram grammar, one system across slides.
-- **Chart.** Greys carry context and the accent carries the series that matters. Use the series colours in order when several series must be told apart, and label them directly. Heatmaps and diverging scales follow `references/colour.md`. Direct labels instead of legends where possible, mono caps axis labels, tabular figures, a hairline axis, gridlines at 10% ink at most. No gradients, rounded bar tops or 3D.
-- **Diagram.** Read `references/diagrams.md`. Orthogonal, one stroke width, monochrome, ALL CAPS Geist Mono.
+- **Deck.** Read `references/decks.md` and start from `assets/deck.html`. One claim per slide in the headline, one piece of evidence in the body, 1280 x 720 slides that print one per page.
+- **Chart.** Read `references/charts.md` and draw with `assets/viz.js` (bar, hbar, line, scatter, slope, waterfall, heatmap, sparkline). Greys carry context and the accent carries the series that matters. Use the series colours in order when several series must be told apart, and label them directly. Heatmaps and diverging scales follow `references/colour.md`. Direct labels instead of legends where possible, mono caps axis labels, tabular figures, a hairline axis, gridlines at 10% ink at most. No gradients, rounded bar tops or 3D.
+- **Diagram.** Read `references/diagrams.md`. `assets/viz.js` draws flow, sequence, layers, tree, timeline and quadrant diagrams from a spec. Orthogonal, one stroke width, monochrome, ALL CAPS Geist Mono.
+- **ASCII.** For READMEs, terminals and code comments, and for hero text when asked. Read `references/ascii.md` and generate it with `scripts/ascii.py` so it lines up.
 - **UI.** Read `references/ui.md`. Small rounded controls, flat panels, a sidebar frame, Inter leading and mono for labels and figures. It also covers how to behave inside an existing product.
 - **Contact or review sheet.** The work at true aspect ratio on the dark page, mono caps labels under each item, no frames.
 
@@ -95,5 +96,6 @@ Render it and look at it, at full size and at phone width, in both themes when i
 4. Does the first screen state the point?
 5. Read every sentence and label. Does the output still work without it? Delete it.
 6. In every row of controls, do the boxes share one height and style, with one primary?
+7. Does any heading, tagline or paragraph end on one stranded word, or any graphic sit small in empty space? Run `cz.lint()` where `viz.js` is loaded and fix what it lists.
 
 Fix what you find before showing it. Say what was rendered and checked, and what was not.

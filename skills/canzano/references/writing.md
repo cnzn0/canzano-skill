@@ -22,6 +22,17 @@ Cut on sight:
 - Process narration when the result was asked for.
 - Exclamation marks, emoji, slogans as headings, Title Case Headings.
 
+## Wrapping
+
+A heading, tagline or caption never ends with one short word alone on its last line, and a paragraph never ends on a stranded word.
+
+- `base.css` balances headings, leads, captions and labels (`text-wrap: balance`) and tidies the last line of running text (`text-wrap: pretty`). Do not override it.
+- Keep things together that read as one: a number and its unit (`0.88&nbsp;s`), a name and its number (`Fig&nbsp;1`), the last two words of a headline when the last is short. Use `&nbsp;`.
+- A headline is two lines at most. If it runs to three, cut words. Do not shrink the type or narrow the tracking to make it fit.
+- Break a long title by sense when it must break: after the clause, not after "the", "of" or "a". Add `<br>` only when the balanced wrap still splits a phrase badly.
+- No hyphenation in headings. No justified text.
+- After rendering, run `cz.lint()` in the page (it ships in `viz.js`). It lists stranded last words, headlines over two lines and content that overflows a slide or the page. Fix every item it lists.
+
 ## UI copy
 
 A UI is labels, numbers and actions. It does not explain itself.

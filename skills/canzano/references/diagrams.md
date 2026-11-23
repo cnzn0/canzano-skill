@@ -13,6 +13,36 @@ The brief in one line: very technical and utilitarian, ASCII brackets, one strok
 - Every connector has a real source and destination and attaches to a port, never to the open side of a bracket. Captions sit inside their group or on the edge they describe.
 - Pick the structure the idea needs: a route, ordered stages, nested aggregation, a state diff or a register. Not everything is a row of boxes.
 
+## Boilerplates
+
+`assets/viz.js` draws six diagram types from a JSON spec, already to this contract. Use them before drawing by hand; hand-drawn SVG is for a structure none of them fits.
+
+```html
+<figure class="diagram" data-cz>
+  <script type="application/json">
+    { "type": "flow",
+      "nodes": [ { "id": "c", "label": "Client", "col": 0 }, { "id": "a", "label": "API", "col": 1 },
+                 { "id": "d", "label": "DB", "col": 1, "row": 1, "kind": "store" } ],
+      "edges": [ { "from": "c", "to": "a", "label": "POST", "accent": true }, { "from": "a", "to": "d" } ],
+      "groups": [ { "label": "Service", "nodes": ["a", "d"] } ] }
+  </script>
+</figure>
+<script src="viz.js"></script>
+```
+
+| Type | For | Spec |
+|---|---|---|
+| `flow` | A route through a system, a pipeline, a fan-out | `nodes: [ { id, label, col, row, note, accent, kind: "store" } ]`, `edges: [ { from, to, label, accent, dashed } ]`, `groups: [ { label, nodes } ]`, `cell: { w, h, gx, gy }` |
+| `sequence` | Who talks to whom, in order | `actors: [ { id, label } ]`, `messages: [ { from, to, label, accent, reply } ]` |
+| `layers` | A stack, top to bottom | `layers: [ { label, items: [ "Web", { label, accent } ] } ]` |
+| `tree` | A hierarchy or a breakdown | `root: { label, accent, children: [ ... ] }` |
+| `timeline` | Spans and milestones on one scale | `columns: [...]`, `rows: [ { label, from, to, note, accent } or { label, at, note } ]`, `now` |
+| `quadrant` | Items on two axes | `x: [low, high]`, `y: [low, high]`, `corners: [tl, tr, bl, br]`, `items: [ { label, x, y, accent } ]` with x and y from 0 to 1 |
+
+Place flow nodes on a grid with `col` and `row`. Wires route themselves at right angles: forward along a row, down a column, or around a corner. Keep forward edges going left to right and put the store or the side effect one row down. Labels in a node may break with `\n`. A diagram wider than its container scales down; split it when the labels would fall under 10px.
+
+For text-only places (a README, a terminal, a code comment) use `scripts/ascii.py`, described in `ascii.md`.
+
 ## Build and check
 
 1. Write the one-sentence takeaway. List the entities, the directed relationships and the boundaries before drawing.

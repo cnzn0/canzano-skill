@@ -60,6 +60,9 @@ Ask as you normally would. The skill changes how the answer looks and reads.
 | "Quick internal tool to review today's deploys" | [web-ui.html](examples/web-ui.html) |
 | "A phone screen for this week's runs" | [mobile-ui.html](examples/mobile-ui.html) |
 | "A settings page with an invite form" | [settings.html](examples/settings.html) |
+| "Turn the checkout review into slides" | [deck.html](examples/deck.html), [deck.pdf](examples/deck.pdf) |
+| "Chart this" | [viz.html](examples/viz.html): every chart and diagram type |
+| "A README diagram of the checkout path" | [ascii.html](examples/ascii.html) |
 
 Each outcome is one self-contained HTML file. Figures and names in them are made up.
 
@@ -91,11 +94,29 @@ The answer first, hairline tables, mono figures. The PDF is the same page, print
 
 ![Report](showcase/report.png)
 
+### Decks
+
+1280 x 720 slides from one HTML file: a claim in every headline, evidence that fills the slide, one slide per PDF page.
+
+![Four slides from the example deck](showcase/deck.png)
+
+### Charts
+
+Eight chart types from a JSON spec, drawn by one dependency-free script. Grey for context, the accent for the point.
+
+![Charts](showcase/charts.png)
+
 ### Diagrams
 
-Orthogonal, one stroke width, all caps mono. Animated diagrams move one mark along the real connectors.
+Flow, sequence, layers, tree, timeline and quadrant from a spec. Orthogonal, one stroke width, all caps mono. Animated diagrams move one mark along the real connectors.
 
-![Diagram](showcase/diagram.png)
+![Diagrams](showcase/diagrams.png)
+
+### ASCII
+
+Aligned diagrams, tables, bars and hero text for READMEs, terminals and code comments.
+
+![ASCII](showcase/ascii.png)
 
 ![Animated diagram](showcase/animated-diagram.gif)
 
@@ -108,11 +129,14 @@ skills/canzano/
   assets/tokens.css        the semantic tokens pages use
   assets/base.css          type, tables, ledgers, controls, forms, print
   assets/ui.css            the extra layer for interfaces
+  assets/viz.js            charts and diagrams from a JSON spec, plus a layout lint
+  assets/deck.html         the starting point for a deck (deck.css, deck.js)
   assets/template.html     the starting point for any HTML output
   assets/specimen.html     the whole system on one page
-  references/              colour, controls and forms, diagrams, PDFs, UIs, writing
+  references/              ascii, charts, colour, controls and forms, decks, diagrams, PDFs, UIs, writing
   scripts/pdf.sh           prints a page to PDF with headless Chrome
   scripts/palette.py       regenerates the palette
+  scripts/ascii.py         aligned ASCII diagrams, tables, bars and hero text
 examples/                  the outcomes above; rebuild with build_examples.py
 ```
 
