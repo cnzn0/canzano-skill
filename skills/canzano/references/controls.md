@@ -63,7 +63,8 @@ Do not use a select for two options, a segmented control for eight, a switch ins
 ## Before calling a control group done
 
 1. Do all boxes in each row share one height, radius and edge, in both themes?
-2. Is there exactly one primary in view?
-3. Does each input's width fit what goes in it?
-4. Tab through it. Is the order the reading order, and is focus visible on every control?
-5. Narrow the window. Does the row wrap cleanly, with nothing clipped or squeezed?
+2. In every joined group, are only the two outer corners round, with one shared edge between the parts?
+3. Is there exactly one primary in view?
+4. Does each input's width fit what goes in it?
+5. Tab through it. Is the order the reading order, and is focus visible on every control?
+6. Narrow the window. Does the row wrap cleanly, with nothing clipped or squeezed?

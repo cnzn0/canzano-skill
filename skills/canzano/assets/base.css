@@ -154,9 +154,11 @@ label { display: block; font: var(--text-label)/1.6 var(--mono); letter-spacing:
 
 /* Joined: controls that act as one (search and its button, a stepper). One shared edge. */
 .joined { display: inline-flex; }
-.joined > * { border-radius: 0; margin-left: -1px; }
-.joined > :first-child { margin-left: 0; border-radius: var(--r-control) 0 0 var(--r-control); }
-.joined > :last-child { border-radius: 0 var(--r-control) var(--r-control) 0; }
+/* :is() lifts these above the base control rule, which would otherwise keep every corner round. */
+.joined > :is(button, .button, input, select, .affix, *) { border-radius: 0; margin-left: -1px; }
+.joined > :is(button, .button, input, select, .affix, *):first-child { margin-left: 0; border-radius: var(--r-control) 0 0 var(--r-control); }
+.joined > :is(button, .button, input, select, .affix, *):last-child { border-radius: 0 var(--r-control) var(--r-control) 0; }
+.joined > :is(button, .button, input, select, .affix, *):only-child { border-radius: var(--r-control); }
 .joined > :is(:focus-visible, :hover) { z-index: 1; }
 .joined > input { width: auto; flex: 1 1 160px; }
 
