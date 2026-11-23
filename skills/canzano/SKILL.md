@@ -29,7 +29,7 @@ The raw colours are in `assets/palette.css` and everything a page uses is in `as
 | Series | `--series-1` to `--series-8` | Categorical chart colours, used in order |
 | Palette | 11 hues x 7 vivid steps and 13 greys in `assets/palette.css` | Charts, heatmaps, extra tags. Read `references/colour.md` |
 | Space | 4, 8, 12, 16, 24, 40, 80 | |
-| Panel | `oklch(0.96 0.002 286)` / dark `oklch(0.196 0 0)` | Flat panel fill, code blocks, segmented tracks |
+| Panel | `--panel` (grey 100, dark grey 900) | Flat panel fill, code blocks, segmented tracks |
 | Radius | 6 controls, 12 panels, 0 for document structure and diagrams | |
 | Control | 27px tall (`.sm` 23, `.lg` 34), 8px side padding, 1px edge, Inter 14 | Every button, input, select and segmented control, so any mix lines up |
 | Motion | 120ms transitions, press scales to 0.97 | |
@@ -40,8 +40,8 @@ Start every HTML output from `assets/template.html` with `palette.css`, `tokens.
 
 - **Surface.** A flat neutral page, white or near black. Never a tint, gradient, texture, glow or blur behind content.
 - **Type.** Labels and table heads are ALL CAPS Geist Mono with +0.04em tracking. Prose is Inter at 15 to 16px on a 1.6 line height, capped at 68ch. Tabular numerals everywhere.
-- **Structure.** Build with 1px hairlines and whitespace, not boxes. A section opens with a top rule and a mono caps label. Lists of things are ledgers: hairline rows with the label left and the value right. Metrics sit in a strip of columns between two rules, not in tiles.
-- **Geometry.** Document structure and diagrams are square. Controls have a 6px radius and panels 12px. No drop shadows, except the selected segment and a floating menu.
+- **Structure.** Build with 1px hairlines and whitespace, not boxes. A section opens with a top rule and a mono caps label. Lists of things are ledgers: hairline rows with the label left and the value right. In a document, metrics sit in a strip of columns between two rules, not in tiles. In a UI a figure may sit in a flat panel.
+- **Geometry.** Document structure and diagrams are square. Controls and code blocks have a 6px radius and panels 12px. The switch is the one fully rounded control. No drop shadows, except the selected segment and a floating menu.
 - **Colour.** Greyscale in three ink steps, plus one vivid accent: the current state, the series that matters or a key figure. Colour is rare and saturated, never dusty, pastel, brownish or greyish. Status colours mark a real state and sit next to a word. Series colours appear only in a chart that needs them. Never mint, seafoam or teal on dark.
 - **Marks.** No emoji. No icon sets by default; use text labels. ASCII marks like `→ // [ ] ·` are fine when they mean something.
 - **Controls.** Small and crisp: 27px tall, radius 6, a 1px edge and a fill that is a touch lighter at its top and bottom edge. The primary action is dark on a light page and white on a dark page, never the accent. Everything else is the light fill or a text link with a 1px underline. Buttons exist only when something is clickable. A segmented control is a panel track with a raised thumb that does not slide. Controls placed side by side share one height, radius and edge; read `references/controls.md` before building a control row, a combo or a form.
@@ -64,12 +64,12 @@ No fluff, and no interface that explains itself. Read `references/writing.md` be
 - Gradient heroes, gradient text, and a purple or indigo wash over the page: tinted backgrounds, coloured panels, gradient headers. The accent is violet, but it marks one thing on a neutral page; it is never the theme.
 - Cards with soft drop shadows, radii above 12px or pill shapes. Grids of three "features" with an icon each.
 - Emoji in headings, bullets, status or buttons. Coloured pill badges and chips on everything.
-- KPI tiles with a big number and a trend arrow nobody asked for. Decorative progress bars, rings or meters.
+- Decorative KPI tiles: a big number in a shadowed or outlined card with a trend arrow, an icon or a sparkline nobody asked for. (A flat panel holding one labelled figure in a UI is fine; in a document, figures sit in a strip.) Decorative progress bars, rings or meters.
 - Glass and blur panels. Callout boxes with a coloured left border ("Tip", "Note", "Key insight").
 - Everything centred. Hover lift or scale. Staggered fade-ins. Timeline dots.
 - Fake window, browser or terminal chrome, and toy illustrations.
 - Title Case Headings, exclamation marks and hype words.
-- Explanatory copy in a UI: a subtitle under every title, helper text under every field, an intro paragraph per section.
+- Explanatory copy in a UI: a subtitle under every title, helper text that restates its label, an intro paragraph per section. A settings row may carry one line that states a fact the label cannot, such as when or to whom.
 - Curved or gradient diagram connectors, shadows on diagrams, several stroke weights.
 - A sidebar-and-tiles "dashboard" when a single column would read better.
 

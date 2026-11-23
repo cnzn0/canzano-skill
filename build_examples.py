@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Builds examples/*.html as single files with the skill's tokens.css and base.css inlined."""
-import pathlib
+import pathlib, sys
+sys.dont_write_bytecode = True
 root = pathlib.Path(__file__).parent
 css = (root/"skills/canzano/assets/palette.css").read_text() + "\n" + (root/"skills/canzano/assets/tokens.css").read_text() + "\n" + (root/"skills/canzano/assets/base.css").read_text()
 uicss = (root/"skills/canzano/assets/ui.css").read_text()
@@ -18,7 +19,7 @@ def page(name, title, running, extra, body, script="", ui=False, viz=False, deck
 <title>{title}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 {css}
 {'' if deck else '@page { @top-left { content: "' + running + '"; font: 8pt "Geist Mono", monospace; letter-spacing: 0.04em; color: oklch(0.557 0.008 286); } }'}
@@ -43,12 +44,15 @@ svg .mid {{ fill: var(--ink-2); }}
 """
     (out/name).write_text(html)
 
+import json
+def cz(kind, spec, caption=None):
+    return f'<figure class="{kind}" data-cz><script type="application/json">{json.dumps({k: v for k, v in spec.items() if v is not None})}</script>' + (f'<figcaption>{caption}</figcaption>' if caption else '') + '</figure>'
+
 def R(x, y, d="r"):  # arrowhead ending at x,y
     return {"r": f"M{x-6} {y-4} L{x} {y} L{x-6} {y+4}", "d": f"M{x-4} {y-6} L{x} {y} L{x+4} {y-6}"}[d]
 
 # ---------------------------------------------------------------- 01 report / PDF
 page("report.html", "Hosting options", "ORDERS API // HOSTING OPTIONS // 23 NOV 2026", """
-.chart svg { width: 100%; max-width: 720px; }
 """, f"""<main>
   <header>
     <div class="meta">Infrastructure // 23 Nov 2026 // Example with illustrative figures</div>
@@ -76,21 +80,7 @@ page("report.html", "Hosting options", "ORDERS API // HOSTING OPTIONS // 23 NOV 
 
   <section>
     <h2>Monthly cost at projected load</h2>
-    <figure class="chart">
-      <svg viewBox="0 0 720 124" role="img" aria-label="Monthly cost: managed containers 1,840 dollars, self-run cluster 2,650, serverless functions 3,120">
-        <path class="s" style="stroke:var(--rule-strong)" d="M180.5 0 V124"/>
-        <text x="0" y="24">MANAGED CONTAINERS</text>
-        <rect x="181" y="10" width="283" height="20" style="fill:var(--accent)"/>
-        <text class="at" x="472" y="24">$1,840</text>
-        <text class="mid" x="0" y="66">SELF-RUN CLUSTER</text>
-        <rect x="181" y="52" width="408" height="20" style="fill:var(--ink-3)"/>
-        <text class="mid" x="597" y="66">$2,650</text>
-        <text class="mid" x="0" y="108">SERVERLESS FUNCTIONS</text>
-        <rect x="181" y="94" width="480" height="20" style="fill:var(--ink-3)"/>
-        <text class="mid" x="669" y="108">$3,120</text>
-      </svg>
-      <figcaption>Fig 1 // USD per month at 1,200 requests per second, list prices</figcaption>
-    </figure>
+    {cz("chart", {"type":"hbar","highlight":"Managed containers","prefix":"$","label":"Monthly cost: managed containers 1,840 dollars, self-run cluster 2,650, serverless functions 3,120","data":[{"label":"Managed containers","value":1840},{"label":"Self-run cluster","value":2650},{"label":"Serverless functions","value":3120}],"compact":False,"digits":0}, "Fig 1 // USD per month at 1,200 requests per second, list prices")}
   </section>
 
   <section>
@@ -113,7 +103,7 @@ page("report.html", "Hosting options", "ORDERS API // HOSTING OPTIONS // 23 NOV 
       </tbody>
     </table></div>
   </section>
-</main>""")
+</main>""", viz=True)
 
 # ---------------------------------------------------------------- 02 diagram
 diagram = f"""
@@ -428,7 +418,7 @@ page("settings.html", "Settings", "SETTINGS", """
         <div class="segmented" role="group" aria-label="Members"><button aria-pressed="true">Members</button><button aria-pressed="false">Invited</button></div>
         <input type="search" class="w-m" placeholder="Name or email" aria-label="Find a member">
         <select class="w-s" aria-label="Role"><option>All roles</option><option>Admin</option><option>Member</option></select>
-        <button class="primary push">Invite</button>
+        <button class="push">Invite</button>
       </div>
     </section>
 
@@ -470,9 +460,6 @@ page("settings.html", "Settings", "SETTINGS", """
 </div>""", ui=True)
 
 # ---------------------------------------------------------------- 07 viz gallery
-import json
-def cz(kind, spec, caption=None):
-    return f'<figure class="{kind}" data-cz><script type="application/json">{json.dumps(spec)}</script>' + (f'<figcaption>{caption}</figcaption>' if caption else '') + '</figure>'
 months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 G = {}
 G["bar"] = cz("chart", {"type":"bar","label":"Signups per quarter","highlight":"Q4","data":[{"label":"Q1","value":1240},{"label":"Q2","value":1610},{"label":"Q3","value":2130},{"label":"Q4","value":3420}],"height":280}, "Bar // one series, the bar that matters in accent")
@@ -516,9 +503,9 @@ section > figure + figure, section > .duo + figure, section > figure + .duo { ma
 # ---------------------------------------------------------------- 08 deck
 D = {}
 D["line"] = cz("chart", {"type":"line","labels":months,"highlight":"p95","series":[{"name":"p50","values":[120,118,121,117,112,110,108,104,99,96,92,88]},{"name":"p95","values":[310,305,322,298,280,276,251,240,221,214,203,190]},{"name":"p99","values":[620,640,610,580,571,540,498,470,455,430,401,380]}],"suffix":" ms","marks":[{"at":"Jul","text":"Cache shipped"}]}, "Fig 1 // API latency by percentile, 2026")
-D["fall"] = cz("chart", {"type":"waterfall","good":"down","suffix":" ms","data":[{"label":"Jan","value":1800,"total":True},{"label":"Edge cache","value":-420},{"label":"Image CDN","value":-260},{"label":"Query batching","value":-170},{"label":"Smaller bundle","value":-70},{"label":"Dec","total":True}]}, "Fig 2 // Median checkout time, change by project")
-D["flow"] = cz("diagram", {"type":"flow","cell":{"w":120,"gy":48},"nodes":[{"id":"c","label":"Client","col":0},{"id":"g","label":"Gateway","col":1},{"id":"k","label":"Cache","col":2,"accent":True,"note":"94% hit rate"},{"id":"a","label":"API","col":3},{"id":"d","label":"DB","col":3,"row":1,"kind":"store"}],"edges":[{"from":"c","to":"g"},{"from":"g","to":"k","label":"Read","accent":True},{"from":"k","to":"a","label":"Miss"},{"from":"a","to":"d"}]})
-D["time"] = cz("diagram", {"type":"timeline","columns":["Jan","Feb","Mar","Apr","May","Jun"],"rows":[{"label":"Search rewrite","from":0,"to":3.6,"accent":True,"note":"Critical path"},{"label":"Saved filters","from":0.5,"to":1.8},{"label":"Bulk edit","from":1.8,"to":3.2},{"label":"Offline mode","from":3.6,"to":5.6},{"label":"Checkout v3","at":5.7,"note":"24 Jun","accent":True}]}, "Fig 3 // H1 2027")
+D["fall"] = cz("chart", {"type":"waterfall","good":"down","suffix":" ms","data":[{"label":"Jan","value":1800,"total":True},{"label":"Edge cache","value":-420},{"label":"Image CDN","value":-260},{"label":"Query batching","value":-170},{"label":"Smaller bundle","value":-70},{"label":"Dec","total":True}]}, "Fig 3 // Median checkout time, change by project")
+D["flow"] = cz("diagram", {"type":"flow","nodes":[{"id":"c","label":"Client","col":0},{"id":"g","label":"Gateway","col":1},{"id":"k","label":"Cache","col":2,"accent":True,"note":"94% of reads stop here"},{"id":"a","label":"API","col":3},{"id":"d","label":"DB","col":3,"row":1,"kind":"store"}],"edges":[{"from":"c","to":"g"},{"from":"g","to":"k","label":"Read","accent":True},{"from":"k","to":"a","label":"Miss"},{"from":"a","to":"d"}]}, "Fig 2 // The cache sits behind the gateway, so auth and rate limits still apply")
+D["time"] = cz("diagram", {"type":"timeline","columns":["Jan","Feb","Mar","Apr","May","Jun"],"rows":[{"label":"Search rewrite","from":0,"to":3.6,"accent":True,"note":"Critical path"},{"label":"Saved filters","from":0.5,"to":1.8},{"label":"Bulk edit","from":1.8,"to":3.2},{"label":"Offline mode","from":3.6,"to":5.6},{"label":"Checkout v3","at":5.7,"note":"24 Jun","accent":True}]}, "Fig 5 // H1 2027")
 D["quad"] = cz("diagram", {"type":"quadrant","size":360,"x":["Low effort","High effort"],"y":["Low impact","High impact"],"corners":["Do now","Plan","Skip","Avoid"],"items":[{"label":"Saved filters","x":0.22,"y":0.81,"accent":True},{"label":"Bulk edit","x":0.38,"y":0.66},{"label":"Offline mode","x":0.84,"y":0.78},{"label":"Themes","x":0.3,"y":0.2},{"label":"Rewrite sync","x":0.88,"y":0.3}]})
 D["bar"] = cz("chart", {"type":"bar","labels":["Q1","Q2","Q3","Q4"],"series":[{"name":"Desktop","values":[3.1,3.2,3.6,4.4]},{"name":"Mobile","values":[1.9,2.0,2.9,4.1]}],"suffix":"%"}, "Fig 4 // Checkout conversion by device")
 page("deck.html", "Checkout review", "", """
@@ -550,23 +537,24 @@ page("deck.html", "Checkout review", "", """
     <div class="body">{D["line"]}</div>
   </section>
 
-  <section class="slide split">
+  <section class="slide">
     <h2>One cache in front of the API did most of it</h2>
-    <div class="body">
-      <div><p class="lead">94% of reads never reach the&nbsp;API.</p><p>The cache sits behind the gateway, so auth and rate limits still apply to every request.</p></div>
-      {D["flow"]}
-    </div>
+    <div class="body">{D["flow"]}</div>
   </section>
 
   <section class="slide">
-    <h2>Where the 920 ms went</h2>
+    <h2>The edge cache removed almost half of the 920&nbsp;ms</h2>
     <div class="body">{D["fall"]}</div>
   </section>
 
-  <section class="slide split even">
+  <section class="slide">
     <h2>Mobile closed the gap with desktop</h2>
-    <div class="body">
-      {D["bar"]}
+    <div class="body">{D["bar"]}</div>
+  </section>
+
+  <section class="slide">
+    <h2>Four projects, sixteen weeks of work</h2>
+    <div class="body middle">
       <div class="table-wrap"><table>
         <thead><tr><th>Project</th><th class="num">Saved</th><th class="num">Cost</th></tr></thead>
         <tbody>
@@ -650,7 +638,7 @@ secs = "\n".join(f"""  <section>
     <iframe src="{src}" title="{t}" loading="lazy" style="height:{h}px{';width:390px' if n=='05' else ''}"></iframe>
   </section>""" for n,t,ask,href,src,h in ex)
 page("index.html", "canzano examples", "CANZANO // EXAMPLES", """
-iframe { display: block; width: 100%; border: 1px solid var(--rule-strong); margin-top: var(--s4); background: var(--page); }
+iframe { display: block; width: 100%; max-width: 100%; border: 1px solid var(--rule-strong); margin-top: var(--s4); background: var(--page); }
 .ledger li > .ask { font-family: var(--sans); text-align: right; max-width: 60ch; }
 """, f"""<main>
   <header>

@@ -28,7 +28,7 @@ A heading, tagline or caption never ends with one short word alone on its last l
 
 - `base.css` balances headings, leads, captions and labels (`text-wrap: balance`) and tidies the last line of running text (`text-wrap: pretty`). Do not override it.
 - Keep things together that read as one: a number and its unit (`0.88&nbsp;s`), a name and its number (`Fig&nbsp;1`), the last two words of a headline when the last is short. Use `&nbsp;`.
-- A headline is two lines at most. If it runs to three, cut words. Do not shrink the type or narrow the tracking to make it fit.
+- A headline is two lines at most (a statement slide's single sentence may take four). If it runs over, cut words. Do not shrink the type or narrow the tracking to make it fit.
 - Break a long title by sense when it must break: after the clause, not after "the", "of" or "a". Add `<br>` only when the balanced wrap still splits a phrase badly.
 - No hyphenation in headings. No justified text.
 - After rendering, run `cz.lint()` in the page (it ships in `viz.js`). It lists stranded last words, headlines over two lines, content that overflows a slide or the page, labels in a drawing that collide or are struck by a wire, and a drawing that fills under 30% of its slide. Fix every item it lists.

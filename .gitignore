@@ -2,3 +2,5 @@
 .claude/
 dist/
 _*.html
+__pycache__/
+*.pyc

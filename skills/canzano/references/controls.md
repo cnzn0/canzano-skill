@@ -25,7 +25,7 @@ Put side-by-side controls in `.row`. Then check the rendered row:
 |---|---|
 | 2 to 5 exclusive views or modes, all visible | Segmented |
 | 6 or more options, or long labels | Select |
-| Exclusive options that need a line of explanation each | Radios, stacked |
+| Exclusive options that need a line of explanation each | Radios in `.stack` |
 | An independent yes or no saved with the form | Checkbox |
 | A setting that applies the moment it is flipped | Switch |
 | A number with a unit | `.affix` input with the unit inside, mono |
@@ -35,6 +35,35 @@ Put side-by-side controls in `.row`. Then check the rendered row:
 | Something destructive | A secondary button with `.danger` text, never a red fill, and a confirmation that names the object |
 
 Do not use a select for two options, a segmented control for eight, a switch inside a form with a Save button, or a row of secondary buttons where one segmented control would do.
+
+## Markup
+
+```html
+<div class="row">
+  <div class="segmented" role="group" aria-label="Range"><button aria-pressed="true">Day</button><button aria-pressed="false">Week</button></div>
+  <input type="search" class="w-m" placeholder="Service" aria-label="Service">
+  <select class="w-s" aria-label="Region"><option>All regions</option></select>
+  <label class="check"><input type="checkbox" checked>Failed only</label>
+  <button class="primary push">Deploy</button>
+</div>
+
+<label class="affix w-s"><input value="42.1" aria-label="Distance"><span>km</span></label>
+<label class="affix w-s"><span>$</span><input value="1,840" aria-label="Budget"><span>/ mo</span></label>
+<div class="joined stepper"><button aria-label="Fewer">-</button><input class="w-xs" value="12" aria-label="Seats"><button aria-label="More">+</button></div>
+<div class="joined"><input type="search" placeholder="Search" aria-label="Search"><button>Search</button></div>
+
+<label class="check"><input type="checkbox" class="switch" checked>Notify me</label>
+<div class="stack" role="radiogroup" aria-label="Billing">
+  <label class="check"><input type="radio" name="bill" checked><span>Monthly<small>Cancel any time</small></span></label>
+  <label class="check"><input type="radio" name="bill"><span>Yearly<small>Two months free</small></span></label>
+</div>
+
+<button class="danger">Delete workspace</button>
+<button class="primary" aria-busy="true">Save</button>
+<div class="menu"><button>Rename</button><button>Duplicate</button><button class="danger">Delete</button></div>
+```
+
+On a phone every control's text steps up to 16px together, so a row stays even and the page does not zoom on focus.
 
 ## Combos
 

@@ -28,12 +28,14 @@ Set `data-label` on `.deck` for the running label. Slide numbers are automatic. 
 ## Rules
 
 - One point per slide, and the headline states it as a claim: "Mobile closed the gap with desktop", not "Mobile conversion".
-- Headlines are sentence case mono, two lines at most: about 60 characters. The title is about 60 as well. Body text is 20px or larger. If it does not fit, cut words, never shrink type.
+- Headlines are sentence case mono, two lines at most: about 60 characters. The title is about 60 as well. A statement slide is the exception: its one sentence may run to four lines. Body text is 20px or larger. If it does not fit, cut words, never shrink type.
 - A slide body is one thing. Not a chart and three bullets and a callout.
 - The evidence fills the slide. The body starts right under the headline and a chart with no `height` takes all the room there is. Diagrams grow to fit. A small graphic floating in the middle of an empty slide is a fault: enlarge it, switch to a split layout, or cut the slide.
 - Headlines wrap in balanced lines with no stranded last word. Keep a number with its unit using `&nbsp;`.
 - No bullet dumps, no agenda slide for a deck under fifteen slides, no "Thank you" or "Questions?" slide, no logo on every slide, no clip art or stock imagery.
 - Charts follow `charts.md` and diagrams follow `diagrams.md`. Leave `height` off a chart on a slide so it fills the body.
+- On a split slide the graphic should still fill most of its column; if it comes out small, give it the whole slide and move the sentence to the caption or the headline.
+- Decks print at 1280 x 720 only. Do not set `@page { size: ... }` in a deck; A4 and Letter are for reports.
 - The same layout for the same kind of content throughout. Three or four layouts carry most decks.
 - Speaker detail goes in notes or an appendix, not onto the slide.
 - The last slide is what the audience must decide or do.

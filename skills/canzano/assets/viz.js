@@ -21,7 +21,7 @@
   const room = host => { const b = host.closest && host.closest('.slide .body'); return b ? b.clientHeight - 44 : 0; };   // height to fill on a slide
   function fmt(s) {
     if (typeof s.format === 'function') return s.format;
-    const nf = new Intl.NumberFormat('en', { notation: s.suffix ? 'standard' : 'compact', maximumFractionDigits: s.digits == null ? 1 : s.digits });
+    const nf = new Intl.NumberFormat('en', { notation: s.suffix || s.compact === false ? 'standard' : 'compact', maximumFractionDigits: s.digits == null ? 1 : s.digits });
     return v => (v < 0 ? '-' : '') + (s.prefix || '') + nf.format(Math.abs(v)) + (s.suffix || '');
   }
   function ticks(min, max, n) {
@@ -34,8 +34,11 @@
     host.innerHTML = '';
     const s = el('svg', { class: 'cz', viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': label || null }, host);
     if (natural) {
-      const slide = host.closest && host.closest('.slide'), room = host.clientWidth; let k = room && W > room ? room / W : 1;
-      if (slide && room) { const body = host.closest('.body'), high = (body ? body.clientHeight : 480) - 40; k = Math.min(room / W, high / H, 1.7); }   // on a slide, grow to fill
+      // A drawing keeps its size. Wider than its container, it scales down, but never below 10px labels:
+      // past that it stays put and its figure scrolls. On a slide it grows to fill the room it has.
+      const slide = host.closest && host.closest('.slide'), wide = host.clientWidth, floor = 10 / fsize(host); let k = 1;
+      if (slide && wide) { const body = host.closest('.body'), high = (body ? body.clientHeight : 480) - 40; k = Math.min(wide / W, high / H, 1.7); }
+      else if (wide && W > wide) k = Math.max(wide / W, floor);
       s.setAttribute('style', `width:${Math.floor(W * k)}px;max-width:none`);
     }
     return s;
@@ -46,9 +49,12 @@
     return s;
   }
   function colour(s, j) {
-    const ser = s.series[j], n = s.series.length;
+    const ser = s.series[j], n = s.series.length, greys = ['var(--ink-3)', 'var(--grey-400)', 'var(--grey-700)', 'var(--grey-300)'];
     if (ser.color) return ser.color;
-    if (s.highlight != null && n > 1) return ser.name === s.highlight || j === s.highlight ? 'var(--accent)' : 'var(--ink-3)';
+    if (s.highlight != null && n > 1) {
+      if (ser.name === s.highlight || j === s.highlight) return 'var(--accent)';
+      return greys[s.series.slice(0, j).filter((x, i) => !(x.name === s.highlight || i === s.highlight)).length % greys.length];
+    }
     return n === 1 ? 'var(--ink-3)' : `var(--series-${(j % 8) + 1})`;
   }
   function grid(g, T, Y, x0, x1, F, f) {
@@ -57,12 +63,14 @@
       text(g, x0 - 8, Y(t) + f * 0.36, F(t), 'dim', 'end');
     });
   }
-  function legend(g, s, x, y, f) {
-    s.series.forEach((ser, j) => {
-      el('rect', { x, y: y - 8, width: 8, height: 8, style: `fill:${colour(s, j)}` }, g);
-      text(g, x + 14, y, up(ser.name));
-      x += 14 + tw(ser.name, f) + 20;
-    });
+  function legendLayout(s, x0, W, f) {             // where each legend entry goes; wraps at the right edge
+    let x = x0, row = 0; const items = s.series.map(ser => { const w = 14 + tw(ser.name, f) + 20; if (x > x0 && x + w - 20 > W) { x = x0; row++; } const it = { x, row }; x += w; return it; });
+    return { items, rows: row + 1, height: (row + 1) * (f + 9) };
+  }
+  function legend(g, s, L, f) {
+    s.series.forEach((ser, j) => { const y = f + L.items[j].row * (f + 9);
+      el('rect', { x: L.items[j].x, y: y - 8, width: 8, height: 8, style: `fill:${colour(s, j)}` }, g);
+      text(g, L.items[j].x + 14, y, up(ser.name)); });
   }
   function spread(items, gap, lo, hi) {            // keep labels at least `gap` apart inside lo..hi
     items.sort((a, b) => a.y - b.y);
@@ -85,10 +93,11 @@
     const top = s.labels.map((_, i) => stacked ? s.series.reduce((a, x) => a + (x.values[i] || 0), 0) : Math.max(...s.series.map(x => x.values[i] || 0)));
     const low = Math.min(0, ...s.series.flatMap(x => x.values.filter(v => v != null)));
     const T = ticks(low, Math.max(...top, s.target ? s.target.value : 0)), y0 = T[0], y1 = T[T.length - 1];
-    const m = { l: Math.max(...T.map(t => tw(F(t), f))) + 12, r: 4, t: (n > 1 ? f + 20 : f + 10), b: f + 14 };
+    const ml = Math.max(...T.map(t => tw(F(t), f))) + 12, LG = n > 1 ? legendLayout(s, ml, W, f) : null;
+    const m = { l: ml, r: 4, t: (LG ? LG.height + f + 8 : f + 10), b: f + 14 };
     const g = root(host, W, H, s.label), pw = W - m.l - m.r, ph = H - m.t - m.b, Y = v => m.t + ph - (v - y0) / (y1 - y0) * ph;
     grid(g, T, Y, m.l, W - m.r, F, f);
-    if (n > 1) legend(g, s, m.l, f, f);
+    if (LG) legend(g, s, LG, f);
     const bw = pw / s.labels.length, gap = Math.max(2, Math.min(14, bw * 0.18)), inner = bw - gap * 2;
     s.labels.forEach((lab, i) => {
       const x = m.l + bw * i + gap; let acc = 0;
@@ -99,6 +108,7 @@
         const hi = n === 1 && (s.highlight === i || s.highlight === lab);
         el('rect', { x: bx, y: a, width: Math.max(1, w), height: Math.max(0, b - a), style: `fill:${hi ? 'var(--accent)' : colour(s, j)}` }, g);
         if (n === 1 && s.values !== false && bw > tw(F(v), f) + 2) text(g, bx + w / 2, v >= 0 ? a - 6 : b + f + 3, F(v), hi ? 'at' : 'ink', 'middle');
+        else if (n > 1 && !stacked && s.values !== false && w > tw(F(v), f) + 2) text(g, bx + w / 2, v >= 0 ? a - 5 : b + f + 2, F(v), 'dim', 'middle');
       });
       if (stacked && s.values !== false && bw > tw(F(acc), f) + 2) text(g, x + inner / 2, Y(acc) - 6, F(acc), 'ink', 'middle');
     });
@@ -109,15 +119,16 @@
   C.hbar = function (host, s, W, H) {
     const f = fsize(host), F = fmt(s), n = s.series.length, stacked = !!s.stacked && n > 1, rows = s.labels.length;
     const tot = s.labels.map((_, i) => stacked ? s.series.reduce((a, x) => a + (x.values[i] || 0), 0) : Math.max(...s.series.map(x => x.values[i] || 0)));
-    const max = Math.max(...tot), lw = Math.max(...s.labels.map(l => tw(l, f))) + 14, vw = Math.max(...tot.map(v => tw(F(v), f))) + 10;
-    const top = n > 1 ? f + 16 : 0, rh = s.rowHeight || Math.max(f + 12, Math.min(40, ((s.height ? H : 0) - top) / rows || 30));
+    const max = Math.max(...tot) || 1, lw = Math.min(Math.max(...s.labels.map(l => tw(l, f))) + 14, W * 0.42), vw = Math.max(...tot.map(v => tw(F(v), f))) + 10;
+    const fit = l => { const room = Math.max(3, Math.floor((lw - 14) / (f * 0.64))); l = String(l); return l.length > room ? l.slice(0, room - 1) + '…' : l; };   // long row labels are cut, never allowed to squeeze the bars
+    const LG = n > 1 ? legendLayout(s, lw, W, f) : null, top = LG ? LG.height + 8 : 0, rh = s.rowHeight || Math.max(f + 12, Math.min(40, ((s.height ? H : 0) - top) / rows || 30));
     H = s.height ? H : top + rows * rh;
     const g = root(host, W, H, s.label), pw = W - lw - vw, X = v => lw + v / max * pw;
-    if (n > 1) legend(g, s, lw, f, f);
+    if (LG) legend(g, s, LG, f);
     el('path', { class: 'axis', d: `M${px(lw)} ${top} V${H}` }, g);
     s.labels.forEach((lab, i) => {
       const y = top + i * rh, bh = Math.min(rh - 8, 22), by = y + (rh - bh) / 2, hi = n === 1 && (s.highlight === i || s.highlight === lab);
-      text(g, 0, y + rh / 2 + f * 0.36, up(lab), hi ? 'ink' : null);
+      el('title', {}, text(g, 0, y + rh / 2 + f * 0.36, up(fit(lab)), hi ? 'ink' : null), String(lab));
       let acc = 0;
       s.series.forEach((ser, j) => {
         const v = ser.values[i]; if (v == null) return;
@@ -153,21 +164,25 @@
   };
 
   C.scatter = function (host, s, W, H) {
-    const f = fsize(host), FX = fmt(s.xAxis || {}), FY = fmt(s.yAxis || s), pts = s.series.flatMap(x => x.points);
-    const TX = ticks(Math.min(...pts.map(p => p.x)), Math.max(...pts.map(p => p.x))), TY = ticks(Math.min(0, ...pts.map(p => p.y)), Math.max(...pts.map(p => p.y)));
-    const far = pts.reduce((a, p) => (p.x > a.x ? p : a), pts[0]);
-    const m = { l: Math.max(...TY.map(t => tw(FY(t), f))) + 12, r: Math.max(12, far.label ? tw(far.label, f) + 14 : 0), t: f + (s.series.length > 1 ? 20 : 10), b: f * 2 + 22 };
+    const f = fsize(host), FX = fmt(s.xAxis || {}), FY = fmt(s.yAxis || s), pts = s.series.flatMap(x => x.points), many = s.series.length > 1;
+    const xs = pts.map(p => p.x), TY = ticks(Math.min(0, ...pts.map(p => p.y)), Math.max(...pts.map(p => p.y)));
+    const far = pts.reduce((a, p) => (p.x > a.x ? p : a), pts[0]), ml = Math.max(...TY.map(t => tw(FY(t), f))) + 12, mr = Math.max(12, far.label ? Math.min(tw(far.label, f) + 14, W * 0.25) : 0);
+    const want = Math.max(2, Math.min(5, Math.floor((W - ml - mr) / (tw(FX(Math.max(...xs)), f) + 28))));       // fewer x ticks on a narrow chart
+    const TX = ticks(Math.min(...xs), Math.max(...xs), want), LG = many ? legendLayout(s, ml, W, f) : null;
+    const m = { l: ml, r: mr, t: (LG ? LG.height : 0) + (s.y ? f + 8 : 0) + f, b: f * 2 + 22 };
     const g = root(host, W, H, s.label), pw = W - m.l - m.r, ph = H - m.t - m.b;
     const X = v => m.l + (v - TX[0]) / (TX[TX.length - 1] - TX[0]) * pw, Y = v => m.t + ph - (v - TY[0]) / (TY[TY.length - 1] - TY[0]) * ph;
     grid(g, TY, Y, m.l, W - m.r, FY, f);
     TX.forEach(t => text(g, X(t), m.t + ph + f + 6, FX(t), 'dim', 'middle'));
     if (s.x) text(g, W - m.r, H - 3, up(s.x), null, 'end');
-    if (s.y) text(g, m.l, f, up(s.y));
-    if (s.series.length > 1) legend(g, s, s.y ? m.l + tw(s.y, f) + 24 : m.l, f, f);
+    if (LG) legend(g, s, LG, f);
+    if (s.y) text(g, m.l, (LG ? LG.height : 0) + f, up(s.y));
     s.series.forEach((ser, j) => ser.points.forEach(p => {
-      const c = p.accent ? 'var(--accent)' : s.series.length > 1 ? colour(s, j) : 'var(--ink-3)';
-      el('rect', { x: X(p.x) - 3.5, y: Y(p.y) - 3.5, width: 7, height: 7, style: `fill:${c}` }, g);
-      if (p.label) text(g, X(p.x) + 8, Y(p.y) + f * 0.36, up(p.label), (p.accent ? 'at' : 'ink') + ' halo');
+      const c = p.accent ? 'var(--accent)' : many ? colour(s, j) : 'var(--ink-3)', x = X(p.x), y = Y(p.y);
+      el('rect', { class: 'mark', x: x - 3.5, y: y - 3.5, width: 7, height: 7, style: `fill:${c}` }, g);
+      if (!p.label) return;
+      const left = x + 8 + tw(p.label, f) > W;                                                             // a label that would leave the chart goes to the left of its point
+      text(g, left ? x - 8 : x + 8, y + f * 0.36, up(p.label), (p.accent ? 'at' : 'ink') + ' halo', left ? 'end' : null);
     }));
   };
 
@@ -233,11 +248,13 @@
   }
 
   function spark(host, values, o) {
-    host = $(host); o = o || {};
-    const W = o.width || 96, H = o.height || 20, lo = Math.min(...values), hi = Math.max(...values), X = i => 1 + i / (values.length - 1) * (W - 8), Y = v => 3 + (H - 6) * (1 - (v - lo) / (hi - lo || 1));
+    host = $(host); o = o || {}; values = (values || []).map(Number).filter(v => !isNaN(v));
+    const W = o.width || 96, H = o.height || 20, n = values.length, lo = Math.min(...values), hi = Math.max(...values);
+    const X = i => n > 1 ? 1 + i / (n - 1) * (W - 8) : W / 2, Y = v => 3 + (H - 6) * (1 - (hi === lo ? 0.5 : (v - lo) / (hi - lo)));
     const g = root(host, W, H, o.label, true); g.style.display = 'inline-block'; g.style.verticalAlign = 'middle';
-    el('path', { class: 'ln', d: 'M' + values.map((v, i) => X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join(' L') }, g);
-    el('rect', { x: X(values.length - 1) - 2.5, y: Y(values[values.length - 1]) - 2.5, width: 5, height: 5, style: 'fill:var(--accent)' }, g);
+    if (!n) return;
+    if (n > 1) el('path', { class: 'ln', d: 'M' + values.map((v, i) => X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join(' L') }, g);
+    el('rect', { x: X(n - 1) - 2.5, y: Y(values[n - 1]) - 2.5, width: 5, height: 5, style: 'fill:var(--accent)' }, g);
   }
 
   /* ---------------------------------------------------------------- diagrams */
@@ -261,34 +278,55 @@
   }
 
   D.flow = function (host, s) {
-    const f = fsize(host), c = Object.assign({ w: 140, h: 56, gy: 52 }, s.cell || {}), N = {}; let mc = 0, mr = 0, lane = 0, notes = 0;
-    if (!c.gx) c.gx = Math.max(72, ...(s.edges || []).map(e => tw(e.label || '', f) + 28));
+    const f = fsize(host), c = Object.assign({ w: 140, h: 56, gy: 52 }, s.cell || {}), N = {}, E = s.edges || []; let mc = 0, mr = 0;
+    if (!c.gx) c.gx = Math.max(72, ...E.map(e => tw(e.label || '', f) + 28));
     c.w = Math.max(c.w, ...s.nodes.map(n => Math.max(...String(n.label).split('\n').map(l => tw(l, f))) + (n.kind === 'store' ? 52 : 24)));
     s.nodes.forEach(n => { n.col = n.col || 0; n.row = n.row || 0; N[n.id] = n; mc = Math.max(mc, n.col); mr = Math.max(mr, n.row); });
-    const pad = s.groups ? 28 : 1, X = col => pad + col * (c.w + c.gx), Y = row => pad + row * (c.h + c.gy);
-    (s.edges || []).forEach(e => { const a = N[e.from], b = N[e.to]; if (a.row === b.row && b.col < a.col && a.row === mr) lane = 26; });
-    s.nodes.forEach(n => { if (n.note && n.row === mr) notes = f + 12; });
-    const W = X(mc) + c.w + pad, H = Y(mr) + c.h + Math.max(lane, notes, s.groups ? 28 : 1) + 1, g = root(host, W, H, s.label, !s.fit);
+    // A backward edge (to an earlier column) runs in the corridor under its row, or over it with via: "top".
+    // Each one gets its own lane and its own ports, so two never share a line and none rides a forward wire.
+    const noted = {}, lanes = {}; let deep = 0, high = 0;
+    s.nodes.forEach(n => { if (n.note) noted[n.row] = 1; });
+    E.forEach(e => {
+      const a = N[e.from], b = N[e.to]; if (b.col >= a.col) return;
+      const key = (e.via === 'top' ? 't' : 'b') + Math.max(a.row, b.row); e._k = lanes[key] = (lanes[key] || 0) + 1;
+      const off = (e.via === 'top' ? (s.groups ? 34 : 16) : (noted[Math.max(a.row, b.row)] ? f + 30 : f + 16)) + (f + 8) * (e._k - 1); e._off = off;
+      if (e.via === 'top') high = Math.max(high, off + f + 10); else deep = Math.max(deep, off + 12);
+    });
+    c.gy = Math.max(c.gy, deep + 10, high + 10);
+    const padX = s.groups ? 28 : 1, padT = Math.max(s.groups ? 28 : 1, high), X = col => padX + col * (c.w + c.gx), Y = row => padT + row * (c.h + c.gy);
+    let tail = s.groups ? 28 : 1; s.nodes.forEach(n => { if (n.note && n.row === mr) tail = Math.max(tail, f + 14); });
+    const W = X(mc) + c.w + padX, H = Y(mr) + c.h + Math.max(tail, deep) + 1, g = root(host, W, H, s.label, !s.fit);
     (s.groups || []).forEach(gr => {
       const ns = gr.nodes.map(id => N[id]), x0 = Math.min(...ns.map(n => X(n.col))) - 18, y0 = Math.min(...ns.map(n => Y(n.row))) - 18;
       const x1 = Math.max(...ns.map(n => X(n.col))) + c.w + 18, y1 = Math.max(...ns.map(n => Y(n.row))) + c.h + 18, k = 12, a = px(x0), b = px(y0), d = px(x1), e = px(y1);
       el('path', { class: 'ln', d: `M${a} ${b + k} V${b} H${a + k} M${d - k} ${b} H${d} V${b + k} M${a} ${e - k} V${e} H${a + k} M${d - k} ${e} H${d} V${e - k}` }, g);
-      text(g, (x0 + x1) / 2, y0 + f * 0.36, '[ ' + up(gr.label) + ' ]', null, 'middle');
+      text(g, (x0 + x1) / 2, y0 + f * 0.36, '[ ' + up(gr.label) + ' ]', 'halo', 'middle');
     });
-    (s.edges || []).forEach(e => {
+    E.forEach(e => {
       const a = N[e.from], b = N[e.to], ax = X(a.col), ay = Y(a.row), bx = X(b.col), by = Y(b.row), acy = ay + c.h / 2, bcy = by + c.h / 2, acx = ax + c.w / 2, bcx = bx + c.w / 2; let p;
-      if (a.row === b.row && b.col > a.col) p = [[ax + c.w, acy], [bx, bcy]];
-      else if (a.col === b.col) p = b.row > a.row ? [[acx, ay + c.h], [bcx, by]] : [[acx, ay], [bcx, by + c.h]];
-      else if (b.col > a.col) { const mx = bx - c.gx / 2; p = [[ax + c.w, acy], [mx, acy], [mx, bcy], [bx, bcy]]; }
-      else if (a.row === b.row) { const ly = ay + c.h + 22; p = [[acx, ay + c.h], [acx, ly], [bcx, ly], [bcx, by + c.h]]; }
-      else { const mx = ax - c.gx / 2; p = [[ax, acy], [mx, acy], [mx, bcy], [bx + c.w, bcy]]; }
+      if (b.col < a.col) {
+        const shift = 14 + 12 * (e._k - 1), top = e.via === 'top', row = Math.max(a.row, b.row);
+        const ly = top ? Y(Math.min(a.row, b.row)) - e._off : Y(row) + c.h + e._off;
+        p = [[acx + shift, top ? ay : ay + c.h], [acx + shift, ly], [bcx - shift, ly], [bcx - shift, top ? by : by + c.h]];
+        wire(g, p, Object.assign({}, e, { label: null }), f);
+        if (e.label) text(g, px(acx + shift) - 8, ly - 6, up(e.label), (e.accent ? 'at' : 'dim') + ' halo', 'end');
+        return;
+      }
+      else if (a.row === b.row) p = [[ax + c.w, acy], [bx, bcy]];
+      else if (a.col === b.col) {
+        p = b.row > a.row ? [[acx, ay + c.h], [bcx, by]] : [[acx, ay], [bcx, by + c.h]];
+        wire(g, p, Object.assign({}, e, { label: null }), f);                                        // label sits just past the source, above any lane in the corridor
+        if (e.label) text(g, px(acx) + 8, b.row > a.row ? ay + c.h + f + 3 : ay - 6, up(e.label), (e.accent ? 'at' : 'dim') + ' halo');
+        return;
+      }
+      else { const mx = bx - c.gx / 2; p = [[ax + c.w, acy], [mx, acy], [mx, bcy], [bx, bcy]]; }
       wire(g, p, e, f);
     });
     const below = {};                                 // nodes with a wire on their bottom port
-    (s.edges || []).forEach(e => { const a = N[e.from], b = N[e.to]; if (a.col === b.col) below[(b.row > a.row ? a : b).id] = 1; else if (a.row === b.row && b.col < a.col) below[a.id] = below[b.id] = 1; });
+    E.forEach(e => { const a = N[e.from], b = N[e.to]; if (a.col === b.col) below[(b.row > a.row ? a : b).id] = 1; else if (b.col < a.col && e.via !== 'top') below[a.id] = below[b.id] = 1; });
     s.nodes.forEach(n => {
       box(g, X(n.col), Y(n.row), c.w, c.h, n.kind === 'store' ? '[ ' + n.label + ' ]' : n.label, f, n.accent);
-      if (n.note) below[n.id] ? text(g, X(n.col) + c.w / 2 - 10, Y(n.row) + c.h + f + 8, up(n.note), 'dim halo', 'end')
+      if (n.note) below[n.id] ? text(g, X(n.col) + c.w / 2 - 34, Y(n.row) + c.h + f + 8, up(n.note), 'dim halo', 'end')
                               : text(g, X(n.col) + c.w / 2, Y(n.row) + c.h + f + 8, up(n.note), 'dim', 'middle');
     });
   };
@@ -308,13 +346,25 @@
   };
 
   D.layers = function (host, s) {
-    const f = fsize(host), W = s.width || Math.max(480, host.clientWidth || 720), lw = Math.max(...s.layers.map(l => tw(l.label, f))) + 24, rh = s.rowHeight || Math.max(68, Math.min(120, room(host) / s.layers.length || 0)), bh = Math.min(64, rh - 28), gap = 12;
-    const H = rh * s.layers.length + 1, g = root(host, W, H, s.label, !s.fit);
-    s.layers.forEach((l, i) => {
-      const y = i * rh; el('path', { class: 'grid', d: `M0 ${px(y)} H${W}` }, g);
-      text(g, 0, y + rh / 2 + f * 0.36, up(l.label));
-      const n = l.items.length, w = (W - lw - gap * (n - 1) - 1) / n;
-      l.items.forEach((it, j) => { const o = typeof it === 'string' ? { label: it } : it; box(g, lw + j * (w + gap), y + (rh - bh) / 2, w, bh, o.label, f, o.accent); });
+    const f = fsize(host), W = s.width || Math.max(280, host.clientWidth || 720), gap = 12, bh0 = 40;
+    const lw = Math.min(Math.max(...s.layers.map(l => tw(l.label, f))) + 24, W * 0.3), inner = W - lw - 1;
+    const rows = s.layers.map(l => {
+      const items = l.items.map(it => (typeof it === 'string' ? { label: it } : it)), need = Math.max(...items.map(it => tw(it.label, f))) + 20;
+      const per = Math.max(1, Math.min(items.length, Math.floor((inner + gap) / (need + gap)))), lines = Math.ceil(items.length / per);
+      return { l, items, per, lines };
+    });
+    const most = Math.max(...rows.map(r => r.lines)), base = s.rowHeight || Math.max(68, Math.min(120, room(host) / s.layers.length || 0)), bh = most > 1 ? bh0 : Math.min(64, base - 28);
+    rows.forEach(r => { r.h = Math.max(base, r.lines * (bh + 8) + 20); });
+    const H = rows.reduce((a, r) => a + r.h, 0) + 1, g = root(host, W, H, s.label, !s.fit); let y = 0;
+    rows.forEach(r => {
+      el('path', { class: 'grid', d: `M0 ${px(y)} H${W}` }, g);
+      text(g, 0, y + r.h / 2 + f * 0.36, up(r.l.label));
+      const y0 = y + (r.h - (r.lines * bh + (r.lines - 1) * 8)) / 2;
+      r.items.forEach((it, j) => {
+        const line = Math.floor(j / r.per), inLine = Math.min(r.per, r.items.length - line * r.per), w = (inner - gap * (inLine - 1)) / inLine;
+        box(g, lw + (j % r.per) * (w + gap), y0 + line * (bh + 8), w, bh, it.label, f, it.accent);
+      });
+      y += r.h;
     });
     el('path', { class: 'grid', d: `M0 ${px(H - 1)} H${W}` }, g);
   };
@@ -337,18 +387,20 @@
   };
 
   D.quadrant = function (host, s) {                    // x: [low, high], y: [low, high], items: [{label, x, y, accent}] in 0..1
-    const f = fsize(host), S = s.size || 420, m = f + 14, room = Math.max(40, ...s.items.filter(i => i.x > 0.6).map(i => tw(i.label, f) + 12 - (1 - i.x) * S));
-    const W = m + S + room, H = S + m + 2, g = root(host, W, H, s.label, true), x0 = m, y0 = 1;
+    const f = fsize(host), S = s.size || 420, m = f + 14, x0 = m, y0 = f, W = m + S + 12, H = y0 + S + m + 2, g = root(host, W, H, s.label, true);
     el('path', { class: 'axis', d: `M${px(x0 + S / 2)} ${y0} V${y0 + S} M${x0} ${px(y0 + S / 2)} H${x0 + S}` }, g);
     el('rect', { class: 'grid', x: px(x0), y: px(y0), width: S, height: S }, g);
-    text(g, x0, H - 3, up(s.x[0]) + ' \u2192', 'dim'); text(g, x0 + S, H - 3, up(s.x[1]), 'dim', 'end');
-    el('text', { class: 'dim', transform: `translate(${f} ${y0 + S}) rotate(-90)` }, g, up(s.y[0]) + ' \u2192');
+    text(g, x0, H - 3, up(s.x[0]) + ' →', 'dim'); text(g, x0 + S, H - 3, up(s.x[1]), 'dim', 'end');
+    el('text', { class: 'dim', transform: `translate(${f} ${y0 + S}) rotate(-90)` }, g, up(s.y[0]) + ' →');
     el('text', { class: 'dim', 'text-anchor': 'end', transform: `translate(${f} ${y0}) rotate(-90)` }, g, up(s.y[1]));
+    const band = f + 12;                                 // the strip along the top and bottom edge that the corner names own
     (s.corners || []).forEach((c, i) => c && text(g, x0 + (i % 2 ? S - 8 : 8), y0 + (i < 2 ? f + 6 : S - 8), up(c), 'dim', i % 2 ? 'end' : 'start'));
     s.items.forEach(it => {
-      const x = x0 + it.x * S, y = y0 + (1 - it.y) * S;
-      el('rect', { x: x - 3.5, y: y - 3.5, width: 7, height: 7, style: `fill:${it.accent ? 'var(--accent)' : 'var(--ink)'}` }, g);
-      text(g, x + 9, y + f * 0.36, up(it.label), (it.accent ? 'at' : 'ink') + ' halo');
+      const x = x0 + it.x * S, y = y0 + (1 - it.y) * S, left = x + 9 + tw(it.label, f) > x0 + S - 4;      // near the right edge the label goes left of its point
+      let ty = y + f * 0.36; if (s.corners) ty = Math.max(y0 + band + f, Math.min(y0 + S - band - 4, ty));  // and it keeps out of the corner names
+      ty = Math.max(y0 + f, Math.min(y0 + S - 3, ty));
+      el('rect', { class: 'mark', x: Math.max(x0, Math.min(x0 + S - 7, x - 3.5)), y: Math.max(y0, Math.min(y0 + S - 7, y - 3.5)), width: 7, height: 7, style: `fill:${it.accent ? 'var(--accent)' : 'var(--ink)'}` }, g);
+      text(g, left ? x - 9 : x + 9, ty, up(it.label), (it.accent ? 'at' : 'ink') + ' halo', left ? 'end' : null);
     });
   };
 
@@ -381,7 +433,9 @@
   /* Lint: finds the layout faults that are easy to miss. Run cz.lint() in the page and fix what it lists.
      stranded: a heading or line whose last line is one short word. long-headline: more than two lines on a slide.
      overflow: content cut off by its slide or wider than the page. label-overlap, label-struck: two labels in a
-     drawing collide, or a wire runs through one. small-graphic: a drawing under 30% of its slide body. */
+     drawing collide, or a wire runs through one. label-covers-mark: a label sits on another point's marker.
+     tiny-labels: a drawing shown so small its labels fall under 9.5px. small-graphic: a drawing under 30% of
+     the room it has on a slide. */
   function lint(scope) {
     const out = [], lines = n => { const r = document.createRange(); r.selectNodeContents(n); const rows = []; [...r.getClientRects()].forEach(q => { if (q.width < 1) return; const row = rows.find(x => Math.abs(x.top - q.top) < q.height / 2); if (row) { row.left = Math.min(row.left, q.left); row.right = Math.max(row.right, q.right); } else rows.push({ top: q.top, left: q.left, right: q.right }); }); return rows.sort((a, b) => a.top - b.top); };
     (scope || document).querySelectorAll('h1, h2, h3, p, li, figcaption, .lead').forEach(n => {
@@ -396,14 +450,18 @@
       const T = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim() && !t.getAttribute('transform')).map(t => ({ t, b: t.getBBox() }));
       const hit = (a, b) => Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
       T.forEach((a, i) => T.slice(i + 1).forEach(b => { if (hit(a.b, b.b) > 0.15 * Math.min(a.b.width * a.b.height, b.b.width * b.b.height)) out.push({ issue: 'label-overlap', text: a.t.textContent + ' / ' + b.t.textContent }); }));
+      const vb = svg.viewBox.baseVal, shown = vb && vb.width ? svg.clientWidth / vb.width : 1, size = T.length ? parseFloat(getComputedStyle(T[0].t).fontSize) * shown : 99;
+      if (size < 9.5) out.push({ issue: 'tiny-labels', text: 'labels render at ' + size.toFixed(1) + 'px; split the drawing or give it more room' });
+      svg.querySelectorAll('rect.mark').forEach(mk => { const b = mk.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2, x = T.find(o => cx > o.b.x && cx < o.b.x + o.b.width && cy > o.b.y && cy < o.b.y + o.b.height); if (x) out.push({ issue: 'label-covers-mark', text: x.t.textContent }); });
       svg.querySelectorAll('path.ln').forEach(p => {
         const len = p.getTotalLength(); if (!len) return;
         for (let d = 0; d <= len; d += 3) { const q = p.getPointAtLength(d), x = T.find(o => !o.struck && q.x > o.b.x + 2 && q.x < o.b.x + o.b.width - 2 && q.y > o.b.y + 3 && q.y < o.b.y + o.b.height - 3); if (x) { x.struck = 1; out.push({ issue: 'label-struck', text: x.t.textContent }); } }
       });
     });
     (scope || document).querySelectorAll('.slide .body svg').forEach(svg => {
-      const body = svg.closest('.body'); if (svg.closest('.split') || svg.closest('p, td, li, .metrics')) return;
-      const r = svg.getBoundingClientRect(), bb = body.getBoundingClientRect();
+      const body = svg.closest('.body'); if (svg.closest('p, td, li, .metrics')) return;
+      const cell = svg.closest('.split') ? [...body.children].find(ch => ch.contains(svg)) || body : body;   // on a split slide the room is the column
+      const r = svg.getBoundingClientRect(), bb = cell.getBoundingClientRect();
       if (r.width * r.height < 0.3 * bb.width * bb.height) out.push({ issue: 'small-graphic', text: 'fills ' + Math.round(100 * r.width * r.height / (bb.width * bb.height)) + '% of its slide body' });
     });
     if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 2 && !document.querySelector('.deck')) out.push({ issue: 'overflow', text: 'page is wider than the window' });

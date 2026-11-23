@@ -21,13 +21,13 @@
 
 The structure follows sfcompute.com (frame, small controls, flat panels), measured, not its brand.
 
-- **Frame.** A sticky aside of about 224px with the name and the navigation, then one bordered main column. On a phone the aside becomes a top bar and the main actions sit above a bottom tab bar.
+- **Frame.** A sticky aside of about 224px with the name and the navigation, then one bordered main column (`.shell`). On a phone the aside becomes a top bar, the main actions sit in `.actionbar` (34px controls) and navigation in `.tabbar` at the bottom.
 - **Type.** Inter leads: page title 26/32 at 500, panel title 20/26 at 600, body 15/22, controls and navigation 14/21 with +0.02em. Geist Mono caps at 11px for labels, table heads and status. Every figure is Geist Mono with tabular numerals.
 - **Controls.** One recipe for every button, input, select and segmented control: 27px tall, radius 6, a 1px edge, Inter 14/21. Buttons and selects carry a four-stop fill that is lighter at the top, flat through the middle and slightly lighter at the bottom. One primary per view: ink with white text in light, white with dark text in dark, never the accent. `quiet` is text only. Hover shifts brightness, press scales to 0.97. No pill buttons, no outlined mono caps buttons.
 - **Rows, combos and forms.** Read `controls.md`. Side-by-side controls go in `.row` and share one height and style. It also says which control fits which need and how a form is laid out, validated and closed.
 - **Segmented control.** A `--panel` track the same height as a button. The selected segment is a raised thumb: white with a 1px soft shadow in light, a 12% light fill with a hairline edge in dark. It does not slide or spring. Never an accent border on a control.
 - **Panels.** `--panel` fill, radius 12, 16px padding, no edge and no shadow. Use one for a figure with its label, a chart with its controls, or a detail view. Never nest panels and never wrap a whole table in one. Rows inside a panel divide with `--rule-strong`.
-- **Lists and tables.** Hairline ledgers and tables on the page, as in documents. The selected row is full ink with a `→` mark.
+- **Lists and tables.** Hairline ledgers and tables on the page, as in documents. The selected row has `aria-selected="true"`: full ink, with a `→` in a first `td.mark` cell.
 - **Navigation.** Text links in `--ink-3`, the current one in `--ink`. No icons, no active pill.
 - **Status.** One mono caps word in `--positive`, `--warning` or `--negative`. No coloured chips.
 - **Accent.** The one live thing: the running item, the key figure, the current bar in a chart. Never a button fill.

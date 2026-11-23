@@ -36,5 +36,6 @@ for dir in "$@"; do
     echo "kept the old copy at $dir/canzano.previous"
   fi
   cp -R "$src" "$dir/canzano"
+  find "$dir/canzano" -name "__pycache__" -type d -prune -exec rm -rf {} + 2>/dev/null || true
   echo "installed $dir/canzano"
 done

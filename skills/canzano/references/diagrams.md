@@ -39,7 +39,11 @@ The brief in one line: very technical and utilitarian, ASCII brackets, one strok
 | `timeline` | Spans and milestones on one scale | `columns: [...]`, `rows: [ { label, from, to, note, accent } or { label, at, note } ]`, `now` |
 | `quadrant` | Items on two axes | `x: [low, high]`, `y: [low, high]`, `corners: [tl, tr, bl, br]`, `items: [ { label, x, y, accent } ]` with x and y from 0 to 1 |
 
-A note under a node moves to the left of any wire that leaves the node downward. Place flow nodes on a grid with `col` and `row`. Wires route themselves at right angles: forward along a row, down a column, or around a corner. Keep forward edges going left to right and put the store or the side effect one row down. Labels in a node may break with `\n`. A diagram wider than its container scales down; split it when the labels would fall under 10px.
+A note under a node moves to the left of any wire that leaves the node downward. Place flow nodes on a grid with `col` and `row`. Wires route themselves at right angles: forward along a row, down a column, or around a corner. Keep forward edges going left to right and put the store or the side effect one row down. Labels in a node may break with `\n`. A diagram keeps its drawn size. Wider than its container, it scales down until its labels reach 10px and then stops; the figure scrolls sideways from there. On a slide it grows to fill the room. `cz.lint()` reports `tiny-labels` when a drawing is shown too small: split it into two diagrams.
+
+An edge to an earlier column (a backward edge) runs in its own lane in the corridor under its row, with its own ports, so it never rides a forward wire. Add `"via": "top"` to send it over the row instead. More than two backward edges usually means the diagram should be a sequence or two flows.
+
+Other options: `fit: true` scales any diagram to its container width; `cell: { w, h, gx, gy }` sizes flow nodes and gaps; `step` sets the row pitch of a sequence; `nodeWidth` and `gapY` size a tree; `rowHeight` and `width` size layers and timelines; `now` and `nowLabel` mark the present on a timeline; `size` sets a quadrant's side. Layers wrap their items onto more lines when the labels would not fit.
 
 For text-only places (a README, a terminal, a code comment) use `scripts/ascii.py`, described in `ascii.md`.
 

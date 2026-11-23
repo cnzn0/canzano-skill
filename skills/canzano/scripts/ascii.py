@@ -64,11 +64,15 @@ def banner(text, style="block", char="#"):
         for i in range(0, 6, 2):
             out.append("".join("█" if a != " " and b != " " else "▀" if a != " " else "▄" if b != " " else " " for a, b in zip(px[i], px[i + 1])))
         return "\n".join(l.rstrip() for l in out)
-    fills = {"block": ["██"] * 5, "shade": ["░░", "▒▒", "▓▓", "██", "██"], "char": [char * 2] * 5}[style]
+    styles = {"block": ["██"] * 5, "shade": ["░░", "▒▒", "▓▓", "██", "██"], "char": [(char or "#")[0] * 2] * 5}
+    if style not in styles: raise Usage("banner --style is one of: block, half, shade, char")
+    fills = styles[style]
     return "\n".join("".join(fills[i] if c != " " else "  " for c in row).rstrip() for i, row in enumerate(px))
 
 def box(title, lines=(), width=None):
-    lines = list(lines); inner = max([len(l) for l in lines] + [len(title) + 2, (width or 0) - 4])
+    lines = list(lines)
+    if not title and not lines: raise Usage('box needs a title or some lines, for example: box "Deploy" "status RUNNING"')
+    inner = max([len(l) for l in lines] + [len(title) + 2, (width or 0) - 4])
     top = "┌─ " + title + " " + "─" * (inner - len(title) - 1) + "┐" if title else "┌" + "─" * (inner + 2) + "┐"
     return "\n".join([top] + ["│ " + l.ljust(inner) + " │" for l in lines] + ["└" + "─" * (inner + 2) + "┘"])
 
@@ -141,7 +145,8 @@ def table(rows):
     """Aligned table. The first row is the header. Numbers align right."""
     rows = [[c.strip() for c in (r.split("|") if isinstance(r, str) else r)] for r in rows if (r.strip() if isinstance(r, str) else r)]
     if len(rows) < 2: raise Usage('table needs a header row and at least one row, cells split by |')
-    n = max(len(r) for r in rows); rows = [r + [""] * (n - len(r)) for r in rows]
+    n = len(rows[0])
+    if any(len(r) != n for r in rows): raise Usage("table rows need the same number of cells as the header (%d)" % n)
     w = [max(len(r[i]) for r in rows) for i in range(n)]
     num = [all(re.fullmatch(r"[-+$€£]?[\d,.]+\s?[%a-zA-Z/]*", r[i]) for r in rows[1:] if r[i]) for i in range(n)]
     fmt = lambda r: "  ".join(c.rjust(w[i]) if num[i] else c.ljust(w[i]) for i, c in enumerate(r)).rstrip()
@@ -152,6 +157,7 @@ def bars(pairs, width=32, unit=""):
     try: pairs = [(p.rsplit("=", 1)[0].strip(), float(p.rsplit("=", 1)[1])) if isinstance(p, str) else p for p in pairs]
     except (IndexError, ValueError): raise Usage('bars needs label=number pairs, for example: bars "Search=41" "Direct=24"')
     if not pairs: raise Usage("bars needs at least one label=number pair")
+    if any(v < 0 for _, v in pairs): raise Usage("bars draws values of zero or more; chart negatives with the SVG bar chart")
     top = max(v for _, v in pairs) or 1; lw = max(len(l) for l, _ in pairs); eighths = " ▏▎▍▌▋▊▉"; out = []
     for l, v in pairs:
         cells = v / top * width; full = int(cells); part = eighths[int((cells - full) * 8)]
@@ -168,6 +174,7 @@ def spark(values):
 def tree(text):
     """Outline to a tree. Indent with two spaces per level."""
     items = [((len(l) - len(l.lstrip())) // 2, l.strip()) for l in text.splitlines() if l.strip()]; out = []
+    if not items: raise Usage("tree reads a two-space indented outline on standard input")
     for i, (d, name) in enumerate(items):
         if d == 0: out.append(name); continue
         last = lambda j, depth: not any(dd == depth for dd, _ in _until(items, j, depth))

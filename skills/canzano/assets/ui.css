@@ -18,6 +18,12 @@ section { border-top: 0; padding-top: 0; margin-top: var(--s5); }
 .nav a:hover, .nav a[aria-current] { color: var(--ink); }
 .head { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); margin-bottom: var(--s5); }
 
+/* Phone: the main actions sit in a .lg action bar above a bottom tab bar. */
+.actionbar { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--s2); padding: var(--s4) var(--gutter); --control-h: 34px; --control-px: 12px; }
+.tabbar { position: sticky; bottom: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--page); border-top: 1px solid var(--rule); padding-bottom: env(safe-area-inset-bottom); }
+.tabbar a { position: relative; border: 0; text-align: center; font: 500 12px/1 var(--sans); letter-spacing: 0.02em; color: var(--ink-3); padding: 16px 0; }
+.tabbar a[aria-current] { color: var(--ink); }
+
 @media (max-width: 800px) {
   .shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .shell > aside { position: static; height: auto; flex-direction: row; align-items: center; justify-content: space-between; padding: var(--s3) var(--gutter); border-bottom: 1px solid var(--rule); }
